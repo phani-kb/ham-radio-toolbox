@@ -1,0 +1,12 @@
+# To install/upgrade the dependencies, run the following command:
+# pip install -r requirements.txt
+# pip install -r requirements.txt --upgrade
+requests
+webdriver-manager
+selenium
+ruff
+pylint
+codespell
+pyyaml
+click
+pytest
