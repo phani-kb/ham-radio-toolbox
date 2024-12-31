@@ -1,0 +1,8 @@
+001:Regulations and Policies:25
+002:Operating and Procedures:9
+003:Station Assembly, Practice and Safety:21
+004:Ciruit Components:6
+005:Basic Electronics and Theory:13
+006:Feedlines and Antenna Systems:13
+007:Radio Wave Propagation:8
+008:Interference and Suppression:5

@@ -1,0 +1,49 @@
+[project]
+name = "ham-radio-toolbox"
+version = "0.1.0"
+description = "A CLI tool to help future amateur radio operators."
+license = { file = "LICENSE", text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 99
+src = [
+    "src",
+    "tests",
+    "main.py",
+    "setup.py",
+]
+
+[tool.ruff.lint]
+select = [
+    "E", # General syntax and code style rules
+    "F", # Pyflakes rules for unused imports, undefined names
+    "I", # isort rules for imports ordering
+    "TYP", # Type hinting rules
+    "N", # Naming conventions
+    "B", # Best practice rules
+    "D", # Docstring conventions
+    "SIM", # Simplifications and code smell checks
+    "ERA", # Eradicate rules for unused/dead code
+]
+exclude = ["tests/*", "build/*", "dist/*", "*.txt"]
+ignore = ["D"]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 99
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 72
+
+
+[tool.codespell]
+skip = [
+    "pyproject.toml", "LICENSE", "*.txt",
+]
+ignore-words = [
+  "pyproject",
+  "toml",
+]
+write-changes = true
