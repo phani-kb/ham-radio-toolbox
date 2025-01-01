@@ -1,9 +1,13 @@
 # flake8: noqa: E501
+from common.enums import QuestionAnswerDisplay
+
 DOT: str = "."
 DASH: str = "-"
 DEFAULT_METRICS_FOLDER: str = "data/metrics"
 DEFAULT_OUTPUT_FOLDER: str = "data/output"
 DEFAULT_INPUT_FOLDER: str = "data/input"
+DEFAULT_METRICS_DELIMITER: str = ":"
+DEFAULT_ANSWER_DISPLAY_PRACTICE_EXAM: QuestionAnswerDisplay = QuestionAnswerDisplay.IN_THE_END
 USER_AGENTS: list[str] = [
     # Firefox
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/114.0",

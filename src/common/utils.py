@@ -40,6 +40,27 @@ def read_delim_file(
     return data
 
 
+def save_output(filename, output, folder=None):
+    """Saves the output to a file with the given filename in the given folder.
+
+    :param filename: Name of the file to save the output.
+    :param output: Output to be saved in the file.
+    :param folder: Folder where the file will be saved (default is None).
+    """
+    filename = os.path.join(folder, filename) if folder else filename
+    with open(filename, "w") as file:
+        file.write(output)
+
+
+def get_header(header):
+    """Returns the header with a separator line.
+
+    :param header: Header to be returned.
+    :return: Header with a separator line.
+    """
+    return f'{header}\n{"-" * len(header)}'
+
+
 def create_folder(folder):
     """Creates a folder if it does not exist.
 
