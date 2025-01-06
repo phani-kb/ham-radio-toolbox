@@ -1,8 +1,20 @@
 # flake8: noqa: E501
 from common.enums import QuestionAnswerDisplay
 
+LOAD_WAIT_TIME: int = 5
+SEARCH_WAIT_TIME: int = 15
 DOT: str = "."
 DASH: str = "-"
+CW_DOT_DASH_WEIGHT: dict = {DOT: 1, DASH: 3}
+DEFAULT_TOP_QUESTIONS_COUNT: int = 10
+MIN_TOP_QUESTIONS_COUNT: int = 1
+MAX_TOP_QUESTIONS_COUNT: int = 50
+MIN_MARKED_QUESTIONS_COUNT: int = 2
+MAX_MARKED_QUESTIONS_COUNT: int = 20
+ANSWER_DISPLAY_PREFIX: str = "--->"
+MARKED_QUESTIONS_DELIMITER: str = ":"
+DEFAULT_MARKED_QUESTIONS_FILENAME: str = "marked-questions.txt"
+DEFAULT_QUIZ_QUESTION_COUNT: int = 10
 DEFAULT_METRICS_FOLDER: str = "data/metrics"
 DEFAULT_OUTPUT_FOLDER: str = "data/output"
 DEFAULT_INPUT_FOLDER: str = "data/input"
