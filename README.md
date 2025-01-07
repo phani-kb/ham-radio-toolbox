@@ -12,3 +12,8 @@ A CLI tool to help future amateur radio operators.
 
 `coverage html`
 
+`ruff format`
+
+`ruff check`
+
+`ruff check --unsafe-fixes --fix`
