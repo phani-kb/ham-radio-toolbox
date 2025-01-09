@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from common.enums import CallSignDownloadType
+from hrt.common.enums import CallSignDownloadType
 
 
 class IWebScrapper(ABC):

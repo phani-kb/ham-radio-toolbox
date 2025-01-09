@@ -1,5 +1,5 @@
 # flake8: noqa: E501
-from common.enums import QuestionAnswerDisplay
+from hrt.common.enums import QuestionAnswerDisplay
 
 LOAD_WAIT_TIME: int = 5
 SEARCH_WAIT_TIME: int = 15

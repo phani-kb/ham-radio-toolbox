@@ -1,7 +1,7 @@
 [project]
 name = "ham-radio-toolbox"
 version = "0.1.0"
-description = "A CLI tool to help future amateur radio operators."
+description = "A CLI tool to support the amateur radio community."
 license = { file = "LICENSE", text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.10"
@@ -47,3 +47,6 @@ ignore-words = [
   "toml",
 ]
 write-changes = true
+
+[tool.pytest.ini_options]
+pythonpath = "src"

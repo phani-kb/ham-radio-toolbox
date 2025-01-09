@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from common.enums import QuestionRefType
+from hrt.common.enums import QuestionRefType
 
 
 class IQuestionRef(ABC):

@@ -3,7 +3,7 @@ import logging.config
 
 import yaml
 
-from common.enums import CountryCode
+from hrt.common.enums import CountryCode
 
 
 class HRTConfig:

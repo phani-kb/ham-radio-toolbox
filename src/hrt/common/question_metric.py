@@ -1,4 +1,4 @@
-from common.hrt_types import QuestionNumber
+from hrt.common.hrt_types import QuestionNumber
 
 
 class QuestionMetric:

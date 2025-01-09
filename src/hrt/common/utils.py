@@ -2,7 +2,7 @@ import csv
 import os
 import time
 
-from .config_reader import logger
+from hrt.config_reader import logger
 
 
 def read_delim_file(

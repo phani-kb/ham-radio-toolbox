@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from common.enums import QuestionAnswerDisplay, QuestionDisplayMode, QuizAnswerDisplay
+from hrt.common.enums import QuestionAnswerDisplay, QuestionDisplayMode, QuizAnswerDisplay
 
 
 class IQuestionDisplay(ABC):
