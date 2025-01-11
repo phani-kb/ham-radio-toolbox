@@ -5,6 +5,8 @@ import yaml
 
 from hrt.common.enums import CountryCode
 
+logger = logging.getLogger("hrt")
+
 
 class HRTConfig:
     def __init__(self, data):

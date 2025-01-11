@@ -1,8 +1,13 @@
 import csv
 import os
+import tempfile
 import time
+import zipfile
 
-from hrt.config_reader import logger
+import click
+import requests
+
+from hrt.common.config_reader import logger
 
 
 def read_delim_file(
@@ -71,11 +76,50 @@ def create_folder(folder):
         os.makedirs(folder)
 
 
+def select_from_options(options, prompt):
+    if not options:
+        logger.error("No options provided.")
+        return None
+    if len(options) == 1:
+        return list(options.keys())[0]
+    print(f"{prompt}:")
+    for idx, option in enumerate(options, start=1):
+        print(f"{idx}. {option} ({options[option]})")
+    while True:
+        try:
+            choice = int(click.prompt(f"Please select {prompt.lower()} by number", type=int))
+            if 1 <= choice <= len(options):
+                selected_option = list(options.keys())[choice - 1]
+                return selected_option
+            print(f"Invalid choice. Please select a number between 1 and {len(options)}.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
+
 def read_words_from_file(file_path):
     """Read words from a file."""
     with open(file_path) as file:
         words = [line.strip() for line in file.readlines()]
     return words
+
+
+def download_zip_file(url, output_file_path, zip_files: list[str] = None):
+    """Download a ZIP file from the given URL to the output file path."""
+    if not url.endswith(".zip"):
+        raise ValueError(f"Invalid URL {url}. Expected a ZIP file URL.")
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as temp_file:
+        temp_file.write(requests.get(url).content)
+    temp_file_path = temp_file.name
+    logger.info(f"Downloaded {url} to {temp_file_path}")
+
+    with zipfile.ZipFile(temp_file_path, "r") as zip_ref:  # noqa: SIM117
+        with open(output_file_path, "wb") as output_file:
+            for file_info in zip_ref.infolist():
+                if zip_files and file_info.filename not in zip_files:
+                    continue
+                output_file.write(zip_ref.open(file_info).read())
+    logger.info(f"Extracted {url} to {output_file_path}")
 
 
 def get_current_time() -> float:
