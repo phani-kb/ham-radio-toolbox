@@ -76,6 +76,25 @@ def create_folder(folder):
         os.makedirs(folder)
 
 
+def write_output(output, filename=None, folder=None):
+    """Writes the output to a file with the given filename in the given folder, line by line.
+
+    :param output: List of lines to be written to the file.
+    :param filename: Name of the file to write the output.
+    :param folder: Folder where the file will be written (default is None).
+    """
+    if not filename:
+        for line in output:
+            print(line)
+        return
+    if folder:
+        create_folder(folder)
+    file_path = os.path.join(folder, filename) if folder else filename
+    with open(file_path, "w") as file:
+        for line in output:
+            file.write(f"{line}\n")
+
+
 def select_from_options(options, prompt):
     if not options:
         logger.error("No options provided.")
