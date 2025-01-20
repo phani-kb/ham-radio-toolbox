@@ -3,7 +3,8 @@ import logging.config
 
 import yaml
 
-from hrt.common.enums import CountryCode
+from hrt.common.constants import DEFAULT_ANSWER_DISPLAY_PRACTICE_EXAM
+from hrt.common.enums import CountryCode, ExamType, QuestionAnswerDisplay
 
 logger = logging.getLogger("hrt")
 
@@ -82,3 +83,48 @@ class ConfigReader:
                 level=logging.ERROR,
                 format="%(asctime)s - %(levelname)s - %(message)s",
             )
+
+
+def validate_config(hrt_config: HRTConfig):
+    required_keys = ["input", "output", "print_question", "quiz", "practice_exam", "callsign"]
+    for key in required_keys:
+        if not hrt_config.get(key):
+            logger.error(f"{key.replace('_', ' ').title()} settings not found in config file.")
+        return False
+
+    practice_exam_settings = hrt_config.get("practice_exam")
+    qd: QuestionAnswerDisplay = DEFAULT_ANSWER_DISPLAY_PRACTICE_EXAM
+    if not practice_exam_settings.get(qd.id):
+        logger.error(
+            f"Practice Exam settings for question answer display {qd.id} "
+            f"not found in config file."
+        )
+        return False
+
+    for country in CountryCode.supported_ids():
+        if not validate_country_config(hrt_config, country):
+            return False
+
+    return True
+
+
+def validate_country_config(hrt_config: HRTConfig, country: str) -> bool:
+    country_config = hrt_config.get_country_settings(country)
+    if not country_config:
+        logger.error(f"{country} settings not found in config file.")
+        return False
+
+    qb_config = country_config.get("question_bank")
+    if not qb_config:
+        logger.error(f"Question Bank settings not found for {country} in config file.")
+        return False
+
+    for exam_type in ExamType.supported_ids():
+        if not qb_config.get(exam_type):
+            logger.error(
+                f"Question Bank settings for {exam_type} "
+                f"not found for {country} in config file."
+            )
+            return False
+
+    return True

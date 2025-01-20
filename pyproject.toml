@@ -5,6 +5,14 @@ description = "A CLI tool to support the amateur radio community."
 license = { file = "LICENSE", text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.10"
+dependencies = [
+    "requests~=2.32.3",
+    "webdriver-manager~=4.0.2",
+    "selenium~=4.26.1",
+    "pyyaml~=6.0.1",
+    "click~=8.0.3",
+    "pytest~=8.2.1",
+]
 
 [tool.ruff]
 line-length = 99
