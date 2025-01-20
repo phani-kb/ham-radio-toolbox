@@ -65,5 +65,3 @@ class IQuestionBank(ABC):
     @abstractmethod
     def get_marked_questions_filepath(self):
         pass
-
-

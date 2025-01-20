@@ -6,9 +6,12 @@ from hrt.common.enums import (
     CountryCode,
     ExamType,
     HRTEnum,
+    NumberOfLetters,
     QuestionAnswerDisplay,
     QuestionRefType,
     QuizSource,
+    RankBy,
+    SortBy,
 )
 
 
@@ -128,6 +131,77 @@ def question(ctx, country, answer_display, save_to_file):
     ctx.obj["country_code"] = country
     ctx.obj["answer_display"] = answer_display
     ctx.obj["save_to_file"] = save_to_file
+
+
+# CALLSIGN COMMANDS
+@hamradiotoolbox.command("callsign")
+@click.option(
+    "--country",
+    type=click.Choice(CountryCode.supported_ids(), case_sensitive=False),
+    required=True,
+    help="Country for which to query the callsign.",
+)
+@click.option(
+    "--match",
+    type=click.Choice(NumberOfLetters.get_supported_number_of_letters("word_match")),
+    help="Match words with 2 or 3 letters of available callsign.",
+)
+@click.option(
+    "--include",
+    type=click.Choice(NumberOfLetters.get_supported_number_of_letters("include")),
+    multiple=True,
+    default=["all"],
+    help="Include callsigns by specific criteria: 1l (1-letter), 1n (1-number), 2l (2-letter), "
+    "3l (3-letter), el (end letter), all (all criteria).",
+)
+@click.option(
+    "--exclude",
+    type=click.Choice(NumberOfLetters.get_supported_number_of_letters("exclude")),
+    multiple=True,
+    default=["all"],
+    help="Exclude callsigns by a specific criteria: 1l (1-letter), 1n (1-number), 2l (2-letter), "
+    "3l (3-letter), el (end letter), ml (multiple letters), all (all criteria).",
+)
+@click.option(
+    "--sort-by",
+    type=click.Choice(SortBy.ids()),
+    default=SortBy.CALLSIGN.id,
+    help="Sort the callsigns by a specific criteria: callsign (alphabetical order), "
+    "rank (ranking order).",
+)
+@click.option(
+    "--rank-by",
+    type=click.Choice(RankBy.ids()),
+    help="Rank the callsigns by a specific criteria: ease-of-use (how easy it is to use), "
+    "phonetic-clarity (how clear it sounds), "
+    "confusing-pair (how similar it is to another callsign) "
+    "and cw-weight (how easy it is to send in Morse code).",
+)
+@click.pass_context
+def callsign(ctx, country, match, include, exclude, sort_by, rank_by):
+    """Query and analyze callsigns for a specific country."""
+
+    def get_phonetic_clarity_options(hrt_config: HRTConfig):
+        return hrt_config.get("callsign").get("phonetic_clarity")
+
+    def get_confusing_pairs(hrt_config: HRTConfig):
+        return hrt_config.get("callsign").get("confusing_pairs")
+
+    config = ctx.obj["config"]
+
+    if rank_by and RankBy(rank_by) == RankBy.PHONETIC_CLARITY:
+        phonetic_clarity_options = get_phonetic_clarity_options(config)
+        utils.select_from_options(
+            phonetic_clarity_options, "Phonetic clarity option"
+        )
+
+    if rank_by and RankBy(rank_by) == RankBy.CONFUSING_PAIR:
+        confusing_pairs = get_confusing_pairs(config)
+        utils.select_from_options(confusing_pairs, "Confusing pair")
+
+    include_options = include if include else []
+    exclude_options = exclude if exclude else []
+    logger.info(f"Include options: {include_options}, Exclude options: {exclude_options}")
 
 
 if __name__ == "__main__":

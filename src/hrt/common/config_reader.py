@@ -60,9 +60,8 @@ class ConfigReader:
 
     def _read_config(self):
         try:
-            with open(self.file_path) as file:
-                hrt_config = yaml.safe_load(file.read())
-            return hrt_config
+            with open(self.file_path, encoding="utf-8") as file:
+                return yaml.safe_load(file.read())
         except FileNotFoundError:
             logging.exception(f"Error: The file {self.file_path} was not found.")
             return None
@@ -73,7 +72,7 @@ class ConfigReader:
     def _configure_logging(self):
         if self.config:
             log_config_file = self.config.log_config_file
-            with open(log_config_file, "r") as file:
+            with open(log_config_file, "r", encoding="utf-8") as file:
                 log_config = yaml.safe_load(file.read())
                 logging.config.dictConfig(log_config)
         else:

@@ -45,7 +45,7 @@ class HRTEnum(Enum):
     @classmethod
     def list(cls):
         """Get the list of the enumeration."""
-        return [enum for enum in cls]
+        return list(cls)
 
 
 class SupportedEnum(HRTEnum):
