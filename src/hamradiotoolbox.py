@@ -191,9 +191,7 @@ def callsign(ctx, country, match, include, exclude, sort_by, rank_by):
 
     if rank_by and RankBy(rank_by) == RankBy.PHONETIC_CLARITY:
         phonetic_clarity_options = get_phonetic_clarity_options(config)
-        utils.select_from_options(
-            phonetic_clarity_options, "Phonetic clarity option"
-        )
+        utils.select_from_options(phonetic_clarity_options, "Phonetic clarity option")
 
     if rank_by and RankBy(rank_by) == RankBy.CONFUSING_PAIR:
         confusing_pairs = get_confusing_pairs(config)

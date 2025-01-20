@@ -8,6 +8,8 @@ from hrt.common.enums import (
     TopQuestionsListingType,
 )
 from hrt.common.hrt_types import QuestionNumber
+from hrt.common.question import Question
+from hrt.common.question_category import QuestionCategory
 from hrt.common.question_metric import QuestionMetric
 
 
@@ -30,6 +32,14 @@ class IQuestionBank(ABC):
     @property
     @abstractmethod
     def categories_filepath(self) -> Path:
+        pass
+
+    @abstractmethod
+    def load_questions(self) -> list[Question]:
+        pass
+
+    @abstractmethod
+    def load_categories(self) -> list[QuestionCategory]:
         pass
 
     @abstractmethod
