@@ -85,3 +85,23 @@ class BaseDownloader(IDownloader, ABC):
 
     def post_process(self):
         pass
+
+
+class DownloaderFactory:
+    @staticmethod
+    def get_downloader(
+        chrome_driver_path: str,
+        country: CountryCode,
+        download_type: DownloadType,
+        output_folder: str,
+        config: dict,
+    ):
+        if country == CountryCode.CANADA:
+            from hrt.downloaders.ca_downloader import CADownloader
+
+            return CADownloader(chrome_driver_path, download_type, output_folder, config)
+        if country == CountryCode.UNITED_STATES:
+            from hrt.downloaders.us_downloader import USDownloader
+
+            return USDownloader(chrome_driver_path, download_type, output_folder, config)
+        raise ValueError("Invalid country code.")
