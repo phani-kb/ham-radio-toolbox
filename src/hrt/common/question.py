@@ -1,6 +1,8 @@
 import random
 from typing import TYPE_CHECKING
 
+from hrt.common.constants import ANSWER_DISPLAY_PREFIX
+from hrt.common.enums import QuestionAnswerDisplay
 from hrt.common.hrt_types import QuestionNumber
 from hrt.common.question_category import QuestionCategory
 from hrt.common.question_display import IQuestionDisplay
@@ -134,7 +136,25 @@ class Question:
         return self._answer_index
 
     def format(self) -> str:
-        pass
+        question_output = [f"{self.question_number}: {self.question_text}"]
+        all_choices = self.choices
+        for i, choice in enumerate(all_choices):
+            if (
+                self.question_display.answer_display == QuestionAnswerDisplay.WITH_QUESTION
+                and choice == self.answer
+            ):
+                question_output.append(f"{ANSWER_DISPLAY_PREFIX}{i + 1}. {choice}")
+            else:
+                question_output.append(f"    {i + 1}. {choice}")
+        question_output.append("")
+        return "\n".join(question_output)
 
     def format_quiz_question(self) -> str:
-        pass
+        question_output = [f"{self.question_number}: {self.question_text}"]
+        all_choices = self.choices
+        for i, choice in enumerate(all_choices):
+            question_output.append(f"{i + 1}. {choice}")
+        # Add the skip choice
+        question_output.append(f"{len(all_choices) + 1}. {self.SKIP_CHOICE}")
+        question_output.append("")
+        return "\n".join(question_output)
