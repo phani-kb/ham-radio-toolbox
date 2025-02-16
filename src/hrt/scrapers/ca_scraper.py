@@ -1,3 +1,5 @@
+"""CA scraper."""
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
@@ -6,7 +8,7 @@ from hrt.common.config_reader import logger
 from hrt.common.constants import LOAD_WAIT_TIME, SEARCH_WAIT_TIME
 from hrt.common.enums import CountryCode
 from hrt.common.utils import select_from_options
-from hrt.scrappers.base_scrapper import BaseScrapper
+from hrt.scrapers.base_scraper import BaseScraper
 
 
 def select_option(element, prompt):
@@ -25,7 +27,7 @@ def select_option(element, prompt):
         element.send_keys("")
 
 
-class CAScrapper(BaseScrapper):
+class CAScraper(BaseScraper):
     def __init__(self, driver):
         super().__init__(driver, CountryCode.CANADA)
 
@@ -87,7 +89,7 @@ class CAScrapper(BaseScrapper):
             )
             logger.debug(count_text)
             count = int(count_text.split()[4])
-            logger.info(f"Found {count} callsigns")
+            logger.info("Found %d callsigns", count)
             # table = self.driver.find_element(By.XPATH,
             # "//table[.//caption[text()='Search Results']]")
             table = self.driver.find_element(By.XPATH, "//table[.//th[text()='Call Sign']]")
@@ -102,14 +104,15 @@ class CAScrapper(BaseScrapper):
             # match the callsigns count with the count displayed on the page
             if len(callsigns) != count:
                 logger.warning(
-                    f"Count mismatch. Found {len(callsigns)} callsigns, "
-                    f"but the page displayed {count} callsigns.",
+                    "Count mismatch. Found %d callsigns, but the page displayed %d callsigns.",
+                    len(callsigns),
+                    count,
                 )
 
-            with open(output_file_path, "w") as file:
+            with open(output_file_path, "w", encoding="utf-8") as file:
                 for callsign in callsigns:
                     file.write(f"{callsign}\n")
-                logger.info(f"Callsigns saved to {output_file_path}")
+                logger.info("Callsigns saved to %s", output_file_path)
             return callsigns
 
         finally:

@@ -1,3 +1,5 @@
+"""Base scraper class and factory to get scraper based on country code."""
+
 import random
 from abc import ABC, abstractmethod
 
@@ -10,7 +12,7 @@ from hrt.common.constants import USER_AGENTS
 from hrt.common.enums import CACallSignDownloadType, CallSignDownloadType, CountryCode
 
 
-class IWebScrapper(ABC):
+class IWebScraper(ABC):
     @abstractmethod
     def download_callsigns(
         self, callsign_download_type: CallSignDownloadType, url, output_file_path
@@ -26,7 +28,7 @@ class IWebScrapper(ABC):
         pass
 
 
-class BaseScrapper(IWebScrapper, ABC):
+class BaseScraper(IWebScraper, ABC):
     def __init__(self, driver, country: CountryCode, headless=True):
         self.country = country
         chrome_options = Options()
@@ -64,15 +66,15 @@ class BaseScrapper(IWebScrapper, ABC):
         pass
 
 
-class ScrapperFactory:
+class ScraperFactory:
     @staticmethod
-    def get_scrapper(driver, country: CountryCode):
+    def get_scraper(driver, country: CountryCode):
         if country == CountryCode.CANADA:
-            from hrt.scrappers.ca_scrapper import CAScrapper
+            from hrt.scrapers.ca_scraper import CAScraper
 
-            return CAScrapper(driver)
+            return CAScraper(driver)
         if country == CountryCode.UNITED_STATES:
-            from hrt.scrappers.us_scrapper import USScrapper
+            from hrt.scrapers.us_scraper import USScraper
 
-            return USScrapper(driver)
+            return USScraper(driver)
         raise ValueError("Invalid country code.")

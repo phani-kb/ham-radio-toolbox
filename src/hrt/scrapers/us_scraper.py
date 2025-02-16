@@ -1,8 +1,8 @@
 from hrt.common.enums import CountryCode
-from hrt.scrappers.base_scrapper import BaseScrapper
+from hrt.scrapers.base_scraper import BaseScraper
 
 
-class USScrapper(BaseScrapper):
+class USScraper(BaseScraper):
     def __init__(self, driver):
         super().__init__(driver, CountryCode.UNITED_STATES)
 
