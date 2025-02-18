@@ -108,8 +108,26 @@ def select_from_options(options, prompt):
         try:
             choice = int(click.prompt(f"Please select {prompt.lower()} by number", type=int))
             if 1 <= choice <= len(options):
-                selected_option = list(options.keys())[choice - 1]
-                return selected_option
+                return list(options.keys())[choice - 1]
+            print(f"Invalid choice. Please select a number between 1 and {len(options)}.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
+
+def select_option_from_list(options, prompt) -> str | None:
+    if not options:
+        logger.error("No options provided.")
+        return None
+    if len(options) == 1:
+        return options[0]
+    print(f"{prompt}:")
+    for idx, option in enumerate(options, start=1):
+        print(f"{idx}. {option}")
+    while True:
+        try:
+            choice = int(click.prompt(f"Please select {prompt.lower()} by number", type=int))
+            if 1 <= choice <= len(options):
+                return options[choice - 1]
             print(f"Invalid choice. Please select a number between 1 and {len(options)}.")
         except ValueError:
             print("Invalid input. Please enter a number.")
@@ -118,8 +136,31 @@ def select_from_options(options, prompt):
 def read_words_from_file(file_path):
     """Read words from a file."""
     with open(file_path) as file:
-        words = [line.strip() for line in file.readlines()]
-    return words
+        return [line.strip() for line in file.readlines()]
+
+
+def load_callsigns_from_file(file_path):
+    """Loads unique callsigns from a file."""
+    try:
+        with open(file_path) as file:
+            callsigns = {line.strip() for line in file}
+        return list(callsigns)
+    except FileNotFoundError:
+        return []
+
+
+def download_file(url, output_file_path, zip_files: list[str] = None):
+    """Download a file from the given URL to the output file path."""
+    if url.endswith(".zip"):
+        download_zip_file(
+            url,
+            output_file_path,
+            zip_files,
+        )
+    else:
+        with open(output_file_path, "wb") as output_file:
+            output_file.write(requests.get(url).content)
+        logger.info(f"File saved to {output_file_path}")
 
 
 def download_zip_file(url, output_file_path, zip_files: list[str] = None):

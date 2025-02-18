@@ -1,89 +1,95 @@
+"""Question display class."""
+
 from abc import ABC, abstractmethod
 
 from hrt.common.enums import QuestionAnswerDisplay, QuestionDisplayMode, QuizAnswerDisplay
 
 
 class IQuestionDisplay(ABC):
+    """Question display interface."""
+
     @property
     @abstractmethod
     def answer_display(self) -> QuestionAnswerDisplay | QuizAnswerDisplay:
-        pass
+        """Answer display option."""
 
     @answer_display.setter
     @abstractmethod
     def answer_display(self, value: QuestionAnswerDisplay | QuizAnswerDisplay):
-        pass
+        """Answer display option."""
 
     @property
     @abstractmethod
     def show_explanation(self) -> bool:
-        pass
+        """Show explanation option."""
 
     @show_explanation.setter
     @abstractmethod
     def show_explanation(self, value: bool):
-        pass
+        """Show explanation option."""
 
     @property
     @abstractmethod
     def show_hints(self) -> bool:
-        pass
+        """Show hints option."""
 
     @show_hints.setter
     @abstractmethod
     def show_hints(self, value: bool):
-        pass
+        """Show hints option."""
 
     @property
     @abstractmethod
     def show_references(self) -> bool:
-        pass
+        """Show references option."""
 
     @show_references.setter
     @abstractmethod
     def show_references(self, value: bool):
-        pass
+        """Show references option."""
 
     @property
     @abstractmethod
     def show_tags(self) -> bool:
-        pass
+        """Show tags option."""
 
     @show_tags.setter
     @abstractmethod
     def show_tags(self, value: bool):
-        pass
+        """Show tags option."""
 
     @property
     @abstractmethod
     def show_marked_status(self) -> bool:
-        pass
+        """Show marked status option."""
 
     @show_marked_status.setter
     @abstractmethod
     def show_marked_status(self, value: bool):
-        pass
+        """Show marked status option."""
 
     @property
     @abstractmethod
     def show_metrics(self) -> bool:
-        pass
+        """Show metrics option."""
 
     @show_metrics.setter
     @abstractmethod
     def show_metrics(self, value: bool):
-        pass
+        """Show metrics option."""
 
     @abstractmethod
     def __str__(self) -> str:
-        pass
+        """String representation of the question display options."""
 
     @abstractmethod
     def get_default_question_display(self) -> "IQuestionDisplay":
-        pass
+        """Get the default question display options."""
 
 
 class BaseQuestionDisplay(IQuestionDisplay, ABC):
+    """Base question display options."""
+
     def __init__(
         self,
         answer_display: QuestionAnswerDisplay | QuizAnswerDisplay = None,
@@ -178,6 +184,8 @@ class BaseQuestionDisplay(IQuestionDisplay, ABC):
 
 
 class QuestionDisplay(BaseQuestionDisplay):
+    """Question display options."""
+
     def __init__(
         self,
         answer_display: QuestionAnswerDisplay = QuestionAnswerDisplay.WITH_QUESTION,
@@ -200,6 +208,8 @@ class QuestionDisplay(BaseQuestionDisplay):
 
 
 class QuizQuestionDisplay(BaseQuestionDisplay):
+    """Quiz question display options."""
+
     def __init__(
         self,
         answer_display: QuizAnswerDisplay = QuizAnswerDisplay.AFTER_QUESTION,
@@ -222,8 +232,11 @@ class QuizQuestionDisplay(BaseQuestionDisplay):
 
 
 class QuestionDisplayModeFactory:
+    """Question display mode factory."""
+
     @staticmethod
     def get_question_display_mode(display_mode: QuestionDisplayMode) -> IQuestionDisplay:
+        """Get the question display mode."""
         display_classes = {
             QuestionDisplayMode.PRINT: QuestionDisplay,
             QuestionDisplayMode.QUIZ: QuizQuestionDisplay,

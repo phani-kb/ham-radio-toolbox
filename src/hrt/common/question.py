@@ -1,3 +1,14 @@
+"""
+This module contains the Question class which represents a question in the quiz.
+The Question class has the following attributes:
+- question_text: The text of the question
+- choices: A list of possible answers
+- answer: The correct answer
+- question_number: The number of the question
+- question_category: The category of the question
+- question_metric: The metric associated with the question
+"""
+
 import random
 from typing import TYPE_CHECKING
 
@@ -13,6 +24,8 @@ if TYPE_CHECKING:
 
 
 class Question:
+    """Question class."""
+
     question_display: IQuestionDisplay = None
     SKIP_CHOICE: str = "Skip or Don't Know"
 
@@ -55,10 +68,12 @@ class Question:
 
     @property
     def category(self):
+        """Returns the category of the question."""
         return self._category
 
     @property
     def is_marked(self):
+        """Returns True if the question is marked, False otherwise."""
         return self._is_marked
 
     @is_marked.setter
@@ -67,14 +82,17 @@ class Question:
 
     @property
     def question_number(self) -> QuestionNumber:
+        """Returns the number of the question."""
         return self._question_number
 
     @property
     def question_text(self):
+        """Returns the text of the question."""
         return self._question_text
 
     @property
     def correct_attempts(self):
+        """Returns the number of correct attempts."""
         return self._current_metric.correct_attempts
 
     @correct_attempts.setter
@@ -83,10 +101,12 @@ class Question:
 
     @property
     def existing_metric(self):
+        """Returns the metric associated with the question."""
         return self._metric
 
     @property
     def skip_count(self):
+        """Returns the number of skip attempts."""
         return self._current_metric.skip_count
 
     @skip_count.setter
@@ -95,6 +115,7 @@ class Question:
 
     @property
     def wrong_attempts(self):
+        """Returns the number of wrong attempts."""
         return self._current_metric.wrong_attempts
 
     @wrong_attempts.setter
@@ -107,6 +128,7 @@ class Question:
 
     @property
     def metric(self):
+        """Returns the metric associated with the question."""
         return self._current_metric
 
     @metric.setter
@@ -115,27 +137,33 @@ class Question:
 
     @question_number.setter
     def question_number(self, question_number):
+        """Sets the number of the question."""
         self._question_number = question_number
 
     @property
     def choices(self):
+        """Returns the choices for the question."""
         return self._choices
 
     @property
     def quiz_choices(self):
+        """Returns the choices for the question in a quiz format."""
         choices = self.choices.copy()
         choices.append(self.SKIP_CHOICE)
         return choices
 
     @property
     def answer(self):
+        """Returns the answer for the question."""
         return self._answer
 
     @property
     def answer_index(self):
+        """Returns the index of the answer in the choices."""
         return self._answer_index
 
     def format(self) -> str:
+        """Formats the question for display."""
         question_output = [f"{self.question_number}: {self.question_text}"]
         all_choices = self.choices
         for i, choice in enumerate(all_choices):
@@ -150,6 +178,7 @@ class Question:
         return "\n".join(question_output)
 
     def format_quiz_question(self) -> str:
+        """Formats the question for display in a quiz."""
         question_output = [f"{self.question_number}: {self.question_text}"]
         all_choices = self.choices
         for i, choice in enumerate(all_choices):

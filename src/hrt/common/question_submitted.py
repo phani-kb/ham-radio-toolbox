@@ -1,9 +1,13 @@
+"""Question submitted class."""
+
 from hrt.common.hrt_types import QuestionNumber
 from hrt.common.question import Question
 from hrt.common.question_metric import QuestionMetric
 
 
 class QuestionSubmitted(Question):
+    """Question submitted class."""
+
     def __init__(
         self,
         question_number: QuestionNumber,
@@ -45,10 +49,16 @@ class QuestionSubmitted(Question):
 
     @property
     def selected_choice(self):
+        """Selected choice for the question."""
         return self._selected_choice
+
+    @selected_choice.setter
+    def selected_choice(self, value):
+        self._selected_choice = value
 
     @property
     def marked(self):
+        """Returns whether the question is marked."""
         return self._marked
 
     def __str__(self):

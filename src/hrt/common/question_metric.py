@@ -1,7 +1,11 @@
+"""Question metric class."""
+
 from hrt.common.hrt_types import QuestionNumber
 
 
 class QuestionMetric:
+    """Question metric class."""
+
     def __init__(
         self, question_number: QuestionNumber, correct_attempts=0, wrong_attempts=0, skip_count=0
     ):
@@ -12,18 +16,22 @@ class QuestionMetric:
 
     @property
     def question_number(self) -> QuestionNumber:
+        """Question number."""
         return self._question_number
 
     @property
     def correct_attempts(self):
+        """Correct attempts."""
         return self._correct_attempts
 
     @property
     def wrong_attempts(self):
+        """Wrong attempts."""
         return self._wrong_attempts
 
     @property
     def skip_count(self):
+        """Skip count."""
         return self._skip_count
 
     @correct_attempts.setter

@@ -34,6 +34,9 @@ select = [
     "D", # Docstring conventions
     "SIM", # Simplifications and code smell checks
     "ERA", # Eradicate rules for unused/dead code
+    "C", # Complexity rules
+    "W", # Warnings
+    "R", # Refactoring opportunities
 ]
 exclude = ["tests/*", "build/*", "dist/*", "*.txt"]
 ignore = ["D"]
@@ -58,3 +61,6 @@ write-changes = true
 
 [tool.pytest.ini_options]
 pythonpath = "src"
+
+[tool.pylint]
+disable = "C0415"

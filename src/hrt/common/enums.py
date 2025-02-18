@@ -1,3 +1,5 @@
+"""Enumeration classes for HRT."""
+
 from enum import Enum
 from typing import Iterable, Optional
 
@@ -20,6 +22,7 @@ class HRTEnum(Enum):
 
     @property
     def description(self):
+        """Get the description of the enumeration."""
         return self._description
 
     def __str__(self):
