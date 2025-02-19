@@ -63,4 +63,4 @@ write-changes = true
 pythonpath = "src"
 
 [tool.pylint]
-disable = "C0415"
+disable = "C0415, W0718"

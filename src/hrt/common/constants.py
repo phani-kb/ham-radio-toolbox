@@ -1,8 +1,10 @@
-# flake8: noqa: E501
+"""Constants used in the application."""
+
 from hrt.common.enums import QuestionAnswerDisplay
 
 LOAD_WAIT_TIME: int = 5
 SEARCH_WAIT_TIME: int = 15
+REQUEST_TIMEOUT: int = 10
 DOT: str = "."
 DASH: str = "-"
 CW_DOT_DASH_WEIGHT: dict = {DOT: 1, DASH: 3}

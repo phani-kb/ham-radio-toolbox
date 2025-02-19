@@ -1,3 +1,5 @@
+"""Utility functions for the HRT project."""
+
 import csv
 import os
 import tempfile
@@ -7,6 +9,7 @@ import zipfile
 import click
 import requests
 
+from hrt.common import constants
 from hrt.common.config_reader import logger
 
 
@@ -39,9 +42,9 @@ def read_delim_file(
                     row = row[:fields_count]
                 data.append(row)
     except FileNotFoundError:
-        logger.error(f"Error: The file at {file_path} was not found.")
+        logger.error("Error: The file at %s was not found.", file_path)
     except Exception as e:
-        logger.error(f"An error occurred reading the file at {file_path}: {e}")
+        logger.error("An error occurred reading the file at %s: %s", file_path, e)
     return data
 
 
@@ -53,7 +56,7 @@ def save_output(filename, output, folder=None):
     :param folder: Folder where the file will be saved (default is None).
     """
     filename = os.path.join(folder, filename) if folder else filename
-    with open(filename, "w") as file:
+    with open(filename, "w", encoding="utf-8", newline="") as file:
         file.write(output)
 
 
@@ -90,7 +93,7 @@ def write_output(output, filename=None, folder=None):
     if folder:
         create_folder(folder)
     file_path = os.path.join(folder, filename) if folder else filename
-    with open(file_path, "w") as file:
+    with open(file_path, "w", encoding="utf-8", newline="") as file:
         for line in output:
             file.write(f"{line}\n")
 
@@ -135,14 +138,14 @@ def select_option_from_list(options, prompt) -> str | None:
 
 def read_words_from_file(file_path):
     """Read words from a file."""
-    with open(file_path) as file:
+    with open(file_path, encoding="utf-8") as file:
         return [line.strip() for line in file.readlines()]
 
 
 def load_callsigns_from_file(file_path):
     """Loads unique callsigns from a file."""
     try:
-        with open(file_path) as file:
+        with open(file_path, encoding="utf-8") as file:
             callsigns = {line.strip() for line in file}
         return list(callsigns)
     except FileNotFoundError:
@@ -159,8 +162,8 @@ def download_file(url, output_file_path, zip_files: list[str] = None):
         )
     else:
         with open(output_file_path, "wb") as output_file:
-            output_file.write(requests.get(url).content)
-        logger.info(f"File saved to {output_file_path}")
+            output_file.write(requests.get(url, timeout=constants.REQUEST_TIMEOUT).content)
+        logger.info("File saved to %s", output_file_path)
 
 
 def download_zip_file(url, output_file_path, zip_files: list[str] = None):
@@ -169,9 +172,9 @@ def download_zip_file(url, output_file_path, zip_files: list[str] = None):
         raise ValueError(f"Invalid URL {url}. Expected a ZIP file URL.")
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as temp_file:
-        temp_file.write(requests.get(url).content)
+        temp_file.write(requests.get(url, timeout=constants.REQUEST_TIMEOUT).content)
     temp_file_path = temp_file.name
-    logger.info(f"Downloaded {url} to {temp_file_path}")
+    logger.info("Downloaded %s to %s", url, temp_file_path)
 
     with zipfile.ZipFile(temp_file_path, "r") as zip_ref:  # noqa: SIM117
         with open(output_file_path, "wb") as output_file:
@@ -179,7 +182,7 @@ def download_zip_file(url, output_file_path, zip_files: list[str] = None):
                 if zip_files and file_info.filename not in zip_files:
                     continue
                 output_file.write(zip_ref.open(file_info).read())
-    logger.info(f"Extracted {url} to {output_file_path}")
+    logger.info("Extracted %s to %s", url, output_file_path)
 
 
 def get_current_time() -> float:
