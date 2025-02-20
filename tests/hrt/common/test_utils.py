@@ -313,10 +313,10 @@ class TestDownloadZipFile2(unittest.TestCase):
 
         download_zip_file(url, output_file_path)
 
-        mock_requests_get.assert_called_once_with(url)
+        mock_requests_get.assert_called_once_with(url, timeout=10)
         mock_logger.info.assert_has_calls(
             [
-                call(f"Extracted {url} to {output_file_path}"),
+                call(f"Extracted %s to %s", url, output_file_path),
             ]
         )
 
@@ -369,7 +369,7 @@ class TestDownloadZipFile2(unittest.TestCase):
 
         mock_logger.info.assert_has_calls(
             [
-                call(f"Extracted {url} to {output_file_path}"),
+                call(f"Extracted %s to %s", url, output_file_path),
             ]
         )
 
@@ -395,7 +395,7 @@ class TestDownloadZipFile2(unittest.TestCase):
 
         mock_logger.info.assert_has_calls(
             [
-                call(f"Extracted {url} to {output_file_path}"),
+                call(f"Extracted %s to %s", url, output_file_path),
             ]
         )
 
@@ -425,7 +425,7 @@ class TestDownloadZipFile2(unittest.TestCase):
 
         download_zip_file(url, output_file_path, zip_files)
 
-        mock_logger.info.assert_called_with(f"Extracted {url} to {output_file_path}")
+        mock_logger.info.assert_called_with(f"Extracted %s to %s", url, output_file_path)
 
 
 if __name__ == "__main__":

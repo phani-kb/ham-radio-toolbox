@@ -98,7 +98,34 @@ def write_output(output, filename=None, folder=None):
             file.write(f"{line}\n")
 
 
+def permutations(word):
+    """Returns all possible permutations of a word.
+    :param word: Word to generate permutations.
+    :return: List of permutations of the word.
+    """
+    if len(word) == 1:
+        return [word]
+    perms = []
+    for i, letter in enumerate(word):
+        for perm in permutations(word[:i] + word[i + 1 :]):
+            perms.append(letter + perm)
+    return perms
+
+
+def get_word_combinations(word):
+    """Returns all possible combinations of a word.
+    :param word: Word to generate combinations.
+    :return: List of combinations of the word.
+    """
+    return ["".join(p) for p in permutations(word)]
+
+
 def select_from_options(options, prompt):
+    """Selects an option from a dictionary of options.
+    :param options: Dictionary of options to select from.
+    :param prompt: Prompt to display to the user.
+    :return: The key of the selected option.
+    """
     if not options:
         logger.error("No options provided.")
         return None
@@ -118,6 +145,11 @@ def select_from_options(options, prompt):
 
 
 def select_option_from_list(options, prompt) -> str | None:
+    """Selects an option from a list of options.
+    :param options: List of options to select from.
+    :param prompt: Prompt to display to the user.
+    :return: The selected option.
+    """
     if not options:
         logger.error("No options provided.")
         return None
@@ -132,6 +164,22 @@ def select_option_from_list(options, prompt) -> str | None:
             if 1 <= choice <= len(options):
                 return options[choice - 1]
             print(f"Invalid choice. Please select a number between 1 and {len(options)}.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
+
+def get_user_input_index(choices, prompt: str):
+    """Selects a choice index from the given list of choices.
+    :param prompt:
+    :param choices: List of choices to select from.
+    :return: Index of the selected choice.
+    """
+    while True:
+        try:
+            choice = int(input(prompt))
+            if 1 <= choice <= len(choices):
+                return choice - 1
+            print(f"Invalid choice. Please select a number between 1 and {len(choices)}.")
         except ValueError:
             print("Invalid input. Please enter a number.")
 
