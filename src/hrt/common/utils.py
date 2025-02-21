@@ -100,6 +100,7 @@ def write_output(output, filename=None, folder=None):
 
 def permutations(word):
     """Returns all possible permutations of a word.
+
     :param word: Word to generate permutations.
     :return: List of permutations of the word.
     """
@@ -114,6 +115,7 @@ def permutations(word):
 
 def get_word_combinations(word):
     """Returns all possible combinations of a word.
+
     :param word: Word to generate combinations.
     :return: List of combinations of the word.
     """
@@ -122,6 +124,7 @@ def get_word_combinations(word):
 
 def select_from_options(options, prompt):
     """Selects an option from a dictionary of options.
+
     :param options: Dictionary of options to select from.
     :param prompt: Prompt to display to the user.
     :return: The key of the selected option.
@@ -146,6 +149,7 @@ def select_from_options(options, prompt):
 
 def select_option_from_list(options, prompt) -> str | None:
     """Selects an option from a list of options.
+
     :param options: List of options to select from.
     :param prompt: Prompt to display to the user.
     :return: The selected option.
@@ -170,6 +174,7 @@ def select_option_from_list(options, prompt) -> str | None:
 
 def get_user_input_index(choices, prompt: str):
     """Selects a choice index from the given list of choices.
+
     :param prompt:
     :param choices: List of choices to select from.
     :return: Index of the selected choice.
@@ -236,3 +241,13 @@ def download_zip_file(url, output_file_path, zip_files: list[str] = None):
 def get_current_time() -> float:
     """Returns the current time in seconds since the epoch."""
     return time.time()
+
+
+def get_user_agent(app_config: dict) -> str:
+    """Returns a random user agent from the list of user agents."""
+    if app_config is None:
+        app_config = {}
+    app_name = app_config.get("name", constants.APP_NAME)
+    app_ver = app_config.get("version", constants.APP_VERSION)
+    app_desc = app_config.get("description", "")
+    return f"{app_name}/{app_ver} ({constants.GITHUB_URL}; {app_desc})"

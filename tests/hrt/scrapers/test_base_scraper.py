@@ -48,9 +48,9 @@ class TestDownloadCallsigns(unittest.TestCase):
         self.mock_driver = mock_web_driver.return_value
         self.scraper = MockBaseScraper(driver="path/to/chromedriver", country=CountryCode.CANADA)
 
-    @patch("hrt.scrapers.base_scraper.random.choice")
-    def test_download_callsigns_assigned(self, mock_random_choice):
-        mock_random_choice.return_value = "test-user-agent"
+    @patch("hrt.scrapers.base_scraper.utils.get_user_agent")
+    def test_download_callsigns_assigned(self, mock_get_user_agent):
+        mock_get_user_agent.return_value = "test-user-agent"
         self.scraper.download_assigned_callsigns = MagicMock()
 
         self.scraper.download_callsigns(
@@ -63,9 +63,9 @@ class TestDownloadCallsigns(unittest.TestCase):
             "https://example.com/assigned", "/path/to/output"
         )
 
-    @patch("hrt.scrapers.base_scraper.random.choice")
-    def test_download_callsigns_available(self, mock_random_choice):
-        mock_random_choice.return_value = "test-user-agent"
+    @patch("hrt.scrapers.base_scraper.utils.get_user_agent")
+    def test_download_callsigns_available(self, mock_get_user_agent):
+        mock_get_user_agent.return_value = "test-user-agent"
         self.scraper.download_available_callsigns = MagicMock()
 
         self.scraper.download_callsigns(
@@ -86,15 +86,15 @@ class TestDownloadCallsigns(unittest.TestCase):
                 output_file_path="/path/to/output",
             )
 
-    @patch("hrt.scrapers.base_scraper.random.choice")
+    @patch("hrt.scrapers.base_scraper.utils.get_user_agent")
     @patch("hrt.scrapers.base_scraper.logger.error")
-    def test_download_callsigns_error_handling(self, mock_logger_error, mock_random_choice):
-        mock_random_choice.return_value = "test-user-agent"
+    def test_download_callsigns_error_handling(self, mock_logger_error, mock_get_user_agent):
+        mock_get_user_agent.return_value = "test-user-agent"
         self.scraper.download_assigned_callsigns = MagicMock(
             side_effect=Exception("Test Exception")
         )
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception) as context:
             self.scraper.download_callsigns(
                 callsign_download_type=CACallSignDownloadType.ASSIGNED,
                 url="https://example.com/assigned",

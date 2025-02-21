@@ -28,8 +28,8 @@ def select_option(element, prompt):
 
 
 class CAScraper(BaseScraper):
-    def __init__(self, driver):
-        super().__init__(driver, CountryCode.CANADA)
+    def __init__(self, driver, app_config=None):
+        super().__init__(driver, CountryCode.CANADA, app_config)
 
     def download_assigned_callsigns(self, url, output_file_path):
         from hrt.common.utils import download_zip_file

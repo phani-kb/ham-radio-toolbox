@@ -38,6 +38,7 @@ class BaseDownloader(IDownloader, ABC):
         download_type: DownloadType,
         output_folder: str,
         config: dict,
+        app_config: dict,
     ):
         self._chrome_driver_path = chrome_driver_path
         self._country = country
@@ -45,6 +46,7 @@ class BaseDownloader(IDownloader, ABC):
         self._output_folder = output_folder
         self._config = config
         self._output_file_path = None
+        self._app_config = app_config
 
     @property
     def chrome_driver_path(self):
@@ -57,6 +59,10 @@ class BaseDownloader(IDownloader, ABC):
     @property
     def config(self):
         return self._config
+
+    @property
+    def app_config(self):
+        return self._app_config
 
     @property
     def output_folder(self):
@@ -95,13 +101,18 @@ class DownloaderFactory:
         download_type: DownloadType,
         output_folder: str,
         config: dict,
+        app_config: dict = None,
     ):
         if country == CountryCode.CANADA:
             from hrt.downloaders.ca_downloader import CADownloader
 
-            return CADownloader(chrome_driver_path, download_type, output_folder, config)
+            return CADownloader(
+                chrome_driver_path, download_type, output_folder, config, app_config
+            )
         if country == CountryCode.UNITED_STATES:
             from hrt.downloaders.us_downloader import USDownloader
 
-            return USDownloader(chrome_driver_path, download_type, output_folder, config)
+            return USDownloader(
+                chrome_driver_path, download_type, output_folder, config, app_config
+            )
         raise ValueError("Invalid country code.")

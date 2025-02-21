@@ -5,10 +5,12 @@ import logging
 from unittest.mock import MagicMock, patch, mock_open, call
 import zipfile
 
+from hrt.common import constants
 from hrt.common.utils import (
     create_folder,
     get_current_time,
     get_header,
+    get_user_agent,
     read_delim_file,
     save_output,
     select_from_options,
@@ -426,6 +428,19 @@ class TestDownloadZipFile2(unittest.TestCase):
         download_zip_file(url, output_file_path, zip_files)
 
         mock_logger.info.assert_called_with(f"Extracted %s to %s", url, output_file_path)
+
+
+class TestGetUserAgent(unittest.TestCase):
+    def test_get_user_agent_with_config(self):
+        app_config = {"name": "TestApp", "version": "1.0.0", "description": "Test application"}
+        expected_user_agent = f"TestApp/1.0.0 ({constants.GITHUB_URL}; Test application)"
+        self.assertEqual(get_user_agent(app_config), expected_user_agent)
+
+    def test_get_user_agent_without_config(self):
+        expected_user_agent = (
+            f"{constants.APP_NAME}/{constants.APP_VERSION} ({constants.GITHUB_URL}; )"
+        )
+        self.assertEqual(get_user_agent(None), expected_user_agent)
 
 
 if __name__ == "__main__":
