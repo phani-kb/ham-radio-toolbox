@@ -1,3 +1,5 @@
+"""Base class for downloaders."""
+
 import os
 from abc import ABC, abstractmethod
 
@@ -11,26 +13,28 @@ class IDownloader(ABC):
 
     @abstractmethod
     def pre_process(self):
-        pass
+        """Pre-process the downloader."""
 
     @abstractmethod
     def download_callsigns(self, callsigns_dt: CallSignDownloadType):
-        pass
+        """Download callsigns."""
 
     @abstractmethod
     def download_question_bank(self, exam_type: ExamType):
-        pass
+        """Download question bank."""
 
     @abstractmethod
     def get_output_folder(self) -> str:
-        pass
+        """Get the output folder."""
 
     @abstractmethod
     def post_process(self):
-        pass
+        """Post-process the downloader."""
 
 
 class BaseDownloader(IDownloader, ABC):
+    """Base class for the downloaders."""
+
     def __init__(
         self,
         chrome_driver_path: str,
@@ -50,26 +54,32 @@ class BaseDownloader(IDownloader, ABC):
 
     @property
     def chrome_driver_path(self):
+        """Get the path to the Chrome driver."""
         return self._chrome_driver_path
 
     @property
     def country(self):
+        """Get the country."""
         return self._country
 
     @property
     def config(self):
+        """Get the configuration data."""
         return self._config
 
     @property
     def app_config(self):
+        """Get the app configuration data."""
         return self._app_config
 
     @property
     def output_folder(self):
+        """Get the output folder."""
         return self._output_folder
 
     @property
     def download_type(self):
+        """Get the download type."""
         return self._download_type
 
     def get_output_folder(self):
@@ -80,6 +90,7 @@ class BaseDownloader(IDownloader, ABC):
         return os.path.join(self.output_folder, self.country.code)
 
     def download(self, url, output_file_path, zip_files: list[str] = None):
+        """Download the file from the URL."""
         self.pre_process()
         output_folder = os.path.dirname(output_file_path)
         utils.create_folder(output_folder)
@@ -94,6 +105,8 @@ class BaseDownloader(IDownloader, ABC):
 
 
 class DownloaderFactory:
+    """Factory class to get the downloader."""
+
     @staticmethod
     def get_downloader(
         chrome_driver_path: str,
@@ -103,6 +116,7 @@ class DownloaderFactory:
         config: dict,
         app_config: dict = None,
     ):
+        """Get the downloader based on the country."""
         if country == CountryCode.CANADA:
             from hrt.downloaders.ca_downloader import CADownloader
 

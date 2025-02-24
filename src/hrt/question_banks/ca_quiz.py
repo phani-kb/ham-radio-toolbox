@@ -1,8 +1,16 @@
-from hrt.common.enums import ExamType, QuestionDisplayMode, QuizAnswerDisplay
-from hrt.common.question import Question
+"""
+This module contains the CAQuiz class which represents a Canadian quiz.
+The CAQuiz class is a subclass of the Quiz class and has the following attributes:
+- PASS_PERCENTAGE: The pass percentage for the quiz
+- PASS_PERCENTAGE_WITH_HONOURS: The pass percentage with honours for the quiz
+"""
+
+from hrt.common.quiz import Quiz
 
 
-class CAQuiz:
+class CAQuiz(Quiz):
+    """Canadian Quiz class."""
+
     PASS_PERCENTAGE = 70
     PASS_PERCENTAGE_WITH_HONOURS = 80
 
@@ -11,19 +19,3 @@ class CAQuiz:
 
     def post_process(self):
         pass
-
-    def start(self):
-        pass
-
-    def __init__(
-        self,
-        number_of_questions: int,
-        questions: list[Question],
-        exam_type: ExamType,
-        display_mode: QuestionDisplayMode,
-        answer_display: QuizAnswerDisplay,
-        quiz_config: dict,
-    ):
-        super().__init__(
-            number_of_questions, questions, exam_type, display_mode, answer_display, quiz_config
-        )

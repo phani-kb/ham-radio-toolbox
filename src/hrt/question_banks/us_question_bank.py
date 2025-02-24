@@ -1,13 +1,18 @@
+"""This module contains the USQuestionBank class."""
+
 from pathlib import Path
 
 from hrt.common.enums import CountryCode, ExamType, QuestionDisplayMode
 from hrt.common.hrt_types import QuestionNumber
 from hrt.common.question import Question
+from hrt.common.question_bank import QuestionBank
 from hrt.common.question_category import QuestionCategory
 from hrt.common.question_metric import QuestionMetric
 
 
-class USQuestionBank:
+class USQuestionBank(QuestionBank):
+    """US Question Bank class."""
+
     def __init__(
         self,
         exam_type: ExamType,

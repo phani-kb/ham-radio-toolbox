@@ -1,16 +1,20 @@
+"""Base class for all processors."""
+
 import logging
 
 
 class BaseProcessor:
+    """Base class for all processors."""
+
     def __init__(self, config_reader):
         self.config_reader = config_reader
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def generate_questions(self):
-        pass
+        """Generate questions."""
 
     def evaluate_answer(self, question, answer):
-        pass
+        """Evaluate the answer."""
 
     def provide_feedback(self, question, answer, is_correct):
-        pass
+        """Provide feedback on the answer."""

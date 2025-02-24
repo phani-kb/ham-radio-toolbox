@@ -1,12 +1,16 @@
+"""This module contains the USDownloader class."""
+
 from hrt.common.enums import CountryCode
 from hrt.downloaders.base_downloader import BaseDownloader
 
 
 class USDownloader(BaseDownloader):
+    """This class is used to download files for the US."""
+
     def __init__(self, chrome_driver_path, download_type, output_folder, config, app_config=None):
         super().__init__(
             chrome_driver_path,
-            CountryCode.CANADA,
+            CountryCode.UNITED_STATES,
             download_type,
             output_folder,
             config,

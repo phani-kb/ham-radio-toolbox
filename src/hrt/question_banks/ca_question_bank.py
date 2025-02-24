@@ -1,3 +1,5 @@
+"""This module contains the implementation of the CAQuestionBank class."""
+
 from pathlib import Path
 
 from hrt.common import utils
@@ -9,10 +11,13 @@ from hrt.common.question_metric import QuestionMetric
 
 
 def get_question_category_id(question_number: QuestionNumber) -> str:
+    """Get the category ID from the question number."""
     return question_number.split("-")[1]
 
 
 class CAQuestionBank(QuestionBank):
+    """CA Question Bank class."""
+
     def __init__(
         self,
         exam_type: ExamType,
@@ -68,6 +73,7 @@ class CAQuestionBank(QuestionBank):
         return result
 
     def get_category_by_id(self, category_id: str) -> QuestionCategory | None:
+        """Get the category by its ID."""
         for category in self.categories:
             if category.category_id == category_id:
                 return category
