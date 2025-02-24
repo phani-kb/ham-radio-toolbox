@@ -11,6 +11,8 @@ import requests
 
 from hrt.common import constants
 from hrt.common.config_reader import logger
+from hrt.common.hrt_types import QuestionNumber
+from hrt.common.question_metric import QuestionMetric
 
 
 def read_delim_file(
@@ -241,6 +243,26 @@ def download_zip_file(url, output_file_path, zip_files: list[str] = None):
 def get_current_time() -> float:
     """Returns the current time in seconds since the epoch."""
     return time.time()
+
+
+def read_metrics_from_file(metrics_file: str) -> list[QuestionMetric]:
+    """Reads metrics from a file."""
+    metrics = []
+    if not os.path.exists(metrics_file):
+        return metrics
+    with open(metrics_file, "r", encoding="utf-8") as f:
+        for line in f:
+            parts = line.strip().split(constants.DEFAULT_METRICS_DELIMITER)
+            if len(parts) == 4:
+                question_number = parts[0]
+                correct_attempts = int(parts[1])
+                wrong_attempts = int(parts[2])
+                skip_count = int(parts[3])
+                metric = QuestionMetric(
+                    QuestionNumber(question_number), correct_attempts, wrong_attempts, skip_count
+                )
+                metrics.append(metric)
+    return metrics
 
 
 def get_user_agent(app_config: dict) -> str:

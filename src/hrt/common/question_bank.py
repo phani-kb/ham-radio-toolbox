@@ -453,3 +453,31 @@ class QuestionBank(IQuestionBank, ABC):
     def get_all_marked_questions(self) -> list[Question]:
         """Returns all marked questions in the question bank."""
         return [question for question in self._questions if question.is_marked]
+
+
+class QuestionBankFactory:
+    """Question bank factory class."""
+
+    @staticmethod
+    def get_question_bank(
+        country: CountryCode,
+        exam_type: ExamType,
+        filepath: Path,
+        display_mode: QuestionDisplayMode = QuestionDisplayMode.PRINT,
+        categories_filepath: Path = None,
+        marked_questions_filepath: Path = None,
+        metrics_filepath: Path = None,
+    ) -> IQuestionBank:
+        """Returns a question bank based on the country code."""
+        if country == CountryCode.CANADA:
+            from hrt.question_banks.ca_question_bank import CAQuestionBank
+
+            return CAQuestionBank(
+                exam_type,
+                filepath,
+                display_mode,
+                categories_filepath,
+                marked_questions_filepath,
+                metrics_filepath,
+            )
+        raise ValueError(f"Country {country} not supported")
