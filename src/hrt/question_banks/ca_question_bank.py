@@ -1,6 +1,6 @@
 """This module contains the implementation of the CAQuestionBank class."""
-
 from pathlib import Path
+from typing import Dict, List, Optional
 
 from hrt.common import utils
 from hrt.common.enums import CountryCode, ExamType, QuestionDisplayMode
@@ -17,15 +17,14 @@ def get_question_category_id(question_number: QuestionNumber) -> str:
 
 class CAQuestionBank(QuestionBank):
     """CA Question Bank class."""
-
     def __init__(
         self,
         exam_type: ExamType,
         filepath: Path,
         display_mode: QuestionDisplayMode = QuestionDisplayMode.PRINT,
-        categories_filepath: Path = None,
-        marked_questions_filepath: Path = None,
-        metrics_filepath: Path = None,
+        categories_filepath: Optional[Path] = None,
+        marked_questions_filepath: Optional[Path] = None,
+        metrics_filepath: Optional[Path] = None,
     ):
         super().__init__(
             CountryCode.CANADA,
@@ -37,18 +36,18 @@ class CAQuestionBank(QuestionBank):
             metrics_filepath,
         )
 
-    def load_categories(self) -> list[QuestionCategory]:
+    def load_categories(self) -> List[QuestionCategory]:
         categories = utils.read_delim_file(self.categories_filepath, delimiter=":")
         return [
             QuestionCategory(category[0], category[1], int(category[2])) for category in categories
         ]
 
-    def load_metrics(self) -> dict[QuestionNumber, QuestionMetric]:
+    def load_metrics(self) -> Dict[QuestionNumber, QuestionMetric]:
         metrics = utils.read_metrics_from_file(self.metrics_filepath)
         return {metric.question_number: metric for metric in metrics}
 
-    def load_questions(self) -> list[Question]:
-        result: list[Question] = []
+    def load_questions(self) -> List[Question]:
+        result: List[Question] = []
         questions = utils.read_delim_file(
             self.filepath,
             delimiter=";",
@@ -69,10 +68,9 @@ class CAQuestionBank(QuestionBank):
                 question_text, choices, answer, QuestionNumber(question_number), category, metric
             )
             result.append(q)
-
         return result
 
-    def get_category_by_id(self, category_id: str) -> QuestionCategory | None:
+    def get_category_by_id(self, category_id: str) -> Optional[QuestionCategory]:
         """Get the category by its ID."""
         for category in self.categories:
             if category.category_id == category_id:

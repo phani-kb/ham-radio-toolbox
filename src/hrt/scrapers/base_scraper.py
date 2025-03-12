@@ -1,6 +1,7 @@
 """Base scraper class and factory to get scraper based on country code."""
 
 from abc import ABC, abstractmethod
+from typing import Dict, Optional
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -14,21 +15,27 @@ from hrt.common.enums import CACallSignDownloadType, CallSignDownloadType, Count
 class IWebScraper(ABC):
     @abstractmethod
     def download_callsigns(
-        self, callsign_download_type: CallSignDownloadType, url, output_file_path
-    ):
+        self, callsign_download_type: CallSignDownloadType, url: str, output_file_path: str
+    ) -> None:
         pass
 
     @abstractmethod
-    def download_assigned_callsigns(self, url, output_file_path):
+    def download_assigned_callsigns(self, url: str, output_file_path: str) -> None:
         pass
 
     @abstractmethod
-    def download_available_callsigns(self, url, output_file_path):
+    def download_available_callsigns(self, url: str, output_file_path: str) -> None:
         pass
 
 
 class BaseScraper(IWebScraper, ABC):
-    def __init__(self, driver, country: CountryCode, app_config=None, headless=True):
+    def __init__(
+        self,
+        driver: str,
+        country: CountryCode,
+        app_config: Optional[Dict] = None,
+        headless: bool = True
+    ):
         self.country = country
         chrome_options = Options()
         if headless:
@@ -38,8 +45,8 @@ class BaseScraper(IWebScraper, ABC):
         self.app_config = app_config
 
     def download_callsigns(
-        self, callsign_download_type: CallSignDownloadType, url, output_file_path
-    ):
+        self, callsign_download_type: CallSignDownloadType, url: str, output_file_path: str
+    ) -> None:
         user_agent = utils.get_user_agent(app_config=self.app_config)
         try:
             self.driver.execute_cdp_cmd("Network.setUserAgentOverride", {"userAgent": user_agent})
@@ -58,17 +65,21 @@ class BaseScraper(IWebScraper, ABC):
             raise e
 
     @abstractmethod
-    def download_assigned_callsigns(self, url, output_file_path):
+    def download_assigned_callsigns(self, url: str, output_file_path: str) -> None:
         pass
 
     @abstractmethod
-    def download_available_callsigns(self, url, output_file_path):
+    def download_available_callsigns(self, url: str, output_file_path: str) -> None:
         pass
 
 
 class ScraperFactory:
     @staticmethod
-    def get_scraper(driver, country: CountryCode, app_config=None):
+    def get_scraper(
+        driver: str,
+        country: CountryCode,
+        app_config: Optional[Dict] = None,
+    ) -> BaseScraper:
         if country == CountryCode.CANADA:
             from hrt.scrapers.ca_scraper import CAScraper
 

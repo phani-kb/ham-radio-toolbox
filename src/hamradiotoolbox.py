@@ -24,7 +24,7 @@ from hrt.common.enums import (
 )
 @click.option(
     "--config",
-    default="./config.yml",
+    default="config/config.yml",
     type=click.Path(),
     help="Path to the configuration file.",
 )
@@ -73,7 +73,7 @@ def show(
     """Commands for showing information."""
     if countries_supported:
         logger.info("Showing supported countries.")
-        countries = CountryCode.list()
+        countries = CountryCode.supported_enums()
         utils.write_output(countries)
     if phonetics:
         logger.info("Showing phonetics.")
@@ -103,8 +103,9 @@ def show(
         all_subclasses = get_all_subclasses(HRTEnum)
         enum_class = next((cls for cls in all_subclasses if cls.__name__ == enum), None)
         if enum_class:
+            logger.info(enum_class.__doc__)
             options = enum_class.list()
-            descriptions = [str(enum_class.from_id(opt)) for opt in options]
+            descriptions = [str(enum_class.from_value(opt)) for opt in options]
             utils.write_output(descriptions)
         else:
             logger.error(f"Enum {enum} not found.")
@@ -131,6 +132,26 @@ def question(ctx, country, answer_display, save_to_file):
     ctx.obj["country_code"] = country
     ctx.obj["answer_display"] = answer_display
     ctx.obj["save_to_file"] = save_to_file
+# DOWNLOAD COMMANDS
+@hamradiotoolbox.group("download")
+@click.option(
+    "--country",
+    type=click.Choice(CountryCode.supported_ids(), case_sensitive=False),
+    required=True,
+    help="Country for which to download the question bank.",
+)
+@click.option(
+    "--output",
+    default="data/output",
+    type=click.Path(),
+    help="Output folder to save the downloaded files.",
+)
+@click.pass_context
+def download(ctx, country, output):
+    """Commands for downloading data."""
+    ctx.obj["country_code"] = country
+    ctx.obj["output"] = output
+    logger.info(f"Downloading data for country: {country}")
 
 
 # CALLSIGN COMMANDS

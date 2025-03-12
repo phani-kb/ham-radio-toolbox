@@ -50,6 +50,13 @@ class HRTEnum(Enum):
         """Get the list of the enumeration."""
         return list(cls)
 
+    @classmethod
+    def from_value(cls, value) -> Optional["HRTEnum"]:
+        """Get the enumeration from the given value."""
+        for enum in cls:
+            if enum == value:
+                return enum
+        return None
 
 class SupportedEnum(HRTEnum):
     """Base class for supported enumerations."""
@@ -84,6 +91,13 @@ class CountryCode(SupportedEnum):
         """Get the code of the country."""
         return self.id
 
+    @classmethod
+    def from_value(cls, value) -> Optional["CountryCode"]:
+        """Get the enumeration from the given value."""
+        for enum in cls:
+            if enum == value:
+                return enum
+        return None
 
 class CountrySpecificEnum(SupportedEnum):
     """Base class for country specific enumerations."""
@@ -107,6 +121,13 @@ class CountrySpecificEnum(SupportedEnum):
         return self._country
 
     @classmethod
+    def from_value(cls, value) -> Optional["ExamType"]:
+        """Get the enumeration from the given value."""
+        for enum in cls:
+            if enum == value:
+                return enum
+        return None
+    @classmethod
     def supported_country_ids(cls, country: CountryCode) -> Iterable[str]:
         """Get the supported ids for the enumeration for the given country."""
         return [enum.id for enum in cls if enum.country == country and enum.is_supported]
@@ -118,7 +139,19 @@ class CountrySpecificEnum(SupportedEnum):
         """Get the enumeration from the given id and country."""
         return next((enum for enum in cls if enum.id == eid and enum.country == country), None)
 
+    @classmethod
+    def supported_country_options(cls, country: CountryCode) -> Iterable[str]:
+        """Get the supported options for the enumeration for the given country."""
+        return [enum.value[0] for enum in cls if enum.country == country and enum.is_supported]
 
+    @classmethod
+    def from_value_and_country(
+            cls, value: str, country: CountryCode
+    ) -> Optional["CountrySpecificEnum"]:
+        """Get the enumeration from the given value and country."""
+        return next(
+                (enum for enum in cls if enum.value[0] == value and enum.country == country), None
+        )
 class DownloadType(CountrySpecificEnum):
     """Enumeration for download types."""
 
@@ -130,6 +163,36 @@ class DownloadType(CountrySpecificEnum):
 
 class CallSignDownloadType(CountrySpecificEnum):
     """Enumeration for Callsign download types."""
+    @classmethod
+    def list(cls):
+        """Get the options for the enumeration."""
+        return [enum.value[0] for enum in cls]
+    @classmethod
+    def supported_country_options(cls, country: CountryCode) -> Iterable[str]:
+        """Get the supported options for the enumeration for the given country."""
+        supported_options = []
+        for subclass in cls.__subclasses__():
+            for enum in subclass:
+                if enum.country == country and enum.is_supported:
+                    supported_options.append(enum.value[0])
+        return supported_options
+    @classmethod
+    def from_value_and_country(
+            cls, value: str, country: CountryCode
+    ) -> Optional["CallSignDownloadType"]:
+        """Get the enumeration from the given value and country."""
+        for subclass in cls.__subclasses__():
+            for enum in subclass:
+                if enum.value[0] == value and enum.country == country:
+                    return enum
+        return None
+    @classmethod
+    def from_value(cls, value: str) -> Optional["CallSignDownloadType"]:
+        """Get the enumeration from the given value."""
+        for enum in cls:
+            if enum.value[0] == value:
+                return enum
+        return None
 
 
 class CACallSignDownloadType(CallSignDownloadType):

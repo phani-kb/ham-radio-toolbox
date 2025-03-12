@@ -30,6 +30,10 @@ class TestQuestionMetric(unittest.TestCase):
         other_metric = QuestionMetric(self.question_number)
         self.assertEqual(self.metric, other_metric)
 
+    def test_equality_non_question_metric(self):
+        other = "not a question metric"
+        self.assertNotEqual(self.metric, other)
+
     def test_hash(self):
         self.assertEqual(hash(self.metric), hash(self.question_number))
 

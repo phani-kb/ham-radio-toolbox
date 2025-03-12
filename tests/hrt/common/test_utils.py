@@ -11,9 +11,14 @@ from hrt.common.utils import (
     get_current_time,
     get_header,
     get_user_agent,
+    get_word_combinations,
+    permutations,
     read_delim_file,
+    read_filename,
+    read_number_from_input,
     save_output,
     select_from_options,
+    select_option_from_list,
     download_zip_file,
     read_words_from_file,
     write_output,
@@ -107,12 +112,52 @@ class TestGetHeader(unittest.TestCase):
         self.assertEqual(result, expected)
 
 
+class TestReadNumberFromInput(unittest.TestCase):
+    @patch("click.prompt")
+    def test_read_number_from_input_valid(self, mock_prompt):
+        mock_prompt.return_value = "5"
+        result = read_number_from_input("Enter a number:", 1, 10)
+        self.assertEqual(result, 5)
+
+    @patch("click.prompt")
+    def test_read_number_from_input_invalid(self, mock_prompt):
+        mock_prompt.side_effect = ["invalid", "15", "5"]
+        result = read_number_from_input("Enter a number:", 1, 10)
+        self.assertEqual(result, 5)
+
+
+class TestReadFilename(unittest.TestCase):
+    @patch("builtins.input", return_value="test_file.txt")
+    def test_read_filename_with_input(self, _):
+        result = read_filename("default.txt")
+        self.assertEqual(result, "test_file.txt")
+
+    @patch("builtins.input", return_value="")
+    def test_read_filename_default(self, _):
+        result = read_filename("default.txt")
+        self.assertEqual(result, "default.txt")
+
+
 class TestCreateFolder(unittest.TestCase):
     def test_create_folder(self):
         test_folder = "test_folder"
         create_folder(test_folder)
         self.assertTrue(os.path.exists(test_folder))
         os.rmdir(test_folder)
+
+
+class TestPermutations(unittest.TestCase):
+    def test_permutations(self):
+        result = permutations("abc")
+        expected = ["abc", "acb", "bac", "bca", "cab", "cba"]
+        self.assertEqual(sorted(result), sorted(expected))
+
+
+class TestGetWordCombinations(unittest.TestCase):
+    def test_get_word_combinations(self):
+        result = get_word_combinations("abc")
+        expected = ["abc", "acb", "bac", "bca", "cab", "cba"]
+        self.assertEqual(sorted(result), sorted(expected))
 
 
 class TestSelectFromOptions(unittest.TestCase):
@@ -163,6 +208,46 @@ class TestSelectFromOptions(unittest.TestCase):
 
         mock_logger.error.assert_not_called()
         mock_print.assert_any_call("Invalid choice. Please select a number between 1 and 2.")
+
+
+class TestSelectOptionFromList(unittest.TestCase):
+    @patch("click.prompt")
+    def test_select_option_from_list(self, mock_prompt):
+        mock_prompt.return_value = "2"
+        options = ["option1", "option2", "option3"]
+        result = select_option_from_list(options, "Select an option")
+        self.assertEqual(result, "option2")
+
+    @patch("hrt.common.utils.logger")
+    def test_select_option_from_list_no_options(self, mock_logger):
+        result = select_option_from_list([], "Select an option")
+        self.assertIsNone(result)
+        mock_logger.error.assert_called_once_with("No options provided.")
+
+    def test_select_option_from_list_single_option(self):
+        options = ["option1"]
+        result = select_option_from_list(options, "Select an option")
+        self.assertEqual(result, "option1")
+
+    @patch("builtins.print")
+    @patch("click.prompt")
+    def test_select_option_from_list_invalid_choice(self, mock_prompt, mock_print):
+        options = ["option1", "option2", "option3"]
+        mock_prompt.side_effect = [
+            "4",
+            "invalid",
+            "2",
+        ]
+
+        result = select_option_from_list(options, "Select an option")
+
+        self.assertEqual(result, "option2")
+        mock_print.assert_has_calls(
+            [
+                call("Invalid choice. Please select a number between 1 and 3."),
+                call("Invalid input. Please enter a number."),
+            ]
+        )
 
 
 class TestLoadQuestionMetrics(unittest.TestCase):

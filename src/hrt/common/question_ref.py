@@ -28,7 +28,7 @@ class QuestionRef(IQuestionRef, ABC):
     def type(self) -> QuestionRefType:
         return self._type
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.type.name}: {self.details()}"
 
 
@@ -40,11 +40,11 @@ class BookRef(QuestionRef):
         self._title = title
 
     @property
-    def title(self):
+    def title(self) -> str:
         """Title of the book."""
         return self._title
 
-    def details(self):
+    def details(self) -> str:
         """Details of the book reference."""
         return self.title
 
@@ -57,11 +57,11 @@ class WebRef(QuestionRef):
         self._url = url
 
     @property
-    def url(self):
+    def url(self) -> str:
         """URL of the web reference."""
         return self._url
 
-    def details(self):
+    def details(self) -> str:
         return self.url
 
 

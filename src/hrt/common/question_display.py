@@ -1,6 +1,7 @@
 """Question display class."""
 
 from abc import ABC, abstractmethod
+from typing import Union
 
 from hrt.common.enums import QuestionAnswerDisplay, QuestionDisplayMode, QuizAnswerDisplay
 
@@ -10,12 +11,12 @@ class IQuestionDisplay(ABC):
 
     @property
     @abstractmethod
-    def answer_display(self) -> QuestionAnswerDisplay | QuizAnswerDisplay:
+    def answer_display(self) -> Union[QuestionAnswerDisplay, QuizAnswerDisplay]:
         """Answer display option."""
 
     @answer_display.setter
     @abstractmethod
-    def answer_display(self, value: QuestionAnswerDisplay | QuizAnswerDisplay):
+    def answer_display(self, value: Union[QuestionAnswerDisplay, QuizAnswerDisplay]) -> None:
         """Answer display option."""
 
     @property
@@ -25,7 +26,7 @@ class IQuestionDisplay(ABC):
 
     @show_explanation.setter
     @abstractmethod
-    def show_explanation(self, value: bool):
+    def show_explanation(self, value: bool) -> None:
         """Show explanation option."""
 
     @property
@@ -35,7 +36,7 @@ class IQuestionDisplay(ABC):
 
     @show_hints.setter
     @abstractmethod
-    def show_hints(self, value: bool):
+    def show_hints(self, value: bool) -> None:
         """Show hints option."""
 
     @property
@@ -45,7 +46,7 @@ class IQuestionDisplay(ABC):
 
     @show_references.setter
     @abstractmethod
-    def show_references(self, value: bool):
+    def show_references(self, value: bool) -> None:
         """Show references option."""
 
     @property
@@ -55,7 +56,7 @@ class IQuestionDisplay(ABC):
 
     @show_tags.setter
     @abstractmethod
-    def show_tags(self, value: bool):
+    def show_tags(self, value: bool) -> None:
         """Show tags option."""
 
     @property
@@ -65,7 +66,7 @@ class IQuestionDisplay(ABC):
 
     @show_marked_status.setter
     @abstractmethod
-    def show_marked_status(self, value: bool):
+    def show_marked_status(self, value: bool) -> None:
         """Show marked status option."""
 
     @property
@@ -75,7 +76,7 @@ class IQuestionDisplay(ABC):
 
     @show_metrics.setter
     @abstractmethod
-    def show_metrics(self, value: bool):
+    def show_metrics(self, value: bool) -> None:
         """Show metrics option."""
 
     @abstractmethod
@@ -92,7 +93,7 @@ class BaseQuestionDisplay(IQuestionDisplay, ABC):
 
     def __init__(
         self,
-        answer_display: QuestionAnswerDisplay | QuizAnswerDisplay = None,
+        answer_display: Union[QuestionAnswerDisplay, QuizAnswerDisplay, None] = None,
         show_explanation: bool = False,
         show_hints: bool = False,
         show_references: bool = False,
@@ -109,11 +110,11 @@ class BaseQuestionDisplay(IQuestionDisplay, ABC):
         self._show_metrics = show_metrics
 
     @property
-    def answer_display(self) -> QuestionAnswerDisplay | QuizAnswerDisplay:
+    def answer_display(self) -> Union[QuestionAnswerDisplay, QuizAnswerDisplay]:
         return self._answer_display
 
     @answer_display.setter
-    def answer_display(self, value: QuestionAnswerDisplay | QuizAnswerDisplay):
+    def answer_display(self, value: Union[QuestionAnswerDisplay, QuizAnswerDisplay]) -> None:
         self._answer_display = value
 
     @property
@@ -121,7 +122,7 @@ class BaseQuestionDisplay(IQuestionDisplay, ABC):
         return self._show_explanation
 
     @show_explanation.setter
-    def show_explanation(self, value: bool):
+    def show_explanation(self, value: bool) -> None:
         self._show_explanation = value
 
     @property
@@ -129,7 +130,7 @@ class BaseQuestionDisplay(IQuestionDisplay, ABC):
         return self._show_hints
 
     @show_hints.setter
-    def show_hints(self, value: bool):
+    def show_hints(self, value: bool) -> None:
         self._show_hints = value
 
     @property
@@ -137,7 +138,7 @@ class BaseQuestionDisplay(IQuestionDisplay, ABC):
         return self._show_references
 
     @show_references.setter
-    def show_references(self, value: bool):
+    def show_references(self, value: bool) -> None:
         self._show_references = value
 
     @property
@@ -145,7 +146,7 @@ class BaseQuestionDisplay(IQuestionDisplay, ABC):
         return self._show_tags
 
     @show_tags.setter
-    def show_tags(self, value: bool):
+    def show_tags(self, value: bool) -> None:
         self._show_tags = value
 
     @property
@@ -153,7 +154,7 @@ class BaseQuestionDisplay(IQuestionDisplay, ABC):
         return self._show_marked_status
 
     @show_marked_status.setter
-    def show_marked_status(self, value: bool):
+    def show_marked_status(self, value: bool) -> None:
         self._show_marked_status = value
 
     @property
@@ -161,7 +162,7 @@ class BaseQuestionDisplay(IQuestionDisplay, ABC):
         return self._show_metrics
 
     @show_metrics.setter
-    def show_metrics(self, value: bool):
+    def show_metrics(self, value: bool) -> None:
         self._show_metrics = value
 
     def __str__(self) -> str:

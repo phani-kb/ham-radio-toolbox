@@ -64,3 +64,19 @@ pythonpath = "src"
 
 [tool.pylint]
 disable = "C0415, W0718"
+[tool.coverage.run]
+branch = true
+source = ["src"]
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "pass",
+    "raise ImportError",
+    "@abstractmethod",
+    "if TYPE_CHECKING:"
+]
+ignore_errors = true

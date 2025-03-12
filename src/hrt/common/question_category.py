@@ -6,7 +6,7 @@ class QuestionCategory:
 
     def __init__(self, category_id: str, name: str, max_questions: int = 0):
         if not category_id:
-            category_id = id(self)
+            category_id = str(id(self))
         self._category_id = category_id
         if not name:
             raise ValueError("Name cannot be empty")
@@ -28,5 +28,5 @@ class QuestionCategory:
         """Returns the maximum number of questions in the category."""
         return self._max_questions
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.category_id}:{self.name}"

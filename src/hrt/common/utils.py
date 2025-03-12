@@ -1,30 +1,31 @@
 """Utility functions for the HRT project."""
-
 import csv
 import os
 import tempfile
 import time
 import zipfile
+from typing import Any, Dict, Iterable, List, Optional, Set, TypeVar
 
 import click
 import requests
 
 from hrt.common import constants
 from hrt.common.config_reader import logger
+from hrt.common.enums import SortBy
 from hrt.common.hrt_types import QuestionNumber
 from hrt.common.question_metric import QuestionMetric
 
+T = TypeVar('T')
 
 def read_delim_file(
-    file_path,
-    delimiter=",",
+    file_path: str,
+    delimiter: str = ",",
     encoding: str = "iso-8859-1",
-    skip_header=False,
-    header=None,
-    fields_count=None,
+    skip_header: bool = False,
+    header: Optional[str] = None,
+    fields_count: Optional[int] = None,
 ) -> list[list[str]]:
     """Reads a delimited file and returns its contents as a list of dictionaries.
-
     :param encoding:
     :param file_path: Path to the file to be read.
     :param delimiter: Delimiter used in the file (default is comma).
@@ -49,10 +50,8 @@ def read_delim_file(
         logger.error("An error occurred reading the file at %s: %s", file_path, e)
     return data
 
-
-def save_output(filename, output, folder=None):
+def save_output(filename: str, output: str, folder: Optional[str] = None) -> None:
     """Saves the output to a file with the given filename in the given folder.
-
     :param filename: Name of the file to save the output.
     :param output: Output to be saved in the file.
     :param folder: Folder where the file will be saved (default is None).
@@ -61,29 +60,54 @@ def save_output(filename, output, folder=None):
     with open(filename, "w", encoding="utf-8", newline="") as file:
         file.write(output)
 
-
-def get_header(header):
+def get_header(header: str) -> str:
     """Returns the header with a separator line.
-
     :param header: Header to be returned.
     :return: Header with a separator line.
     """
     return f'{header}\n{"-" * len(header)}'
 
-
-def create_folder(folder):
+def create_folder(folder: str) -> None:
     """Creates a folder if it does not exist.
-
     :param folder: Path to the folder to be created.
     """
     is_folder_exists = os.path.exists(folder)
     if not is_folder_exists:
         os.makedirs(folder)
 
+def read_filename(default_filename: str) -> str:
+    """Reads a filename from the user input or returns the default filename.
+    :param default_filename: Default filename to be returned if user input is empty.
+    :return: Filename provided by the user or the default filename.
+    """
+    filename = input(f"Enter a filename to save output (default: {default_filename}): ")
+    return filename if filename else default_filename
 
-def write_output(output, filename=None, folder=None):
+def read_number_from_input(prompt: str, min_value: int, max_value: int) -> int:
+    """Reads a number from the user input within a specified range.
+    :param prompt: Prompt to be displayed to the user.
+    :param min_value: Minimum value for the number.
+    :param max_value: Maximum value for the number.
+    :return: Number provided by the user within the specified range.
+    """
+    valid_input = False
+    while not valid_input:  # noqa: RET503
+        num = click.prompt(prompt)
+        try:
+            num = int(num)
+            if min_value <= num <= max_value:
+                valid_input = True
+                return num
+            print(f"Invalid input. Please enter a number between {min_value} and {max_value}.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+
+def write_output(
+    output: List[str],
+    filename: Optional[str] = None,
+    folder: Optional[str] = None,
+) -> None:
     """Writes the output to a file with the given filename in the given folder, line by line.
-
     :param output: List of lines to be written to the file.
     :param filename: Name of the file to write the output.
     :param folder: Folder where the file will be written (default is None).
@@ -99,10 +123,8 @@ def write_output(output, filename=None, folder=None):
         for line in output:
             file.write(f"{line}\n")
 
-
-def permutations(word):
+def permutations(word: str) -> List[str]:
     """Returns all possible permutations of a word.
-
     :param word: Word to generate permutations.
     :return: List of permutations of the word.
     """
@@ -114,19 +136,15 @@ def permutations(word):
             perms.append(letter + perm)
     return perms
 
-
-def get_word_combinations(word):
+def get_word_combinations(word: str) -> List[str]:
     """Returns all possible combinations of a word.
-
     :param word: Word to generate combinations.
     :return: List of combinations of the word.
     """
     return ["".join(p) for p in permutations(word)]
 
-
-def select_from_options(options, prompt):
+def select_from_options(options: Dict[str, str], prompt: str) -> Optional[str]:
     """Selects an option from a dictionary of options.
-
     :param options: Dictionary of options to select from.
     :param prompt: Prompt to display to the user.
     :return: The key of the selected option.
@@ -148,10 +166,8 @@ def select_from_options(options, prompt):
         except ValueError:
             print("Invalid input. Please enter a number.")
 
-
-def select_option_from_list(options, prompt) -> str | None:
+def select_option_from_list(options: Iterable[str], prompt: str) -> Optional[str]:
     """Selects an option from a list of options.
-
     :param options: List of options to select from.
     :param prompt: Prompt to display to the user.
     :return: The selected option.
@@ -173,12 +189,10 @@ def select_option_from_list(options, prompt) -> str | None:
         except ValueError:
             print("Invalid input. Please enter a number.")
 
-
-def get_user_input_index(choices, prompt: str):
+def get_user_input_index(choices: List[Any], prompt: str) -> int:
     """Selects a choice index from the given list of choices.
-
-    :param prompt:
     :param choices: List of choices to select from.
+    :param prompt: Prompt to display to the user.
     :return: Index of the selected choice.
     """
     while True:
@@ -190,25 +204,56 @@ def get_user_input_index(choices, prompt: str):
         except ValueError:
             print("Invalid input. Please enter a number.")
 
+def get_user_input_option(choices: List[str], prompt: str) -> str:
+    """Selects a choice from the given list of choices.
+    :param choices: List of choices to select from.
+    :param prompt: Prompt to display to the user.
+    :return: The selected choice.
+    """
+    choices_lower = [choice.lower() for choice in choices]
+    while True:
+        choice = input(prompt).lower()
+        if choice in choices_lower:
+            return choices[choices_lower.index(choice)]
+        print("Invalid choice. Please select a valid option.")
 
-def read_words_from_file(file_path):
-    """Read words from a file."""
+def sort_callsigns(callsigns: List[str], sort_by: Optional[str]) -> List[str]:
+    """Sort callsigns by specific criteria.
+    :param callsigns: List of callsigns to sort.
+    :param sort_by: Criteria to sort by.
+    :return: Sorted list of callsigns.
+    """
+    if not sort_by:
+        return callsigns
+    if sort_by == SortBy.CALLSIGN.value:
+        callsigns = sorted(callsigns)
+    return callsigns
+
+def read_words_from_file(file_path: str) -> List[str]:
+    """Read words from a file.
+    :param file_path: Path to the file.
+    :return: List of words read from the file.
+    """
     with open(file_path, encoding="utf-8") as file:
         return [line.strip() for line in file.readlines()]
 
-
-def load_callsigns_from_file(file_path):
-    """Loads unique callsigns from a file."""
+def load_callsigns_from_file(file_path: str) -> Set[str]:
+    """Loads unique callsigns from a file.
+    :param file_path: Path to the file.
+    :return: List of unique callsigns.
+    """
     try:
         with open(file_path, encoding="utf-8") as file:
-            callsigns = {line.strip() for line in file}
-        return list(callsigns)
+            return {line.strip() for line in file}
     except FileNotFoundError:
-        return []
+        return set()
 
-
-def download_file(url, output_file_path, zip_files: list[str] = None):
-    """Download a file from the given URL to the output file path."""
+def download_file(url: str, output_file_path: str, zip_files: Optional[List[str]] = None) -> None:
+    """Download a file from the given URL to the output file path.
+    :param url: URL of the file to download.
+    :param output_file_path: Path where to save the file.
+    :param zip_files: List of files to extract from the ZIP file.
+    """
     if url.endswith(".zip"):
         download_zip_file(
             url,
@@ -220,17 +265,22 @@ def download_file(url, output_file_path, zip_files: list[str] = None):
             output_file.write(requests.get(url, timeout=constants.REQUEST_TIMEOUT).content)
         logger.info("File saved to %s", output_file_path)
 
-
-def download_zip_file(url, output_file_path, zip_files: list[str] = None):
-    """Download a ZIP file from the given URL to the output file path."""
+def download_zip_file(
+    url: str,
+    output_file_path: str,
+    zip_files: Optional[List[str]] = None,
+) -> None:
+    """Download a ZIP file from the given URL to the output file path.
+    :param url: URL of the ZIP file to download.
+    :param output_file_path: Path where to save the extracted contents.
+    :param zip_files: List of files to extract from the ZIP file.
+    """
     if not url.endswith(".zip"):
         raise ValueError(f"Invalid URL {url}. Expected a ZIP file URL.")
-
     with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as temp_file:
         temp_file.write(requests.get(url, timeout=constants.REQUEST_TIMEOUT).content)
     temp_file_path = temp_file.name
     logger.info("Downloaded %s to %s", url, temp_file_path)
-
     with zipfile.ZipFile(temp_file_path, "r") as zip_ref:  # noqa: SIM117
         with open(output_file_path, "wb") as output_file:
             for file_info in zip_ref.infolist():
@@ -239,14 +289,16 @@ def download_zip_file(url, output_file_path, zip_files: list[str] = None):
                 output_file.write(zip_ref.open(file_info).read())
     logger.info("Extracted %s to %s", url, output_file_path)
 
-
 def get_current_time() -> float:
     """Returns the current time in seconds since the epoch."""
     return time.time()
 
 
-def read_metrics_from_file(metrics_file: str) -> list[QuestionMetric]:
-    """Reads metrics from a file."""
+def read_metrics_from_file(metrics_file: str) -> List[QuestionMetric]:
+    """Reads metrics from a file.
+    :param metrics_file: Path to the metrics file.
+    :return: List of question metrics.
+    """
     metrics = []
     if not os.path.exists(metrics_file):
         return metrics
@@ -264,12 +316,17 @@ def read_metrics_from_file(metrics_file: str) -> list[QuestionMetric]:
                 metrics.append(metric)
     return metrics
 
-
-def get_user_agent(app_config: dict) -> str:
-    """Returns a random user agent from the list of user agents."""
+def get_user_agent(app_config: Optional[Dict[str, Any]]) -> str:
+    """Returns a user agent string with app information.
+    :param app_config: Application configuration dictionary.
+    :return: User agent string.
+    """
     if app_config is None:
         app_config = {}
     app_name = app_config.get("name", constants.APP_NAME)
     app_ver = app_config.get("version", constants.APP_VERSION)
     app_desc = app_config.get("description", "")
-    return f"{app_name}/{app_ver} ({constants.GITHUB_URL}; {app_desc})"
+    logger.debug("App Name: %s, App Version: %s, App Description: %s", app_name, app_ver, app_desc)
+    user_agent = f"{app_name}/{app_ver} ({constants.GITHUB_URL}; {app_desc})"
+    logger.info("User Agent: %s", user_agent)
+    return user_agent
