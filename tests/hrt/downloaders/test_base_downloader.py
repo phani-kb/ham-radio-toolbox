@@ -1,7 +1,8 @@
 import unittest
 from unittest.mock import patch
-from hrt.downloaders.base_downloader import DownloaderFactory
+
 from hrt.common.enums import CountryCode, DownloadType
+from hrt.downloaders.base_downloader import DownloaderFactory
 
 
 class TestBaseDownloader(unittest.TestCase):

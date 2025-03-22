@@ -1,5 +1,4 @@
 """QuestionProcessor class to process questions based on the criteria"""
-
 from pathlib import Path
 from typing import List, Union
 
@@ -60,32 +59,27 @@ class QuestionProcessor:
         """Get the question bank."""
         return self._qb
 
-    def _initialize_paths(self):
+    def _initialize_paths(self) -> None:
         country_settings = self.config.get_country_settings(self.country.code)
         exam_settings = country_settings.get("question_bank").get(self.exam_type.id)
         input_settings = self.config.get_input()
-
         if not self.exam_type.is_supported:
             raise ValueError(f"Exam type {self.exam_type} for {self.country} is not supported")
-
         file = exam_settings.get("file")
         if not file:
             raise ValueError(f"Questions file not set for {self.country} and {self.exam_type}")
         folder = input_settings.get("folder")
         if not folder:
             raise ValueError("Input folder not found in the config file")
-
         self.file_path = Path(folder) / self.country.code / self.exam_type.id / file
         if not self.file_path.exists():
             raise FileNotFoundError(f"Questions file not found at {self.file_path}")
-
         categories_file = exam_settings.get("categories_file")
         self.categories_file_path = (
             Path(folder) / self.country.code / categories_file if categories_file else None
         )
         if self.categories_file_path and not self.categories_file_path.exists():
             raise FileNotFoundError(f"Categories file not found at {self.categories_file_path}")
-
         marked_questions_file = input_settings.get("files", {}).get(
             "marked_questions",
             constants.DEFAULT_MARKED_QUESTIONS_FILENAME,
@@ -99,12 +93,10 @@ class QuestionProcessor:
                 "Marked questions file not found. Created new file at %s",
                 self.marked_questions_file_path,
             )
-
         self.input_folder = folder
         self.output_folder = self.config.get_output().get("folder")
         if not self.output_folder:
             raise ValueError("Output folder not found in the config file")
-
         # set metrics file path
         metrics_config = self.config.get("metrics")
         metrics_folder = metrics_config.get("folder", constants.DEFAULT_METRICS_FOLDER)
@@ -118,7 +110,7 @@ class QuestionProcessor:
                 "Metrics file not found. Created new file at %s", self.metrics_file_path
             )
 
-    def _initialize_question_display(self):
+    def _initialize_question_display(self) -> None:
         question_display = QuestionDisplayModeFactory.get_question_display_mode(
             self.display_mode
         ).get_default_question_display()
@@ -133,7 +125,7 @@ class QuestionProcessor:
         result_text: List[str],
         criteria: Union[QuestionListingType, TopQuestionsListingType, MarkedQuestionListingType],
         save_to_file: bool,
-    ):
+    ) -> None:
         output = [utils.get_header(criteria.name)]
         output.extend(result_text)
         answers = get_answers(result)
@@ -150,8 +142,8 @@ class QuestionProcessor:
     def _save_to_file(
         self,
         output: List[str],
-        criteria: QuestionListingType | TopQuestionsListingType | MarkedQuestionListingType,
-    ):
+        criteria: Union[QuestionListingType, TopQuestionsListingType, MarkedQuestionListingType],
+    ) -> None:
         filename = criteria.get_filename()
         output_file = Path(self.country.code) / self.exam_type.id / filename
         utils.save_output(output_file, "\n".join(output), self.output_folder)
@@ -159,11 +151,11 @@ class QuestionProcessor:
 
     def list(
         self,
-        criteria: QuestionListingType | TopQuestionsListingType,
-        answer_display: QuestionAnswerDisplay | QuizAnswerDisplay,
+        criteria: Union[QuestionListingType, TopQuestionsListingType],
+        answer_display: Union[QuestionAnswerDisplay, QuizAnswerDisplay],
         max_questions: int = constants.DEFAULT_TOP_QUESTIONS_COUNT,
         save_to_file: bool = True,
-    ):
+    ) -> None:
         """List the questions based on the criteria."""
         if answer_display:
             Question.question_display.answer_display = answer_display
@@ -173,14 +165,13 @@ class QuestionProcessor:
     def list_marked(
         self,
         criteria: MarkedQuestionListingType,
-        answer_display: QuestionAnswerDisplay | QuizAnswerDisplay,
+        answer_display: Union[QuestionAnswerDisplay, QuizAnswerDisplay],
         questions_count: int = constants.MIN_MARKED_QUESTIONS_COUNT,
         save_to_file: bool = True,
-    ):
+    ) -> None:
         """List marked questions based on the criteria."""
         if Question.question_display is None:
             Question.question_display = QuestionDisplay(answer_display)
-
         if answer_display:
             Question.question_display.answer_display = answer_display
         metrics = None # TODO

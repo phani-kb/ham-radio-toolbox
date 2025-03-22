@@ -7,11 +7,11 @@ from hrt.common.quiz import Quiz
 class USQuiz(Quiz):
     """US Quiz class."""
 
-    def pre_process(self):
+    def pre_process(self) -> None:
         super().validate_exam_type(CountryCode.UNITED_STATES)
 
-    def post_process(self):
+    def post_process(self) -> None:
         pass
 
-    def start(self):
+    def start(self) -> None:
         raise NotImplementedError("USQuiz.start() not supported yet")
