@@ -12,67 +12,67 @@ The Quiz class has the following attributes:
 - start_time: The start time of the quiz
 - end_time: The end time of the quiz
 """
-
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 from hrt.common import utils
 from hrt.common.config_reader import logger
 from hrt.common.enums import CountryCode, ExamType, QuestionDisplayMode, QuizAnswerDisplay
-from hrt.common.hrt_types import QuestionNumber
 from hrt.common.question import Question
 from hrt.common.question_display import QuizQuestionDisplay
 from hrt.common.question_submitted import QuestionSubmitted
 
+if TYPE_CHECKING:
+    from hrt.common.hrt_types import QuestionNumber  # pragma: no cover
 
 class IQuiz(ABC):
     """Quiz interface."""
-
     @abstractmethod
-    def pre_process(self):
+    def pre_process(self) -> None:
         """Pre-process the quiz."""
 
     @abstractmethod
-    def post_process(self):
+    def post_process(self) -> None:
         """Post-process the quiz."""
 
     @abstractmethod
-    def start(self):
+    def start(self) -> None:
         """Start the quiz."""
 
     @abstractmethod
-    def previous_question(self):
+    def previous_question(self) -> None:
         """Move to the previous question."""
 
     @abstractmethod
-    def next_question(self):
+    def next_question(self) -> None:
         """Move to the next question."""
 
     @abstractmethod
-    def submit(self, choice_index: int):
+    def submit(self, choice_index: int) -> None:
         """Submit the answer for the current question."""
 
     @abstractmethod
-    def mark(self, choice_index: int):
+    def mark(self, choice_index: int) -> None:
         """Mark the current question."""
 
     @abstractmethod
-    def unmark(self):
+    def unmark(self) -> None:
         """Unmark the current question."""
 
     @abstractmethod
-    def skip(self):
+    def skip(self) -> None:
         """Skip the current question"""
 
     @abstractmethod
-    def quit(self):
+    def quit(self) -> None:
         """Quit the quiz."""
 
     @abstractmethod
-    def finish(self):
+    def finish(self) -> None:
         """Finish the quiz."""
 
     @abstractmethod
-    def change_answer(self):
+    def change_answer(self) -> None:
         """Change the answer for the current question."""
 
     @abstractmethod
@@ -92,7 +92,7 @@ class IQuiz(ABC):
         """Get the current index."""
 
     @abstractmethod
-    def set_current_index(self, index: int):
+    def set_current_index(self, index: int) -> None:
         """Set the current index."""
 
     @abstractmethod
@@ -104,15 +104,19 @@ class IQuiz(ABC):
         """Print the question."""
 
     @abstractmethod
-    def get_actions(self, submitted: bool) -> tuple[str, list[str]]:
+    def get_actions(self, submitted: bool, skip_last: bool = False) -> Tuple[str, List[str]]:
         """Get the actions for the current question."""
 
     @abstractmethod
-    def get_questions(self) -> list[Question]:
+    def process_action(self, action: str, choice_index: int, actions: List[str]) -> None:
+        """Process the action selected by the user."""
+
+    @abstractmethod
+    def get_questions(self) -> List[Question]:
         """Get the questions in the quiz."""
 
     @abstractmethod
-    def get_results(self) -> tuple[int, int, int]:
+    def get_results(self) -> Tuple[int, int, int]:
         """Get the results of the quiz."""
 
     @abstractmethod
@@ -124,7 +128,7 @@ class IQuiz(ABC):
         """Get the duration of the quiz."""
 
     @abstractmethod
-    def get_marked_questions(self) -> list[Question]:
+    def get_marked_questions(self) -> List[Question]:
         """Get the marked questions."""
 
 
@@ -134,11 +138,11 @@ class Quiz(IQuiz, ABC):
     def __init__(
         self,
         number_of_questions: int,
-        questions: list[Question],
+        questions: List[Question],
         exam_type: ExamType,
         display_mode: QuestionDisplayMode,
         answer_display: QuizAnswerDisplay,
-        quiz_config: dict,
+        quiz_config: Dict,
     ):
         if number_of_questions != len(questions):
             logger.warning(
@@ -150,7 +154,7 @@ class Quiz(IQuiz, ABC):
         self._questions = questions
         self._exam_type = exam_type
         self._current_index = 0
-        self._submitted_questions = {}
+        self._submitted_questions: Dict[QuestionNumber, QuestionSubmitted] = {}
         self._mark_wrong_answers = quiz_config["mark_wrong_answers"]
         self._terminate_quiz = False
         self._display_mode = display_mode
@@ -166,7 +170,7 @@ class Quiz(IQuiz, ABC):
         self._start_time: float = 0
         self._end_time: float = 0
 
-    def validate_exam_type(self, country: CountryCode):
+    def validate_exam_type(self, country: CountryCode) -> None:
         """Validate the exam type for the given country."""
         if self._exam_type.country != country:
             raise ValueError("Invalid exam type for the country.")
@@ -174,19 +178,20 @@ class Quiz(IQuiz, ABC):
     def _display_question_and_get_action(self, skip_last=False):
         pass
 
-    def previous_question(self):
+    def previous_question(self) -> None:
         if self._current_index > 0:
             self._current_index -= 1
         else:
             print("No previous question available.")
 
-    def next_question(self):
+    def next_question(self) -> None:
         if self._current_index < len(self._questions) - 1:
             self._current_index += 1
         else:
             print("No next question available.")
 
-    def start(self):
+    def start(self) -> None:
+        """Start the quiz."""
         print(
             utils.get_header(
                 f"\nQuiz: {self._exam_type.id} - "
@@ -197,7 +202,7 @@ class Quiz(IQuiz, ABC):
         self._start_time = utils.get_current_time()
         self._display_question_and_get_action()
 
-    def process_action(self, action: str, choice_index: int, actions: list[str]):
+    def process_action(self, action: str, choice_index: int, actions: List[str]) -> None:
         """Process the action selected by the user."""
         if action not in actions:
             print("Invalid action. Please select a valid action.")
@@ -216,7 +221,7 @@ class Quiz(IQuiz, ABC):
         action_map[action]()
         self._display_question_and_get_action()
 
-    def submit(self, choice_index: int):
+    def submit(self, choice_index: int) -> None:
         cq = self.get_current_question()
         if cq.question_number in self._submitted_questions:
             return
@@ -237,17 +242,15 @@ class Quiz(IQuiz, ABC):
         self._submitted_questions[cq.question_number] = QuestionSubmitted(
             cq.question_number, cq.quiz_choices[choice_index]
         )
-
         if not is_correct and self._mark_wrong_answers:
             cq.is_marked = True
-
-        print(self.get_progress())
+        print(self.get_progress() + "\n")
         if len(self._submitted_questions) == self._number_of_questions:
             self.finish()
         else:
             self.next_question()
 
-    def mark(self, choice_index: int):
+    def mark(self, choice_index: int) -> None:
         current_question = self.get_current_question()
         if not current_question.is_marked:
             current_question.is_marked = True
@@ -259,10 +262,9 @@ class Quiz(IQuiz, ABC):
             return
         if current_question.quiz_choices[choice_index] == Question.SKIP_CHOICE:
             self.skip()
-
         self.submit(choice_index)
 
-    def unmark(self):
+    def unmark(self) -> None:
         current_question = self.get_current_question()
         if current_question.is_marked:
             current_question.is_marked = False
@@ -270,7 +272,7 @@ class Quiz(IQuiz, ABC):
         else:
             print(f"Question {current_question.question_number} is not marked.")
 
-    def skip(self):
+    def skip(self) -> None:
         current_question = self.get_current_question()
         if current_question.question_number in self._submitted_questions:
             return
@@ -280,7 +282,7 @@ class Quiz(IQuiz, ABC):
         else:
             self.next_question()
 
-    def quit(self):
+    def quit(self) -> None:
         self._end_time = utils.get_current_time()
         self._terminate_quiz = True
 
@@ -300,7 +302,7 @@ class Quiz(IQuiz, ABC):
         """Get the display mode for the question bank."""
         return self._display_mode
 
-    def get_questions(self) -> list[Question]:
+    def get_questions(self) -> List[Question]:
         return self._questions
 
     def get_current_question(self) -> Question:
@@ -309,15 +311,20 @@ class Quiz(IQuiz, ABC):
     def get_current_index(self) -> int:
         return self._current_index
 
-    def set_current_index(self, index: int):
+    def set_current_index(self, index: int) -> None:
         self._current_index = index
 
     def get_question_by_index(self, index: int) -> Question:
-        return self._questions[index]
+        if 0 <= index < self._number_of_questions:
+            return self._questions[index]
+        raise IndexError("Index out of range")
 
-    def get_question_by_number(self, question_number: QuestionNumber) -> Question:
-        """Get the question by question number."""
-        return next((q for q in self._questions if q.question_number == question_number), None)
+    def get_question_by_number(self, question_number: "QuestionNumber") -> Optional[Question]:
+        """Get a question by its question number."""
+        for question in self._questions:
+            if question.question_number == question_number:
+                return question
+        return None
 
     def print_question(self, question: Question) -> str:
         output = (
@@ -394,22 +401,67 @@ class Quiz(IQuiz, ABC):
         )
         return action_prompt, actions
 
-    def get_results(self) -> tuple[int, int, int]:
-        correct_attempts = len([q for q in self._questions if q.correct_attempts > 0])
-        wrong_attempts = len([q for q in self._questions if q.wrong_attempts > 0])
-        skip_count = len([q for q in self._questions if q.skip_count > 0])
-        return correct_attempts, wrong_attempts, skip_count
+    def get_results(self) -> Tuple[int, int, int]:
+        """Get the results of the quiz.
+        Returns a tuple of (correct, wrong, skipped).
+        """
+        correct = 0
+        wrong = 0
+        skipped = 0
+        for q in self._questions:
+            correct += q.correct_attempts
+            wrong += q.wrong_attempts
+            skipped += q.skip_count
+
+        return correct, wrong, skipped
 
     def get_progress(self) -> str:
-        progress = len(self._submitted_questions)
-        output = f"Progress: {progress}/{self._number_of_questions}\n"
-        if Question.question_display.answer_display == QuizAnswerDisplay.AFTER_QUESTION:
-            correct_attempts = len([q for q in self._questions if q.correct_attempts > 0])
-            output += f"Correct answers: {correct_attempts}/{self._number_of_questions}\n"
-        return output
+        """Get the progress of the quiz."""
+        current = self._current_index + 1
+        total = self._number_of_questions
+        return f"Progress: {current}/{total}"
 
     def get_duration(self) -> int:
-        return round(self._end_time - self._start_time)
+        if self._end_time == 0:
+            duration = int(utils.get_current_time() - self._start_time)
+        else:
+            duration = int(self._end_time - self._start_time)
+        return duration
 
-    def get_marked_questions(self) -> list[Question]:
+    def get_marked_questions(self) -> List[Question]:
         return [q for q in self._questions if q.is_marked]
+
+
+class QuizFactory:
+    """Factory class to create quizzes."""
+    @staticmethod
+    def get_quiz(
+        number_of_questions: int,
+        questions: List[Question],
+        exam_type: ExamType,
+        display_mode: QuestionDisplayMode,
+        answer_display: QuizAnswerDisplay,
+        quiz_config: Dict,
+    ) -> Quiz:
+        """Get a quiz."""
+        if exam_type.country == CountryCode.CANADA:
+            from hrt.question_banks.ca_quiz import CAQuiz
+            return CAQuiz(
+                number_of_questions,
+                questions,
+                exam_type,
+                display_mode,
+                answer_display,
+                quiz_config,
+            )
+        if exam_type.country == CountryCode.UNITED_STATES:
+            from hrt.question_banks.us_quiz import USQuiz
+            return USQuiz(
+                number_of_questions,
+                questions,
+                exam_type,
+                display_mode,
+                answer_display,
+                quiz_config,
+            )
+        raise ValueError(f"Unsupported exam type: {exam_type}")

@@ -1,4 +1,5 @@
 """CA scraper."""
+from typing import Dict, List, Optional
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
@@ -11,10 +12,10 @@ from hrt.common.utils import select_from_options
 from hrt.scrapers.base_scraper import BaseScraper
 
 
-def select_option(element, prompt):
+def select_option(element, prompt: str) -> None:
     options = element.find_elements(By.TAG_NAME, "option")
     # read <option value="VA2">VA2 - Quebec</option> and get the value
-    options_list = {}
+    options_list: Dict[str, str] = {}
     for option in options:
         option_text = option.text
         option_value = option.get_attribute("value")
@@ -28,17 +29,16 @@ def select_option(element, prompt):
 
 
 class CAScraper(BaseScraper):
-    def __init__(self, driver, app_config=None):
+    def __init__(self, driver: str, app_config: Optional[Dict] = None):
         super().__init__(driver, CountryCode.CANADA, app_config)
 
-    def download_assigned_callsigns(self, url, output_file_path):
+    def download_assigned_callsigns(self, url: str, output_file_path: str) -> None:
         from hrt.common.utils import download_zip_file
 
         download_zip_file(url, output_file_path)
-        logger.info(f"Extracted callsigns to {output_file_path}")
 
-    def download_available_callsigns(self, url, output_file_path):
-        callsigns = []
+    def download_available_callsigns(self, url: str, output_file_path: str) -> List[str]:
+        callsigns: List[str] = []
 
         try:
             self.driver.get(url)
