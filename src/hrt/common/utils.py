@@ -4,7 +4,7 @@ import os
 import tempfile
 import time
 import zipfile
-from typing import Any, Dict, Iterable, List, Optional, Set, TypeVar
+from typing import Any, Dict, Iterable, List, Optional, Set, TypeVar, Union
 
 import click
 import requests
@@ -293,6 +293,25 @@ def get_current_time() -> float:
     """Returns the current time in seconds since the epoch."""
     return time.time()
 
+def load_question_metrics(metrics_file_path: Union[str, os.PathLike]) -> List[QuestionMetric]:
+    """Loads metrics from a file.
+    :param metrics_file_path: Path to the metrics file.
+    :return: List of question metrics.
+    """
+    metrics = []
+    if not os.path.exists(metrics_file_path):
+        return metrics
+    with open(metrics_file_path, "r", encoding="utf-8") as file:
+        for line in file:
+            parts = line.strip().split(constants.DEFAULT_METRICS_DELIMITER)
+            if len(parts) == 4:
+                metric = QuestionMetric(
+                    QuestionNumber(parts[0]), int(parts[1]), int(parts[2]), int(parts[3])
+                )
+                metrics.append(metric)
+            else:
+                logger.warning("Invalid metrics line: %s", line)
+    return metrics
 
 def read_metrics_from_file(metrics_file: str) -> List[QuestionMetric]:
     """Reads metrics from a file.

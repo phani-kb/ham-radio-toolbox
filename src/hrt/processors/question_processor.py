@@ -174,6 +174,6 @@ class QuestionProcessor:
             Question.question_display = QuestionDisplay(answer_display)
         if answer_display:
             Question.question_display.answer_display = answer_display
-        metrics = None # TODO
+        metrics = utils.load_question_metrics(self.metrics_file_path)
         result, result_text = self._qb.get_marked_questions(criteria, metrics, questions_count)
         self._process_list_result(result, result_text, criteria, save_to_file)
