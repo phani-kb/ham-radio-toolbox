@@ -1,9 +1,11 @@
 import click
+from webdriver_manager.chrome import ChromeDriverManager
 
 from hrt.common import utils
 from hrt.common.config_reader import ConfigReader, HRTConfig, logger
 from hrt.common.enums import (
     CountryCode,
+    DownloadType,
     ExamType,
     HRTEnum,
     NumberOfLetters,
@@ -13,6 +15,7 @@ from hrt.common.enums import (
     RankBy,
     SortBy,
 )
+from hrt.downloaders.base_downloader import DownloaderFactory
 
 
 @click.group(
@@ -152,6 +155,50 @@ def download(ctx, country, output):
     ctx.obj["country_code"] = country
     ctx.obj["output"] = output
     logger.info(f"Downloading data for country: {country}")
+
+def get_downloader(ctx, download_type_value: str, country_download_type_config_key: str):
+    country_code = ctx.obj["country_code"]
+    country = CountryCode.from_id(country_code)
+    output = ctx.obj["output"]
+    config = ctx.obj["config"]
+
+    chrome_driver_path: str = config.get("web_driver")
+    if not chrome_driver_path:
+        chrome_driver_path = ChromeDriverManager().install()
+        logger.info(f"Chrome driver path not found. Installing driver at: {chrome_driver_path}")
+
+    country_config = config.get_country_settings(country_code)
+    if not country_config:
+        logger.error(f"Country {country_code} not found in the configuration")
+        return None
+
+    output_config = config.get_output()
+    if not output_config:
+        logger.error("Output configuration not found")
+        return None
+
+    output_folder = output or (output_config.get("folder") if output_config else None)
+    if not output_folder:
+        logger.error("Output folder not found")
+        return None
+
+    download_type = DownloadType.from_id_and_country(download_type_value, country)
+    if not download_type:
+        logger.error(f"Download type {download_type_value} not found in the configuration")
+        return None
+
+    dt_config = config.get_country_settings(country_code).get(country_download_type_config_key)
+    app_config = config.get("application")
+
+    return DownloaderFactory.get_downloader(
+        chrome_driver_path,
+        country,
+        download_type,
+        output_folder,
+        dt_config,
+        app_config,
+    )
+
 
 
 # CALLSIGN COMMANDS
