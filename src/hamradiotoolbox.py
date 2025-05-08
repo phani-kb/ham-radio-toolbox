@@ -16,6 +16,7 @@ from hrt.common.enums import (
     SortBy,
 )
 from hrt.downloaders.base_downloader import DownloaderFactory
+from hrt.processors.callsign_processor import CallSignsProcessor
 
 
 @click.group(
@@ -135,6 +136,8 @@ def question(ctx, country, answer_display, save_to_file):
     ctx.obj["country_code"] = country
     ctx.obj["answer_display"] = answer_display
     ctx.obj["save_to_file"] = save_to_file
+
+
 # DOWNLOAD COMMANDS
 @hamradiotoolbox.group("download")
 @click.option(
@@ -155,6 +158,7 @@ def download(ctx, country, output):
     ctx.obj["country_code"] = country
     ctx.obj["output"] = output
     logger.info(f"Downloading data for country: {country}")
+
 
 def get_downloader(ctx, download_type_value: str, country_download_type_config_key: str):
     country_code = ctx.obj["country_code"]
@@ -198,7 +202,6 @@ def get_downloader(ctx, download_type_value: str, country_download_type_config_k
         dt_config,
         app_config,
     )
-
 
 
 # CALLSIGN COMMANDS
@@ -257,17 +260,35 @@ def callsign(ctx, country, match, include, exclude, sort_by, rank_by):
 
     config = ctx.obj["config"]
 
+    phonetic_clarity = None
     if rank_by and RankBy(rank_by) == RankBy.PHONETIC_CLARITY:
         phonetic_clarity_options = get_phonetic_clarity_options(config)
-        utils.select_from_options(phonetic_clarity_options, "Phonetic clarity option")
+        phonetic_clarity = utils.select_from_options(
+            phonetic_clarity_options, "Phonetic clarity option"
+        )
 
+    confusing_pair = None
     if rank_by and RankBy(rank_by) == RankBy.CONFUSING_PAIR:
         confusing_pairs = get_confusing_pairs(config)
-        utils.select_from_options(confusing_pairs, "Confusing pair")
+        confusing_pair = utils.select_from_options(confusing_pairs, "Confusing pair")
 
+    match_options = match if match else []
     include_options = include if include else []
     exclude_options = exclude if exclude else []
     logger.info(f"Include options: {include_options}, Exclude options: {exclude_options}")
+
+    processor = CallSignsProcessor(
+        config,
+        country,
+        phonetic_clarity,
+        confusing_pair,
+        rank_by,
+        match_options,
+        include_options,
+        exclude_options,
+        sort_by,
+    )
+    processor.process_callsigns()
 
 
 if __name__ == "__main__":

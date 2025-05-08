@@ -12,6 +12,7 @@ The Quiz class has the following attributes:
 - start_time: The start time of the quiz
 - end_time: The end time of the quiz
 """
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
@@ -25,8 +26,10 @@ from hrt.common.question_submitted import QuestionSubmitted
 if TYPE_CHECKING:
     from hrt.common.hrt_types import QuestionNumber  # pragma: no cover
 
+
 class IQuiz(ABC):
     """Quiz interface."""
+
     @abstractmethod
     def pre_process(self) -> None:
         """Pre-process the quiz."""
@@ -134,6 +137,10 @@ class IQuiz(ABC):
 
 class Quiz(IQuiz, ABC):
     """Quiz class."""
+
+    # Common pass percentages for quizzes
+    PASS_PERCENTAGE: int = 70
+    PASS_PERCENTAGE_WITH_HONOURS: int = 80
 
     def __init__(
         self,
@@ -327,78 +334,35 @@ class Quiz(IQuiz, ABC):
         return None
 
     def print_question(self, question: Question) -> str:
-        output = (
-            f"[{self._current_index + 1}/{self._number_of_questions}] "
-            f"{question.question_number}: {question.question_text}\n"
-        )
-        for i, choice in enumerate(question.quiz_choices):
-            if question.question_number in self._submitted_questions:
-                if choice == self._submitted_questions[question.question_number].selected_choice:
-                    char = "\033[92m✓\033[0m" if choice == question.answer else "\033[91m✗\033[0m"
-                    output += f"{char}   {i + 1}. {choice}\n"
-                elif choice == question.answer:
-                    output += f"\033[92m✓\033[0m   {i + 1}. {choice}\n"
-                else:
-                    output += f"    {i + 1}. {choice}\n"
+        """Print the question."""
+        question_text = question.format_quiz_question()
+        progress_text = self.get_progress()
+        if question.is_marked and question.question_display.show_marked_status:
+            question_text += f"Marked: {'Yes' if question.is_marked else 'No'}\n"
+        question_text += f"\n{progress_text}"
+        return question_text
+
+    def get_actions(self, submitted: bool, skip_last: bool = False) -> Tuple[str, List[str]]:
+        """Get the actions for the current question."""
+        if submitted:
+            if self._current_index == 0:
+                action_prompt = "Actions: [N]ext, [Q]uit"
+                actions = ["N", "Q"]
+            elif self._current_index == self._number_of_questions - 1:
+                action_prompt = "Actions: [P]revious, [Q]uit, [F]inish"
+                actions = ["P", "Q", "F"]
             else:
-                output += f"    {i + 1}. {choice}\n"
-        if question.is_marked:
-            output += "*** Marked ***\n"
-        if (
-            question.question_display.show_metrics
-            and self.get_display_mode() != QuestionDisplayMode.PRACTICE_EXAM
-        ):
-            em = question.existing_metric
-            output += (
-                f"\033[92m{em.correct_attempts}\033[0m "
-                f"\033[91m{em.wrong_attempts}\033[0m "
-                f"\033[94m{em.skip_count}\033[0m\n"
-            )
-        return output
-
-    def get_actions(self, submitted: bool, skip_last: bool = False) -> tuple[str, list[str]]:
-        action_descriptions = {
-            "P": "Previous",
-            "N": "Next",
-            "S": "Submit",
-            "M": "Mark",
-            "U": "Unmark",
-            "Q": "Quit",
-            "F": "Finish",
-            "C": "Change Answer",
-        }
-        base_actions = ["Q", "F"]
-        if not submitted and not skip_last:
-            base_actions.append("S")
-
-        current_question = self.get_current_question()
-
-        if current_question.question_number in self._submitted_questions:
-            actions = (
-                ["P", "N"]
-                if self.get_current_index() not in [0, self.get_number_of_questions() - 1]
-                else ["N"]
-                if self.get_current_index() == 0
-                else ["P"]
-            )
+                action_prompt = "Actions: [P]revious, [N]ext, [Q]uit, [F]inish"
+                actions = ["P", "N", "Q", "F"]
         else:
-            actions = (
-                ["P", "N", "C"]
-                if self.get_current_index() not in [0, self.get_number_of_questions() - 1]
-                else ["N", "C"]
-                if self.get_current_index() == 0
-                else ["P", "C"]
-            )
+            cq = self.get_current_question()
+            if cq.is_marked:
+                action_prompt = "Actions: [S]ubmit, [M]ark, [U]nmark, [C]hange, [K]skip, [Q]uit"
+                actions = ["S", "M", "U", "C", "K", "Q"]
+            else:
+                action_prompt = "Actions: [S]ubmit, [M]ark, [C]hange, [K]skip, [Q]uit"
+                actions = ["S", "M", "C", "K", "Q"]
 
-        if current_question.is_marked:
-            actions.append("U")
-        else:
-            actions.append("M")
-
-        actions += base_actions
-        action_prompt = ", ".join(
-            f"[{action}]:{action_descriptions[action]}" for action in actions
-        )
         return action_prompt, actions
 
     def get_results(self) -> Tuple[int, int, int]:
@@ -431,9 +395,13 @@ class Quiz(IQuiz, ABC):
     def get_marked_questions(self) -> List[Question]:
         return [q for q in self._questions if q.is_marked]
 
+    def post_process(self) -> None:
+        pass
+
 
 class QuizFactory:
     """Factory class to create quizzes."""
+
     @staticmethod
     def get_quiz(
         number_of_questions: int,
@@ -446,6 +414,7 @@ class QuizFactory:
         """Get a quiz."""
         if exam_type.country == CountryCode.CANADA:
             from hrt.question_banks.ca_quiz import CAQuiz
+
             return CAQuiz(
                 number_of_questions,
                 questions,
@@ -456,6 +425,7 @@ class QuizFactory:
             )
         if exam_type.country == CountryCode.UNITED_STATES:
             from hrt.question_banks.us_quiz import USQuiz
+
             return USQuiz(
                 number_of_questions,
                 questions,
