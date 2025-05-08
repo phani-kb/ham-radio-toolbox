@@ -1,4 +1,5 @@
 """CA scraper."""
+
 from typing import Dict, List, Optional
 
 from selenium.webdriver.common.by import By

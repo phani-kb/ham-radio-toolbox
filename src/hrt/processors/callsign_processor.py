@@ -250,11 +250,13 @@ class CallSignsProcessor:
         # Process include/exclude options
         included_callsigns = (
             self.process_options(callsigns, self.include_options)
-            if self.include_options else set()
+            if self.include_options
+            else set()
         )
         excluded_callsigns = (
             self.process_options(callsigns, self.exclude_options, False)
-            if self.exclude_options else set()
+            if self.exclude_options
+            else set()
         )
 
         # Determine final set based on include/exclude options

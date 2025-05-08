@@ -1,4 +1,5 @@
 """Utility functions for the HRT project."""
+
 import csv
 import os
 import tempfile
@@ -15,7 +16,8 @@ from hrt.common.enums import SortBy
 from hrt.common.hrt_types import QuestionNumber
 from hrt.common.question_metric import QuestionMetric
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 def read_delim_file(
     file_path: str,
@@ -50,6 +52,7 @@ def read_delim_file(
         logger.error("An error occurred reading the file at %s: %s", file_path, e)
     return data
 
+
 def save_output(filename: str, output: str, folder: Optional[str] = None) -> None:
     """Saves the output to a file with the given filename in the given folder.
     :param filename: Name of the file to save the output.
@@ -60,12 +63,14 @@ def save_output(filename: str, output: str, folder: Optional[str] = None) -> Non
     with open(filename, "w", encoding="utf-8", newline="") as file:
         file.write(output)
 
+
 def get_header(header: str) -> str:
     """Returns the header with a separator line.
     :param header: Header to be returned.
     :return: Header with a separator line.
     """
     return f'{header}\n{"-" * len(header)}'
+
 
 def create_folder(folder: str) -> None:
     """Creates a folder if it does not exist.
@@ -75,6 +80,7 @@ def create_folder(folder: str) -> None:
     if not is_folder_exists:
         os.makedirs(folder)
 
+
 def read_filename(default_filename: str) -> str:
     """Reads a filename from the user input or returns the default filename.
     :param default_filename: Default filename to be returned if user input is empty.
@@ -82,6 +88,7 @@ def read_filename(default_filename: str) -> str:
     """
     filename = input(f"Enter a filename to save output (default: {default_filename}): ")
     return filename if filename else default_filename
+
 
 def read_number_from_input(prompt: str, min_value: int, max_value: int) -> int:
     """Reads a number from the user input within a specified range.
@@ -101,6 +108,7 @@ def read_number_from_input(prompt: str, min_value: int, max_value: int) -> int:
             print(f"Invalid input. Please enter a number between {min_value} and {max_value}.")
         except ValueError:
             print("Invalid input. Please enter a valid number.")
+
 
 def write_output(
     output: List[str],
@@ -123,6 +131,7 @@ def write_output(
         for line in output:
             file.write(f"{line}\n")
 
+
 def permutations(word: str) -> List[str]:
     """Returns all possible permutations of a word.
     :param word: Word to generate permutations.
@@ -136,12 +145,14 @@ def permutations(word: str) -> List[str]:
             perms.append(letter + perm)
     return perms
 
+
 def get_word_combinations(word: str) -> List[str]:
     """Returns all possible combinations of a word.
     :param word: Word to generate combinations.
     :return: List of combinations of the word.
     """
     return ["".join(p) for p in permutations(word)]
+
 
 def select_from_options(options: Dict[str, str], prompt: str) -> Optional[str]:
     """Selects an option from a dictionary of options.
@@ -166,6 +177,7 @@ def select_from_options(options: Dict[str, str], prompt: str) -> Optional[str]:
         except ValueError:
             print("Invalid input. Please enter a number.")
 
+
 def select_option_from_list(options: Iterable[str], prompt: str) -> Optional[str]:
     """Selects an option from a list of options.
     :param options: List of options to select from.
@@ -189,6 +201,7 @@ def select_option_from_list(options: Iterable[str], prompt: str) -> Optional[str
         except ValueError:
             print("Invalid input. Please enter a number.")
 
+
 def get_user_input_index(choices: List[Any], prompt: str) -> int:
     """Selects a choice index from the given list of choices.
     :param choices: List of choices to select from.
@@ -204,6 +217,7 @@ def get_user_input_index(choices: List[Any], prompt: str) -> int:
         except ValueError:
             print("Invalid input. Please enter a number.")
 
+
 def get_user_input_option(choices: List[str], prompt: str) -> str:
     """Selects a choice from the given list of choices.
     :param choices: List of choices to select from.
@@ -217,6 +231,7 @@ def get_user_input_option(choices: List[str], prompt: str) -> str:
             return choices[choices_lower.index(choice)]
         print("Invalid choice. Please select a valid option.")
 
+
 def sort_callsigns(callsigns: List[str], sort_by: Optional[str]) -> List[str]:
     """Sort callsigns by specific criteria.
     :param callsigns: List of callsigns to sort.
@@ -229,6 +244,7 @@ def sort_callsigns(callsigns: List[str], sort_by: Optional[str]) -> List[str]:
         callsigns = sorted(callsigns)
     return callsigns
 
+
 def read_words_from_file(file_path: str) -> List[str]:
     """Read words from a file.
     :param file_path: Path to the file.
@@ -236,6 +252,7 @@ def read_words_from_file(file_path: str) -> List[str]:
     """
     with open(file_path, encoding="utf-8") as file:
         return [line.strip() for line in file.readlines()]
+
 
 def load_callsigns_from_file(file_path: str) -> Set[str]:
     """Loads unique callsigns from a file.
@@ -247,6 +264,7 @@ def load_callsigns_from_file(file_path: str) -> Set[str]:
             return {line.strip() for line in file}
     except FileNotFoundError:
         return set()
+
 
 def download_file(url: str, output_file_path: str, zip_files: Optional[List[str]] = None) -> None:
     """Download a file from the given URL to the output file path.
@@ -264,6 +282,7 @@ def download_file(url: str, output_file_path: str, zip_files: Optional[List[str]
         with open(output_file_path, "wb") as output_file:
             output_file.write(requests.get(url, timeout=constants.REQUEST_TIMEOUT).content)
         logger.info("File saved to %s", output_file_path)
+
 
 def download_zip_file(
     url: str,
@@ -289,9 +308,11 @@ def download_zip_file(
                 output_file.write(zip_ref.open(file_info).read())
     logger.info("Extracted %s to %s", url, output_file_path)
 
+
 def get_current_time() -> float:
     """Returns the current time in seconds since the epoch."""
     return time.time()
+
 
 def load_question_metrics(metrics_file_path: Union[str, os.PathLike]) -> List[QuestionMetric]:
     """Loads metrics from a file.
@@ -312,6 +333,7 @@ def load_question_metrics(metrics_file_path: Union[str, os.PathLike]) -> List[Qu
             else:
                 logger.warning("Invalid metrics line: %s", line)
     return metrics
+
 
 def read_metrics_from_file(metrics_file: str) -> List[QuestionMetric]:
     """Reads metrics from a file.
@@ -334,6 +356,7 @@ def read_metrics_from_file(metrics_file: str) -> List[QuestionMetric]:
                 )
                 metrics.append(metric)
     return metrics
+
 
 def get_user_agent(app_config: Optional[Dict[str, Any]]) -> str:
     """Returns a user agent string with app information.

@@ -105,10 +105,8 @@ def validate_config(hrt_config: HRTConfig) -> bool:
     """Validate the configuration data."""
     if not validate_general_settings(hrt_config):
         return False
-
     if not validate_practice_exam_settings(hrt_config):
         return False
-
     return validate_country_settings(hrt_config)
 
 
@@ -117,23 +115,18 @@ def validate_general_settings(hrt_config: HRTConfig) -> bool:
     if not hrt_config.get("input"):
         logger.error("Input settings not found in config file.")
         return False
-
     if not hrt_config.get("output"):
         logger.error("Output settings not found in config file.")
         return False
-
     if not hrt_config.get("print_question"):
         logger.error("Print Question settings not found in config file.")
         return False
-
     if not hrt_config.get("quiz"):
         logger.error("Quiz settings not found in config file.")
         return False
-
     if not hrt_config.get("callsign"):
         logger.error("Callsign settings not found in config file.")
         return False
-
     return True
 
 
@@ -143,7 +136,6 @@ def validate_practice_exam_settings(hrt_config: HRTConfig) -> bool:
     if not practice_exam_settings:
         logger.error("Practice Exam settings not found in config file.")
         return False
-
     qd: QuestionAnswerDisplay = DEFAULT_ANSWER_DISPLAY_PRACTICE_EXAM
     if not practice_exam_settings.get(qd.id):
         logger.error(
@@ -151,7 +143,6 @@ def validate_practice_exam_settings(hrt_config: HRTConfig) -> bool:
             qd.id,
         )
         return False
-
     return True
 
 
@@ -162,12 +153,10 @@ def validate_country_settings(hrt_config: HRTConfig) -> bool:
         if not country_config:
             logger.error("%s settings not found in config file.", country)
             return False
-
         qb_config = country_config.get("question_bank")
         if not qb_config:
             logger.error("Question Bank settings not found for %s in config file.", country)
             return False
-
         for exam_type in ExamType.supported_ids():
             if not qb_config.get(exam_type):
                 logger.error(
@@ -176,5 +165,4 @@ def validate_country_settings(hrt_config: HRTConfig) -> bool:
                     country,
                 )
                 return False
-
     return True

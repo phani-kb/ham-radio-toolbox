@@ -23,6 +23,7 @@ from hrt.common.enums import (
     USCallSignDownloadType,
 )
 
+
 class TestEnumClasses(unittest.TestCase):
     def test_hrt_enum(self):
         class SampleEnum(HRTEnum):
@@ -39,19 +40,18 @@ class TestEnumClasses(unittest.TestCase):
     def test_hrt_from_value(self):
         result = CountryCode.from_value(CountryCode.CANADA)
         self.assertEqual(result, CountryCode.CANADA)
-        
+
         result = QuizSource.from_value(QuizSource.ALL)
         self.assertEqual(result, QuizSource.ALL)
 
         result = CountryCode.from_value("non_existent_value")
         self.assertIsNone(result)
-        
+
         result = CountryCode.from_value(None)
         self.assertIsNone(result)
 
         restult = GeneralQuestionListingType.from_value("non_existent_value")
         self.assertIsNone(result)
-
 
     def test_supported_enum(self):
         class SampleSupportedEnum(SupportedEnum):
@@ -81,9 +81,11 @@ class TestEnumClasses(unittest.TestCase):
         self.assertEqual(SampleEnum.supported_country_ids(CountryCode.CANADA), ["Option A"])
         self.assertIsNone(SampleEnum.from_id_and_country("Option B", CountryCode.CANADA))
         self.assertEqual(SampleEnum.supported_country_options(CountryCode.CANADA), ["Option A"])
-        self.assertEqual(SampleEnum.from_value_and_country("Option A", CountryCode.CANADA), SampleEnum.OPTION_A)
+        self.assertEqual(
+            SampleEnum.from_value_and_country("Option A", CountryCode.CANADA), SampleEnum.OPTION_A
+        )
         self.assertIsNone(SampleEnum.from_value_and_country("Invalid", CountryCode.CANADA))
-        
+
     def test_download_type(self):
         self.assertEqual(DownloadType.CA_QUESTION_BANK.country, CountryCode.CANADA)
         self.assertEqual(
@@ -94,7 +96,9 @@ class TestEnumClasses(unittest.TestCase):
             DownloadType.from_id_and_country("question-bank", CountryCode.UNITED_STATES),
             DownloadType.US_QUESTION_BANK,
         )
-        self.assertEqual(DownloadType.from_value(DownloadType.CA_QUESTION_BANK), DownloadType.CA_QUESTION_BANK)
+        self.assertEqual(
+            DownloadType.from_value(DownloadType.CA_QUESTION_BANK), DownloadType.CA_QUESTION_BANK
+        )
         self.assertIsNone(DownloadType.from_value("invalid"))
 
     def test_call_sign_download_type(self):
@@ -106,26 +110,25 @@ class TestEnumClasses(unittest.TestCase):
             CACallSignDownloadType.from_id_and_country("available", CountryCode.UNITED_STATES)
         )
         self.assertEqual(CACallSignDownloadType.list(), ["available", "assigned"])
-        
+
         # Test supported_country_options method
         self.assertEqual(
             CallSignDownloadType.supported_country_options(CountryCode.CANADA),
-            ["available", "assigned"]
+            ["available", "assigned"],
         )
-        
+
         # Test from_value_and_country method
         self.assertEqual(
             CallSignDownloadType.from_value_and_country("available", CountryCode.CANADA),
-            CACallSignDownloadType.AVAILABLE
+            CACallSignDownloadType.AVAILABLE,
         )
         self.assertIsNone(
             CallSignDownloadType.from_value_and_country("invalid", CountryCode.CANADA)
         )
-        
+
         # Test from_value method
         self.assertEqual(
-            CACallSignDownloadType.from_value("available"), 
-            CACallSignDownloadType.AVAILABLE
+            CACallSignDownloadType.from_value("available"), CACallSignDownloadType.AVAILABLE
         )
         self.assertIsNone(CACallSignDownloadType.from_value("invalid"))
 
@@ -148,15 +151,15 @@ class TestEnumClasses(unittest.TestCase):
     def test_question_listing_type(self):
         class TestListingType(QuestionListingType):
             SAMPLE = ("sample", "Sample description")
-        
+
         self.assertEqual(TestListingType.SAMPLE.id, "sample")
         self.assertEqual(TestListingType.SAMPLE.description, "Sample description")
         self.assertEqual(TestListingType.SAMPLE.get_filename(), "sample-questions.txt")
-        
+
         # Test from_id method for base class and subclasses
         result = QuestionListingType.from_id("sample")
         self.assertEqual(result, TestListingType.SAMPLE)
-        
+
         # Test from_id for GeneralQuestionListingType
         result = QuestionListingType.from_id("all")
         self.assertEqual(result, GeneralQuestionListingType.ALL)
@@ -168,10 +171,12 @@ class TestEnumClasses(unittest.TestCase):
 
     def test_top_questions_listing_type(self):
         self.assertEqual(TopQuestionsListingType.LONGEST_QUESTION_TEXT.id, "longest-question-text")
-        self.assertEqual(TopQuestionsListingType.LONGEST_QUESTION_TEXT.description, "Longest question text")
+        self.assertEqual(
+            TopQuestionsListingType.LONGEST_QUESTION_TEXT.description, "Longest question text"
+        )
         self.assertEqual(
             TopQuestionsListingType.LONGEST_QUESTION_TEXT.get_filename(),
-            "longest-question-text-questions.txt"
+            "longest-question-text-questions.txt",
         )
 
     def test_marked_question_listing_type(self):
@@ -271,32 +276,32 @@ class TestEnumClasses(unittest.TestCase):
         # Instead of direct equality, check the id and description
         self.assertEqual(result.id, TestListingType.SAMPLE.id)
         self.assertEqual(result.description, TestListingType.SAMPLE.description)
-        
+
         result = TestListingType.from_id("non-existent")
         self.assertIsNone(result)
-        
+
     def test_question_ref_type(self):
         self.assertEqual(QuestionRefType.BOOK.id, "book")
         self.assertEqual(QuestionRefType.WEBSITE.description, "Website reference")
         self.assertEqual(str(QuestionRefType.VIDEO), "video - Video reference")
         self.assertEqual(QuestionRefType.from_id("pdf"), QuestionRefType.PDF)
         self.assertIsNone(QuestionRefType.from_id("invalid"))
-        
+
     def test_question_answer_display(self):
         self.assertEqual(QuestionAnswerDisplay.WITH_QUESTION.id, "with-question")
         self.assertEqual(QuestionAnswerDisplay.IN_THE_END.description, "In the end")
         self.assertEqual(str(QuestionAnswerDisplay.HIDE), "hide - Hide")
-        
+
     def test_quiz_answer_display(self):
         self.assertEqual(QuizAnswerDisplay.AFTER_QUESTION.id, "after-question")
         self.assertEqual(QuizAnswerDisplay.IN_THE_END.description, "In the end")
         self.assertEqual(str(QuizAnswerDisplay.HIDE), "hide - Hide")
-        
+
     def test_question_display_mode(self):
         self.assertEqual(QuestionDisplayMode.QUIZ.id, "quiz")
         self.assertEqual(QuestionDisplayMode.PRINT.description, "Print question")
         self.assertEqual(str(QuestionDisplayMode.PRACTICE_EXAM), "practice_exam - Practice exam")
-        
+
     def test_quiz_source(self):
         self.assertEqual(QuizSource.ALL.id, "all")
         self.assertEqual(QuizSource.OLD.description, "Old questions")

@@ -174,8 +174,8 @@ class Question:
         all_choices = self.choices
         for i, choice in enumerate(all_choices):
             if (
-                self.question_display and
-                self.question_display.answer_display == QuestionAnswerDisplay.WITH_QUESTION
+                self.question_display
+                and self.question_display.answer_display == QuestionAnswerDisplay.WITH_QUESTION
                 and choice == self.answer
             ):
                 question_output.append(f"{ANSWER_DISPLAY_PREFIX}{i + 1}. {choice}")

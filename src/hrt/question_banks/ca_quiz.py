@@ -4,6 +4,7 @@ The CAQuiz class is a subclass of the Quiz class and has the following attribute
 - PASS_PERCENTAGE: The pass percentage for the quiz
 - PASS_PERCENTAGE_WITH_HONOURS: The pass percentage with honours for the quiz
 """
+
 from typing import Dict, List
 
 from hrt.common.enums import CountryCode, ExamType, QuestionDisplayMode, QuizAnswerDisplay
@@ -13,6 +14,7 @@ from hrt.common.quiz import Quiz
 
 class CAQuiz(Quiz):
     """Canadian Quiz class."""
+
     PASS_PERCENTAGE: int = 70
     PASS_PERCENTAGE_WITH_HONOURS: int = 80
 

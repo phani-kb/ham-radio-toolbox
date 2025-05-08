@@ -1,6 +1,7 @@
 """
 This module contains the implementation of the USDownloader class.
 """
+
 from typing import Dict, Optional
 
 from hrt.common.enums import CallSignDownloadType, CountryCode, DownloadType, ExamType
@@ -9,13 +10,14 @@ from hrt.downloaders.base_downloader import BaseDownloader
 
 class USDownloader(BaseDownloader):
     """This class is used to download files for the US."""
+
     def __init__(
         self,
         chrome_driver_path: str,
         download_type: DownloadType,
         output_folder: str,
         config: Dict,
-        app_config: Optional[Dict] = None
+        app_config: Optional[Dict] = None,
     ):
         super().__init__(
             chrome_driver_path,

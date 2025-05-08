@@ -1,4 +1,5 @@
 """Question metric class."""
+
 from typing import Any
 
 from hrt.common.hrt_types import QuestionNumber
@@ -6,12 +7,13 @@ from hrt.common.hrt_types import QuestionNumber
 
 class QuestionMetric:
     """Question metric class."""
+
     def __init__(
         self,
         question_number: QuestionNumber,
         correct_attempts: int = 0,
         wrong_attempts: int = 0,
-        skip_count: int = 0
+        skip_count: int = 0,
     ):
         self._question_number: QuestionNumber = question_number
         self._correct_attempts = correct_attempts

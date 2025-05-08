@@ -1,4 +1,5 @@
 """QuestionProcessor class to process questions based on the criteria"""
+
 from pathlib import Path
 from typing import List, Union
 

@@ -1,4 +1,5 @@
 """This module contains the implementation of the CAQuestionBank class."""
+
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -17,6 +18,7 @@ def get_question_category_id(question_number: QuestionNumber) -> str:
 
 class CAQuestionBank(QuestionBank):
     """CA Question Bank class."""
+
     def __init__(
         self,
         exam_type: ExamType,

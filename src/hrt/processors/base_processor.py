@@ -1,10 +1,12 @@
 """Base class for all processors."""
+
 import logging
 from typing import Any, Optional
 
 
 class BaseProcessor:
     """Base class for all processors."""
+
     def __init__(self, config_reader: Any):
         self.config_reader = config_reader
         self.logger = logging.getLogger(self.__class__.__name__)

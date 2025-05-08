@@ -140,5 +140,6 @@ class ConcreteQuiz(Quiz):
         # Implement the pre_process method
         pass
 
+
 if __name__ == "__main__":
     unittest.main()

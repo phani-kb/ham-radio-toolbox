@@ -34,7 +34,7 @@ class BaseScraper(IWebScraper, ABC):
         driver: str,
         country: CountryCode,
         app_config: Optional[Dict] = None,
-        headless: bool = True
+        headless: bool = True,
     ):
         self.country = country
         chrome_options = Options()

@@ -1,4 +1,5 @@
 """This module contains the USQuestionBank class."""
+
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -12,6 +13,7 @@ from hrt.common.question_metric import QuestionMetric
 
 class USQuestionBank(QuestionBank):
     """US Question Bank class."""
+
     def __init__(
         self,
         exam_type: ExamType,

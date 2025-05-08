@@ -1,4 +1,5 @@
 """QuizProcessor class to process the quiz based on the quiz source"""
+
 import os
 from typing import TYPE_CHECKING, Dict, List, Optional
 

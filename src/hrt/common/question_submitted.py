@@ -1,4 +1,5 @@
 """Question submitted class."""
+
 from typing import TYPE_CHECKING, List, Optional
 
 from hrt.common.hrt_types import QuestionNumber
@@ -7,6 +8,7 @@ from hrt.common.question_metric import QuestionMetric
 
 if TYPE_CHECKING:
     from hrt.common.question_category import QuestionCategory  # pragma: no cover
+
 
 class QuestionSubmitted(Question):
     """Question submitted class."""
