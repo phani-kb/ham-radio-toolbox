@@ -4,6 +4,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from hrt.common import utils
 from hrt.common.config_reader import ConfigReader, HRTConfig, logger
 from hrt.common.enums import (
+    CallSignDownloadType,
     CountryCode,
     DownloadType,
     ExamType,
@@ -202,6 +203,56 @@ def get_downloader(ctx, download_type_value: str, country_download_type_config_k
         dt_config,
         app_config,
     )
+
+
+@download.command("question-bank")
+@click.pass_context
+def download_question_bank(ctx):
+    """Download question bank for a specific country."""
+    downloader = get_downloader(ctx, "question-bank", "question_bank")
+    if not downloader:
+        logger.error("Downloader not found.")
+        return
+
+    country_code = ctx.obj["country_code"]
+    country = CountryCode.from_id(country_code)
+    exam_type = utils.select_option_from_list(
+        ExamType.supported_country_ids(country),
+        "Exam type",
+    )
+    et = ExamType.from_id_and_country(exam_type, country)
+    if not et:
+        logger.error(f"Exam type {exam_type} not found in the configuration")
+        return
+
+    downloader.download_question_bank(et)
+
+
+@download.command("callsign")
+@click.pass_context
+def download_callsign(ctx):
+    """Download callsigns for a specific country."""
+    downloader = get_downloader(ctx, "callsign", "callsign")
+    if not downloader:
+        logger.error("Downloader not found.")
+        return
+
+    country_code = ctx.obj["country_code"]
+    country = CountryCode.from_id(country_code)
+    cs_type = utils.select_option_from_list(
+        CallSignDownloadType.supported_country_options(country),
+        "Callsign type",
+    )
+    if not cs_type:
+        logger.error(f"Callsign type {cs_type} not found in the configuration")
+        return
+
+    callsign_dt = CallSignDownloadType.from_value_and_country(cs_type, country)
+    if not callsign_dt:
+        logger.error(f"Callsign download type {cs_type} not found in the configuration")
+        return
+
+    downloader.download_callsigns(callsign_dt)
 
 
 # CALLSIGN COMMANDS
