@@ -1,23 +1,27 @@
 import click
 from webdriver_manager.chrome import ChromeDriverManager
 
-from hrt.common import utils
+from hrt.common import constants, utils
 from hrt.common.config_reader import ConfigReader, HRTConfig, logger
 from hrt.common.enums import (
     CallSignDownloadType,
     CountryCode,
     DownloadType,
     ExamType,
+    GeneralQuestionListingType,
     HRTEnum,
     NumberOfLetters,
     QuestionAnswerDisplay,
+    QuestionListingType,
     QuestionRefType,
     QuizSource,
     RankBy,
     SortBy,
+    TopQuestionsListingType,
 )
 from hrt.downloaders.base_downloader import DownloaderFactory
 from hrt.processors.callsign_processor import CallSignsProcessor
+from hrt.processors.question_processor import QuestionProcessor
 
 
 @click.group(
@@ -78,7 +82,7 @@ def show(
     """Commands for showing information."""
     if countries_supported:
         logger.info("Showing supported countries.")
-        countries = CountryCode.supported_enums()
+        countries = CountryCode.supported_ids()
         utils.write_output(countries)
     if phonetics:
         logger.info("Showing phonetics.")
@@ -116,6 +120,27 @@ def show(
             logger.error(f"Enum {enum} not found.")
 
 
+def get_common_question_params(ctx):
+    """Extract common parameters for question commands."""
+    config = ctx.obj["config"]
+    country_code = ctx.obj["country_code"]
+    answer_display = ctx.obj["answer_display"]
+    save_to_file = ctx.obj["save_to_file"]
+    exam_type = utils.select_option_from_list(
+        ExamType.supported_country_options(CountryCode.from_name(country_code)), "Exam type"
+    )
+    country_code = CountryCode.from_id(country_code)
+    answer_display = QuestionAnswerDisplay.from_id(answer_display)
+    exam_type = ExamType.from_id(exam_type)
+    logger.info(
+        f"Listing questions for country: {country_code}, exam type: {exam_type} "
+        f"with answer display: {answer_display} "
+        f"and save to file: {save_to_file}",
+    )
+
+    return config, country_code, answer_display, save_to_file, exam_type
+
+
 # QUESTION COMMANDS
 @hamradiotoolbox.group("question")
 @click.option(
@@ -137,6 +162,48 @@ def question(ctx, country, answer_display, save_to_file):
     ctx.obj["country_code"] = country
     ctx.obj["answer_display"] = answer_display
     ctx.obj["save_to_file"] = save_to_file
+
+
+@question.command("list")
+@click.option(
+    "--criteria",
+    type=click.Choice(GeneralQuestionListingType.ids()),
+    help="List questions with specific criteria.",
+)
+@click.option(
+    "--top-criteria",
+    type=click.Choice(TopQuestionsListingType.ids()),
+    help="List top N questions.",
+)
+@click.pass_context
+def list_questions(
+    ctx,
+    criteria,
+    top_criteria,
+):
+    """List questions based on the criteria."""
+    config, country_code, answer_display, save_to_file, exam_type = get_common_question_params(ctx)
+    criteria_type: QuestionListingType = GeneralQuestionListingType.ALL
+    max_questions = 0
+    if criteria:
+        criteria_type = QuestionListingType.from_id(criteria)
+        logger.info(f"Listing questions based on criteria: {criteria_type}")
+    elif top_criteria:
+        logger.info(f"Listing top {top_criteria} questions.")
+        criteria_type = TopQuestionsListingType.from_id(top_criteria)
+        max_questions = utils.read_number_from_input(
+            "Enter the number of questions to list",
+            constants.MIN_TOP_QUESTIONS_COUNT,
+            constants.MAX_TOP_QUESTIONS_COUNT,
+        )
+
+    logger.info(f"Exam type: {exam_type}")
+    qp = QuestionProcessor(
+        config,
+        country_code,
+        exam_type,
+    )
+    qp.list(criteria_type, answer_display, max_questions, save_to_file)
 
 
 # DOWNLOAD COMMANDS
