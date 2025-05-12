@@ -3,6 +3,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from hrt.common import constants, utils
 from hrt.common.config_reader import ConfigReader, HRTConfig, logger
+from hrt.common.constants import DEFAULT_QUIZ_QUESTION_COUNT
 from hrt.common.enums import (
     CallSignDownloadType,
     CountryCode,
@@ -10,10 +11,12 @@ from hrt.common.enums import (
     ExamType,
     GeneralQuestionListingType,
     HRTEnum,
+    MarkedQuestionListingType,
     NumberOfLetters,
     QuestionAnswerDisplay,
     QuestionListingType,
     QuestionRefType,
+    QuizAnswerDisplay,
     QuizSource,
     RankBy,
     SortBy,
@@ -204,6 +207,73 @@ def list_questions(
         exam_type,
     )
     qp.list(criteria_type, answer_display, max_questions, save_to_file)
+
+
+@question.command("marked")
+@click.option(
+    "--criteria",
+    type=click.Choice(MarkedQuestionListingType.ids()),
+    help="List marked questions with specific criteria.",
+)
+@click.pass_context
+def list_marked_questions(ctx, criteria):
+    """List marked questions based on the criteria."""
+    config, country_code, answer_display, save_to_file, exam_type = get_common_question_params(ctx)
+    questions_count = utils.read_number_from_input(
+        "Enter the number of attempts/count to consider",
+        constants.MIN_MARKED_QUESTIONS_COUNT,
+        constants.MAX_MARKED_QUESTIONS_COUNT,
+    )
+
+    qp = QuestionProcessor(
+        config,
+        country_code,
+        exam_type,
+    )
+    criteria_type: MarkedQuestionListingType = MarkedQuestionListingType.from_id(criteria)
+    qp.list_marked(criteria_type, answer_display, questions_count, save_to_file)
+
+
+# QUIZ COMMANDS
+@hamradiotoolbox.group("quiz")
+@click.option(
+    "--country",
+    type=click.Choice(CountryCode.supported_ids(), case_sensitive=False),
+    required=True,
+    help="Country for which to start the quiz.",
+)
+@click.option(
+    "--number-of-questions",
+    type=int,
+    help="Number of questions in the quiz.",
+)
+@click.option(
+    "--answer-display",
+    type=click.Choice(QuizAnswerDisplay.ids()),
+    default=QuizAnswerDisplay.AFTER_QUESTION.id,
+    help="Display the question w/o answer.",
+)
+@click.option(
+    "--qs",
+    type=click.Choice(QuizSource.ids()),
+    default=QuizSource.ALL.id,
+    help="Source of questions for the quiz.",
+)
+@click.pass_context
+def quiz(ctx, country, number_of_questions, answer_display, qs):
+    """Commands for managing quizzes."""
+    ctx.obj["country_code"] = country
+    ctx.obj["answer_display"] = answer_display
+    config = ctx.obj["config"]
+    quiz_config: dict = config.get("quiz")
+    if not number_of_questions and quiz_config:
+        number_of_questions = quiz_config.get("number_of_questions", DEFAULT_QUIZ_QUESTION_COUNT)
+    if number_of_questions and number_of_questions < 1:
+        logger.error("Number of questions should be greater than 0.")
+        return
+    ctx.obj["number_of_questions"] = number_of_questions
+    ctx.obj["quiz_config"] = quiz_config
+
 
 
 # DOWNLOAD COMMANDS
