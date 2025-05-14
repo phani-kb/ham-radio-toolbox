@@ -182,8 +182,50 @@ class Quiz(IQuiz, ABC):
         if self._exam_type.country != country:
             raise ValueError("Invalid exam type for the country.")
 
-    def _display_question_and_get_action(self, skip_last=False):
-        pass
+    def _display_question_and_get_action(self, skip_last: bool = False) -> None:
+        while not self._terminate_quiz:
+            if self._current_index >= self._number_of_questions:
+                print("No next question available.")
+                break
+            cq = self.get_current_question()
+            print(self.print_question(cq))
+            if skip_last:
+                _, _ = self.get_actions(submitted=True, skip_last=skip_last)
+                cq.skip_count += 1
+            elif cq.question_number in self._submitted_questions:
+                _, _ = self.get_actions(submitted=True)
+            else:
+                choice_index = utils.get_user_input_index(cq.quiz_choices, "Enter choice: ")
+                if (
+                    choice_index == len(cq.quiz_choices) - 1
+                    and self._current_index == self._number_of_questions - 1
+                ):
+                    cq = self.get_current_question()
+                    cq.skip_count += 1
+                    action_prompt, actions = self.get_actions(submitted=False, skip_last=True)
+                    print(action_prompt)
+                    action = utils.get_user_input_option(actions, "Please select an action: ")
+                    self.process_action(action, choice_index, actions)
+                    break
+                if choice_index == len(cq.quiz_choices) - 1:
+                    self.skip()
+                    continue
+                action_prompt, actions = self.get_actions(submitted=False)
+                print(action_prompt)
+                action = utils.get_user_input_option(actions, "Please select an action: ")
+                self.process_action(action, choice_index, actions)
+                break
+            if len(self._submitted_questions) == self._number_of_questions:
+                self._terminate_quiz = True
+                self.finish()
+                break
+            action_prompt, actions = self.get_actions(submitted=True)
+            print(action_prompt)
+            action = utils.get_user_input_option(actions, "Please select an action: ")
+            if action == "P" and self._current_index == 0:
+                print("No previous question available.")
+                break
+            self.process_action(action, -1, actions)
 
     def previous_question(self) -> None:
         if self._current_index > 0:
@@ -293,8 +335,27 @@ class Quiz(IQuiz, ABC):
         self._end_time = utils.get_current_time()
         self._terminate_quiz = True
 
-    def finish(self):
-        pass
+    def finish(self) -> None:
+        if not self._terminate_quiz:  # Check if the quiz is already terminated
+            if len(self._submitted_questions) < self._number_of_questions:
+                not_submitted = [
+                    q.question_number
+                    for q in self._questions
+                    if q.question_number not in self._submitted_questions
+                ]
+                print(f"Warning: {len(not_submitted)} questions are not submitted.")
+                confirm = utils.get_user_input_option(
+                    ["Y", "N"], "Do you really want to finish the quiz? (Y/N): "
+                )
+                if confirm == "N":
+                    self._terminate_quiz = False
+                    self._display_question_and_get_action()
+                    return
+                for q in not_submitted:
+                    self._submitted_questions[q] = QuestionSubmitted(q, Question.SKIP_CHOICE)
+            print("Quiz completed.")
+            self._end_time = utils.get_current_time()
+            self.quit()
 
     def change_answer(self):
         pass
@@ -396,7 +457,29 @@ class Quiz(IQuiz, ABC):
         return [q for q in self._questions if q.is_marked]
 
     def post_process(self) -> None:
-        pass
+        """Common post-processing for all quiz types.
+        Displays quiz results and calculates pass/fail status.
+        """
+        total_questions = self.get_number_of_questions()
+        correct, wrong, _ = self.get_results()
+        percentage = round((correct / total_questions) * 100)
+        attempted_questions = correct + wrong
+
+        print(f"Attempted: {attempted_questions} out of {total_questions}")
+        print(
+            f"You got {correct} out of {total_questions} correct. "
+            f"Duration: {self.get_duration()} seconds"
+        )
+
+        result = (
+            "Fail"
+            if percentage < self.PASS_PERCENTAGE
+            else "Pass"
+            if percentage < self.PASS_PERCENTAGE_WITH_HONOURS
+            else "Pass with Honours"
+        )
+
+        print(f"Percentage: {percentage}% {result}")
 
 
 class QuizFactory:
