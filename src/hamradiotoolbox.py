@@ -14,6 +14,7 @@ from hrt.common.enums import (
     MarkedQuestionListingType,
     NumberOfLetters,
     QuestionAnswerDisplay,
+    QuestionDisplayMode,
     QuestionListingType,
     QuestionRefType,
     QuizAnswerDisplay,
@@ -25,6 +26,7 @@ from hrt.common.enums import (
 from hrt.downloaders.base_downloader import DownloaderFactory
 from hrt.processors.callsign_processor import CallSignsProcessor
 from hrt.processors.question_processor import QuestionProcessor
+from hrt.processors.quiz_processor import QuizProcessor
 
 
 @click.group(
@@ -274,6 +276,69 @@ def quiz(ctx, country, number_of_questions, answer_display, qs):
     ctx.obj["number_of_questions"] = number_of_questions
     ctx.obj["quiz_config"] = quiz_config
 
+    print_config: dict = config.get("print_question")
+    if not answer_display:
+        answer_display = print_config.get(
+            "answer_display",
+        )
+    ctx.obj["answer_display"] = answer_display
+    ctx.obj["print_config"] = print_config
+
+    metrics_config: dict = config.get("metrics")
+    if not metrics_config:
+        logger.error("Metrics configuration not found.")
+        return
+    ctx.obj["metrics_config"] = metrics_config
+
+    ctx.obj["qs"] = qs
+
+    logger.info(
+        f"Quiz for country: {country}, number of questions: {number_of_questions}, "
+        f"answers display: {answer_display}, quiz source: {qs}"
+    )
+
+
+@quiz.command("start")
+@click.pass_context
+def start_quiz(ctx):
+    """Start a quiz based on the exam type."""
+    country_code = ctx.obj["country_code"]
+    if not country_code:
+        logger.error("Country code not found.")
+        return
+
+    country = CountryCode.from_id(country_code)
+    exam_type = utils.select_option_from_list(ExamType.supported_country_ids(country), "Exam type")
+    if not exam_type:
+        logger.error("Exam type not found.")
+        return
+    number_of_questions = ctx.obj["number_of_questions"]
+    config = ctx.obj["config"]
+    answer_display = ctx.obj["answer_display"]
+    quiz_source = ctx.obj["qs"]
+    quiz_config = ctx.obj["quiz_config"]
+    print_config = ctx.obj["print_config"]
+    metrics_config = ctx.obj["metrics_config"]
+
+    logger.info(f"Starting quiz for {exam_type} with {number_of_questions} questions.")
+    qp = QuestionProcessor(
+        config,
+        country,
+        ExamType.from_id(exam_type),
+        QuestionDisplayMode.QUIZ,
+    )
+    question_bank = qp.get_question_bank()
+    quiz_processor = QuizProcessor(
+        question_bank,
+        number_of_questions,
+        QuestionDisplayMode.QUIZ,
+        QuizAnswerDisplay.from_id(answer_display),
+        QuizSource.from_id(quiz_source),
+        quiz_config,
+        print_config,
+        metrics_config,
+    )
+    quiz_processor.process()
 
 
 # DOWNLOAD COMMANDS
