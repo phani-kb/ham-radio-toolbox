@@ -357,8 +357,21 @@ class Quiz(IQuiz, ABC):
             self._end_time = utils.get_current_time()
             self.quit()
 
-    def change_answer(self):
-        pass
+    def change_answer(self) -> None:
+        current_question = self.get_current_question()
+        if current_question.question_number in self._submitted_questions:
+            print("Cannot change answer for a submitted question.")
+            return
+        choice_index = utils.get_user_input_index(
+            current_question.quiz_choices, "Enter new choice: "
+        )
+        skip_last = False
+        if choice_index == len(current_question.quiz_choices) - 1:
+            skip_last = True
+        action_prompt, actions = self.get_actions(submitted=False, skip_last=skip_last)
+        print(action_prompt)
+        action = utils.get_user_input_option(actions, "Please select an action: ")
+        self.process_action(action, choice_index, actions)
 
     def get_number_of_questions(self) -> int:
         return self._number_of_questions

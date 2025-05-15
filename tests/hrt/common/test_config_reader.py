@@ -185,6 +185,17 @@ class TestValidateConfig(unittest.TestCase):
                 f"Question Bank settings not found for %s in config file.", country
             )
 
+    @patch("hrt.common.config_reader.logger")
+    def test_validate_config_missing_question_bank2(self, mock_logger):
+        for country in CountryCode.supported_ids():
+            data = self.default_data.copy()
+            for exam_type in ExamType.supported_ids():
+                del data[country]["question_bank"][exam_type]
+            hrt_config = HRTConfig(data)
+            result = validate_config(hrt_config)
+            self.assertFalse(result)
+            self.assertEqual(mock_logger.error.call_count, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
