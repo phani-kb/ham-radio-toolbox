@@ -6,21 +6,31 @@ from unittest.mock import MagicMock, patch, mock_open, call
 import zipfile
 
 from hrt.common import constants
+from hrt.common.enums import SortBy
+from hrt.common.hrt_types import QuestionNumber
+from hrt.common.question_metric import QuestionMetric
 from hrt.common.utils import (
     create_folder,
     get_current_time,
     get_header,
     get_user_agent,
+    get_user_input_index,
+    get_user_input_option,
     get_word_combinations,
+    load_callsigns_from_file,
+    load_question_metrics,
     permutations,
     read_delim_file,
     read_filename,
+    read_metrics_from_file,
     read_number_from_input,
     save_output,
     select_from_options,
     select_option_from_list,
+    download_file,
     download_zip_file,
     read_words_from_file,
+    sort_callsigns,
     write_output,
 )
 
@@ -259,6 +269,26 @@ class TestLoadQuestionMetrics(unittest.TestCase):
     def tearDown(self):
         os.remove(self.test_file.name)
 
+    def test_load_question_metrics(self):
+        result = load_question_metrics(self.test_file.name)
+        expected = [
+            QuestionMetric(QuestionNumber("Q1"), 1, 2, 3),
+            QuestionMetric(QuestionNumber("Q2"), 4, 5, 6),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_load_question_metrics_file_not_found(self):
+        result = load_question_metrics("non_existent_file.txt")
+        self.assertEqual(result, [])
+
+    @patch("hrt.common.utils.logger")
+    @patch("builtins.open", unittest.mock.mock_open(read_data="invalid:metrics:line"))
+    @patch("os.path.exists", return_value=True)
+    def test_invalid_metrics_line(self, _, mock_logger):
+        invalid_line = "invalid:metrics:line"
+        load_question_metrics("dummy_path")
+        mock_logger.warning.assert_called_with(f"Invalid metrics line: %s", invalid_line)
+
 
 class TestReadMetricsFromFile(unittest.TestCase):
     def setUp(self):
@@ -268,6 +298,49 @@ class TestReadMetricsFromFile(unittest.TestCase):
 
     def tearDown(self):
         os.remove(self.test_file.name)
+
+    def test_read_metrics_from_file(self):
+        result = read_metrics_from_file(self.test_file.name)
+        expected = [
+            QuestionMetric(QuestionNumber("Q1"), 1, 2, 3),
+            QuestionMetric(QuestionNumber("Q2"), 4, 5, 6),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_read_metrics_from_file_file_not_found(self):
+        result = read_metrics_from_file("non_existent_file.txt")
+        self.assertEqual(result, [])
+
+
+class TestDownloadFile(unittest.TestCase):
+    @patch("requests.get")
+    def test_download_file(self, mock_get):
+        mock_get.return_value.content = b"Test content"
+        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+            temp_file_path = temp_file.name
+        download_file("https://example.com/file.txt", temp_file_path)
+        with open(temp_file_path, "rb") as file:
+            content = file.read()
+        self.assertEqual(content, b"Test content")
+        os.remove(temp_file_path)
+
+    @patch("requests.get")
+    @patch("hrt.common.utils.download_zip_file")
+    @patch("hrt.common.utils.logger")
+    def test_download_file_zip(self, mock_logger, mock_download_zip_file, mock_requests_get):
+        """Tests downloading a ZIP file."""
+        url = "https://example.com/valid.zip"
+        output_file_path = "output-hrt.zip"
+        zip_files = ["file1.txt", "file2.txt"]
+
+        # Mock behavior
+        mock_requests_get.return_value = MagicMock(content=b"ZIP content")
+
+        download_file(url, output_file_path, zip_files)
+
+        # Assertions
+        mock_download_zip_file.assert_called_once_with(url, output_file_path, zip_files)
+        mock_logger.info.assert_not_called()  # No logging calls expected for this case
 
 
 class TestDownloadZipFile(unittest.TestCase):
@@ -315,6 +388,63 @@ class TestReadWordsFromFile(unittest.TestCase):
         result = read_words_from_file(self.test_file.name)
         expected = ["word1", "word2", "word3"]
         self.assertEqual(result, expected)
+
+
+class TestSortCallsigns(unittest.TestCase):
+    def test_sort_callsigns(self):
+        callsigns = ["B123", "A123", "C123"]
+        result = sort_callsigns(callsigns, SortBy.CALLSIGN.value)
+        expected = ["A123", "B123", "C123"]
+        self.assertEqual(result, expected)
+
+    def test_sort_callsigns_no_sort_by(self):
+        callsigns = ["B123", "A123", "C123"]
+        result = sort_callsigns(callsigns, None)
+        self.assertEqual(result, callsigns)
+
+        result = sort_callsigns(callsigns, "")
+        self.assertEqual(result, callsigns)
+
+
+class TestGetUserInputOption(unittest.TestCase):
+    @patch("builtins.input", return_value="option1")
+    def test_get_user_input_option_valid(self, _):
+        choices = ["option1", "option2", "option3"]
+        result = get_user_input_option(choices, "Select an option:")
+        self.assertEqual(result, "option1")
+
+    @patch("builtins.input", side_effect=["invalid", "option2"])
+    @patch("builtins.print")
+    def test_get_user_input_option_invalid_then_valid(self, mock_print, _):
+        choices = ["option1", "option2", "option3"]
+        result = get_user_input_option(choices, "Select an option:")
+        self.assertEqual(result, "option2")
+        mock_print.assert_any_call("Invalid choice. Please select a valid option.")
+
+
+class TestGetUserInputIndex(unittest.TestCase):
+    @patch("builtins.input", return_value="2")
+    def test_get_user_input_index_valid(self, _):
+        choices = ["option1", "option2", "option3"]
+        result = get_user_input_index(choices, "Select an option:")
+        self.assertEqual(result, 1)
+
+    @patch("builtins.input", side_effect=["invalid", "3"])
+    def test_get_user_input_index_invalid_then_valid(self, _):
+        choices = ["option1", "option2", "option3"]
+        result = get_user_input_index(choices, "Select an option:")
+        self.assertEqual(result, 2)
+
+    @patch("builtins.input", side_effect=["5", "2"])
+    def test_invalid_choice(self, _):
+        choices = ["option1", "option2", "option3"]
+        prompt = "Select an option: "
+        with patch("builtins.print") as mock_print:
+            index = get_user_input_index(choices, prompt)
+            mock_print.assert_any_call(
+                f"Invalid choice. Please select a number between 1 and {len(choices)}."
+            )
+        self.assertEqual(index, 1)
 
 
 class TestWriteOutput(unittest.TestCase):
@@ -370,6 +500,15 @@ class TestLoadCallsignsFromFile(unittest.TestCase):
 
     def tearDown(self):
         os.remove(self.test_file.name)
+
+    def test_load_callsigns_from_file(self):
+        result = load_callsigns_from_file(self.test_file.name)
+        expected = ["CALLSIGN1", "CALLSIGN2", "CALLSIGN3"]
+        self.assertEqual(sorted(result), sorted(expected))
+
+    def test_load_callsigns_from_non_existent_file(self):
+        result = load_callsigns_from_file("non_existent_file.txt")
+        self.assertEqual(result, set())
 
 
 class TestGetCurrentTime(unittest.TestCase):
