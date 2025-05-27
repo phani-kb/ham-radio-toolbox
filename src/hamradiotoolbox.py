@@ -3,7 +3,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from hrt.common import constants, utils
 from hrt.common.config_reader import ConfigReader, HRTConfig, logger
-from hrt.common.constants import DEFAULT_QUIZ_QUESTION_COUNT
+from hrt.common.constants import DEFAULT_ANSWER_DISPLAY_PRACTICE_EXAM, DEFAULT_QUIZ_QUESTION_COUNT
 from hrt.common.enums import (
     CallSignDownloadType,
     CountryCode,
@@ -132,7 +132,7 @@ def get_common_question_params(ctx):
     answer_display = ctx.obj["answer_display"]
     save_to_file = ctx.obj["save_to_file"]
     exam_type = utils.select_option_from_list(
-        ExamType.supported_country_options(CountryCode.from_name(country_code)), "Exam type"
+        ExamType.supported_country_options(CountryCode.from_id(country_code)), "Exam type"
     )
     country_code = CountryCode.from_id(country_code)
     answer_display = QuestionAnswerDisplay.from_id(answer_display)
@@ -307,8 +307,10 @@ def start_quiz(ctx):
         logger.error("Country code not found.")
         return
 
-    country = CountryCode.from_id(country_code)
-    exam_type = utils.select_option_from_list(ExamType.supported_country_ids(country), "Exam type")
+    country: CountryCode = CountryCode.from_id(country_code)  # type: ignore
+    exam_type: str | None = utils.select_option_from_list(
+        ExamType.supported_country_ids(country), "Exam type"
+    )
     if not exam_type:
         logger.error("Exam type not found.")
         return
@@ -319,7 +321,8 @@ def start_quiz(ctx):
     quiz_config = ctx.obj["quiz_config"]
     print_config = ctx.obj["print_config"]
     metrics_config = ctx.obj["metrics_config"]
-
+    if not number_of_questions:
+        number_of_questions = quiz_config.get("number_of_questions", DEFAULT_QUIZ_QUESTION_COUNT)
     logger.info(f"Starting quiz for {exam_type} with {number_of_questions} questions.")
     qp = QuestionProcessor(
         config,
@@ -335,6 +338,95 @@ def start_quiz(ctx):
         QuizAnswerDisplay.from_id(answer_display),
         QuizSource.from_id(quiz_source),
         quiz_config,
+        print_config,
+        metrics_config,
+    )
+    quiz_processor.process()
+
+
+# PRACTICE EXAM COMMANDS
+@hamradiotoolbox.group("practice")
+@click.option(
+    "--country",
+    type=click.Choice(CountryCode.supported_ids(), case_sensitive=False),
+    required=True,
+    help="Country for which to start the quiz.",
+)
+@click.pass_context
+def practice(ctx, country):
+    """Commands for managing practice exams."""
+    ctx.obj["country_code"] = country
+    config = ctx.obj["config"]
+
+    practice_config: dict = config.get_practice_exam_settings()
+    if not practice_config:
+        logger.error("Practice exam configuration not found.")
+        return
+    ctx.obj["practice_config"] = practice_config
+
+    country_config = config.get_country_settings(country)
+    if not country_config:
+        logger.error(f"Country {country} not found in the configuration.")
+        return
+    ctx.obj["country_config"] = country_config
+
+    ctx.obj["print_config"] = config.get("print_question")
+
+    metrics_config: dict = config.get("metrics")
+    if not metrics_config:
+        logger.error("Metrics configuration not found.")
+        return
+    ctx.obj["metrics_config"] = metrics_config
+
+    logger.info(f"Practice exam for country: {country}")
+
+
+@practice.command("start")
+@click.pass_context
+def start_practice_exam(ctx):
+    """Start a practice exam."""
+    country_code = ctx.obj["country_code"]
+    if not country_code:
+        logger.error("Country code not found.")
+        return
+    country = CountryCode.from_id(country_code)
+    exam_type = utils.select_option_from_list(ExamType.supported_country_ids(country), "Exam type")
+    if not exam_type:
+        logger.error("Exam type not found.")
+        return
+
+    country_config = ctx.obj["country_config"]
+    exam_type_config = country_config.get("question_bank").get(exam_type)
+    if not exam_type_config:
+        logger.error(
+            f"Exam type {exam_type} not found in the country {country_code} configuration."
+        )
+        return
+    number_of_questions = exam_type_config.get("number_of_questions")
+    if not number_of_questions:
+        logger.error("Number of questions not found.")
+        return
+
+    config = ctx.obj["config"]
+    metrics_config = ctx.obj["metrics_config"]
+    practice_config = ctx.obj["practice_config"]
+    print_config = ctx.obj["print_config"]
+    logger.info(f"Starting practice exam for {exam_type} with {number_of_questions} questions.")
+    qp = QuestionProcessor(
+        config,
+        country,
+        ExamType.from_id(exam_type),
+        QuestionDisplayMode.PRACTICE_EXAM,
+    )
+
+    question_bank = qp.get_question_bank()
+    quiz_processor = QuizProcessor(
+        question_bank,
+        number_of_questions,
+        QuestionDisplayMode.PRACTICE_EXAM,
+        QuizAnswerDisplay.from_id(DEFAULT_ANSWER_DISPLAY_PRACTICE_EXAM.id),
+        QuizSource.ALL,
+        practice_config.get(DEFAULT_ANSWER_DISPLAY_PRACTICE_EXAM.id),
         print_config,
         metrics_config,
     )
