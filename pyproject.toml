@@ -48,7 +48,6 @@ max-line-length = 99
 docstring-code-format = true
 docstring-code-line-length = 72
 
-
 [tool.codespell]
 skip = [
     "pyproject.toml", "LICENSE", "*.txt",
@@ -64,9 +63,11 @@ pythonpath = "src"
 
 [tool.pylint]
 disable = "C0415, W0718"
+
 [tool.coverage.run]
 branch = true
 source = ["src"]
+
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",

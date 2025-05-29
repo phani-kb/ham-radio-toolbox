@@ -1,14 +1,7 @@
 import unittest
-from unittest.mock import patch
-from io import StringIO
 
-from hrt.common.question_submitted import QuestionSubmitted
-from hrt.common.quiz import Quiz, QuizFactory
-from hrt.common.enums import CountryCode, ExamType, QuestionDisplayMode, QuizAnswerDisplay
-from hrt.common.hrt_types import QuestionNumber
-from hrt.common.question import Question
-from hrt.question_banks.ca_quiz import CAQuiz
-from hrt.question_banks.us_quiz import USQuiz
+from hrt.common.quiz import Quiz
+from hrt.common.enums import QuestionDisplayMode
 
 
 class ConcreteQuiz(Quiz):

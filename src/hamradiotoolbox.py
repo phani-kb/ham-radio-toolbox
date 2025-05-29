@@ -502,7 +502,7 @@ def get_downloader(ctx, download_type_value: str, country_download_type_config_k
 @download.command("question-bank")
 @click.pass_context
 def download_question_bank(ctx):
-    """Download question bank for a specific country."""
+    """Download a question bank for a specific country."""
     downloader = get_downloader(ctx, "question-bank", "question_bank")
     if not downloader:
         logger.error("Downloader not found.")
