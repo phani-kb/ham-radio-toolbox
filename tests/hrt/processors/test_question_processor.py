@@ -1,11 +1,14 @@
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+from unittest import mock
 
 from hrt.common.config_reader import HRTConfig
+from typing import List, Sequence, cast
 from hrt.common.question import Question
 from hrt.common.question_display import QuestionDisplay
-from hrt.processors.question_processor import QuestionProcessor, get_answers
+from hrt.processors.question_processor import QuestionProcessor
+from hrt.processors.question_processor import get_answers as processor_get_answers
 from hrt.common.enums import (
     CountryCode,
     ExamType,
@@ -88,13 +91,15 @@ class TestQuestionProcessor(unittest.TestCase):
     @patch("hrt.processors.question_processor.utils.get_header")
     @patch("hrt.processors.question_processor.QuestionProcessor._save_to_file")
     @patch("hrt.processors.question_processor.utils.save_output")
-    def test_process_list_result(self, mock_save_output, mock_get_header, mock_save_to_file):
+    def test_process_list_result1(self, mock_save_output, mock_get_header, mock_save_to_file):
         result = [MagicMock()]
         result_text = ["Question1"]
         criteria = GeneralQuestionListingType.ALL
         mock_get_header.return_value = "Header"
         mock_save_output.return_value = "output"
-        self.processor._process_list_result(result, result_text, criteria, True)
+        self.processor._process_list_result(
+            cast(List[Question], result), result_text, criteria, True
+        )
         mock_save_to_file.assert_called_once()
 
     @patch("hrt.processors.question_processor.QuestionProcessor._process_list_result")
@@ -232,14 +237,16 @@ class TestQuestionProcessor(unittest.TestCase):
         "hrt.processors.question_processor.get_answers",
         return_value=["1: 1. Answer1", "2: 2. Answer2"],
     )
-    def test_process_list_result(self, mock_get_answers, mock_get_header):
+    def test_process_list_result2(self, mock_get_answers, mock_get_header):
         result = [MagicMock(spec=Question), MagicMock(spec=Question)]
         result_text = ["Question1", "Question2"]
         criteria = MagicMock(spec=GeneralQuestionListingType)
         criteria.name = "TestCriteria"
 
-        with patch("sys.stdout", new_callable=unittest.mock.MagicMock()) as mock_stdout:
-            self.processor._process_list_result(result, result_text, criteria, save_to_file=False)
+        with patch("sys.stdout", new_callable=mock.Mock) as mock_stdout:
+            self.processor._process_list_result(
+                cast(List[Question], result), result_text, criteria, save_to_file=False
+            )
             output = "".join(call.args[0] for call in mock_stdout.write.call_args_list)
             expected_output = [
                 "Header: TestCriteria",
@@ -268,7 +275,9 @@ class TestQuestionProcessor(unittest.TestCase):
         criteria = MagicMock(spec=GeneralQuestionListingType)
         criteria.name = "TestCriteria"
 
-        self.processor._process_list_result(result, result_text, criteria, save_to_file=True)
+        self.processor._process_list_result(
+            cast(List[Question], result), result_text, criteria, save_to_file=True
+        )
 
         expected_output = [
             "Header: TestCriteria",
@@ -290,7 +299,7 @@ class TestQuestionProcessor(unittest.TestCase):
     ):
         criteria = MagicMock(spec=MarkedQuestionListingType)
         answer_display = QuestionAnswerDisplay.IN_THE_END
-        Question.question_display = None  # Resetting to None for the test 
+        Question.question_display = None  # Resetting to None for the test
 
         mock_process_list_result.return_value = None
         mock_get_marked_questions.return_value = (
@@ -300,8 +309,14 @@ class TestQuestionProcessor(unittest.TestCase):
 
         self.processor.list_marked(criteria, answer_display)
 
+        self.assertIsNotNone(Question.question_display)
         self.assertIsInstance(Question.question_display, QuestionDisplay)
-        self.assertEqual(Question.question_display.answer_display, answer_display)
+        if Question.question_display:
+            self.assertEqual(Question.question_display.answer_display, answer_display)
+
+
+def get_answers(questions: Sequence[Question]) -> List[str]:
+    return processor_get_answers(list(questions))
 
 
 class TestGetAnswers(unittest.TestCase):
@@ -320,7 +335,7 @@ class TestGetAnswers(unittest.TestCase):
         Question.question_display = MagicMock()
         Question.question_display.answer_display = QuestionAnswerDisplay.IN_THE_END
 
-        questions = [self.question1, self.question2]
+        questions: Sequence[MagicMock] = [self.question1, self.question2]
         expected_answers = ["1: 1. Answer1", "2: 2. Answer2"]
         self.assertEqual(get_answers(questions), expected_answers)
 
@@ -328,7 +343,7 @@ class TestGetAnswers(unittest.TestCase):
         Question.question_display = MagicMock()
         Question.question_display.answer_display = QuizAnswerDisplay.IN_THE_END
 
-        questions = [self.question1, self.question2]
+        questions: Sequence[MagicMock] = [self.question1, self.question2]
         expected_answers = ["1: 1. Answer1", "2: 2. Answer2"]
         self.assertEqual(get_answers(questions), expected_answers)
 

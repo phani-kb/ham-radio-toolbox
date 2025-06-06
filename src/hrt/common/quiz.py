@@ -280,12 +280,18 @@ class Quiz(IQuiz, ABC):
         is_correct = choice_index == cq.quiz_choices.index(cq.answer)
         if is_correct:
             cq.correct_attempts += 1
-            if cq.question_display.answer_display == QuizAnswerDisplay.AFTER_QUESTION:
+            if (
+                cq.question_display
+                and cq.question_display.answer_display == QuizAnswerDisplay.AFTER_QUESTION
+            ):
                 char = "\033[92m✓✓\033[0m"  # Two green checks
                 print(f"{char}")
         else:
             cq.wrong_attempts += 1
-            if cq.question_display.answer_display == QuizAnswerDisplay.AFTER_QUESTION:
+            if (
+                cq.question_display
+                and cq.question_display.answer_display == QuizAnswerDisplay.AFTER_QUESTION
+            ):
                 char = "\033[91m✗✗\033[0m"  # Two red cross-marks
                 print(f"{char}\nCorrect Answer: ({cq.answer_index + 1}) {cq.answer}")
         self._submitted_questions[cq.question_number] = QuestionSubmitted(
@@ -411,7 +417,11 @@ class Quiz(IQuiz, ABC):
         """Print the question."""
         question_text = question.format_quiz_question()
         progress_text = self.get_progress()
-        if question.is_marked and question.question_display.show_marked_status:
+        if (
+            question.is_marked
+            and question.question_display
+            and question.question_display.show_marked_status
+        ):
             question_text += f"Marked: {'Yes' if question.is_marked else 'No'}\n"
         question_text += f"\n{progress_text}"
         return question_text

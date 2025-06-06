@@ -47,7 +47,7 @@ def hamradiotoolbox(ctx, config):
     """Ham Radio Toolbox CLI for managing questions, quizzes, practice exams and
     querying callsigns."""
     config_reader = ConfigReader(config)
-    config: HRTConfig = config_reader.config
+    config: HRTConfig | None = config_reader.config
     ctx.obj = {"config": config}
     logger.info("Ham Radio Toolbox initialized with config: %s", config_reader.file_path)
 
@@ -99,19 +99,19 @@ def show(
     if answer_display:
         logger.info("Showing answer display options.")
         answer_display_options = QuestionAnswerDisplay.list()
-        utils.write_output(answer_display_options)
+        utils.write_output([str(option) for option in answer_display_options])
     if exam_types:
         logger.info("Showing exam types.")
         exam_types = ExamType.list()
-        utils.write_output(exam_types)
+        utils.write_output([str(option) for option in exam_types])
     if question_ref_types:
         logger.info("Showing question reference types.")
         question_ref_types = QuestionRefType.list()
-        utils.write_output(question_ref_types)
+        utils.write_output([str(option) for option in question_ref_types])
     if quiz_source:
         logger.info("Showing quiz source options.")
         quiz_source_options = QuizSource.list()
-        utils.write_output(quiz_source_options)
+        utils.write_output([str(option) for option in quiz_source_options])
     if enum:
         logger.info(f"Showing details for enum: {enum}")
         all_subclasses = get_all_subclasses(HRTEnum)
@@ -188,7 +188,7 @@ def list_questions(
 ):
     """List questions based on the criteria."""
     config, country_code, answer_display, save_to_file, exam_type = get_common_question_params(ctx)
-    criteria_type: QuestionListingType = GeneralQuestionListingType.ALL
+    criteria_type: QuestionListingType | None = GeneralQuestionListingType.ALL
     max_questions = 0
     if criteria:
         criteria_type = QuestionListingType.from_id(criteria)
@@ -598,24 +598,36 @@ def callsign(ctx, country, match, include, exclude, sort_by, rank_by):
     """Query and analyze callsigns for a specific country."""
 
     def get_phonetic_clarity_options(hrt_config: HRTConfig):
-        return hrt_config.get("callsign").get("phonetic_clarity")
+        callsign_config = hrt_config.get("callsign")
+        return (
+            callsign_config.get("phonetic_clarity") if isinstance(callsign_config, dict) else None
+        )
 
     def get_confusing_pairs(hrt_config: HRTConfig):
-        return hrt_config.get("callsign").get("confusing_pairs")
+        callsign_config = hrt_config.get("callsign")
+        return (
+            callsign_config.get("confusing_pairs") if isinstance(callsign_config, dict) else None
+        )
 
     config = ctx.obj["config"]
 
     phonetic_clarity = None
     if rank_by and RankBy(rank_by) == RankBy.PHONETIC_CLARITY:
         phonetic_clarity_options = get_phonetic_clarity_options(config)
-        phonetic_clarity = utils.select_from_options(
-            phonetic_clarity_options, "Phonetic clarity option"
-        )
+        if isinstance(phonetic_clarity_options, dict):
+            phonetic_clarity = utils.select_from_options(
+                phonetic_clarity_options, "Phonetic clarity option"
+            )
+        else:
+            logger.error("Phonetic clarity options not found or not a dictionary")
 
     confusing_pair = None
     if rank_by and RankBy(rank_by) == RankBy.CONFUSING_PAIR:
         confusing_pairs = get_confusing_pairs(config)
-        confusing_pair = utils.select_from_options(confusing_pairs, "Confusing pair")
+        if isinstance(confusing_pairs, dict):
+            confusing_pair = utils.select_from_options(confusing_pairs, "Confusing pair")
+        else:
+            logger.error("Confusing pairs not found or not a dictionary")
 
     match_options = match if match else []
     include_options = include if include else []

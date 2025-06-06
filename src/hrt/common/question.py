@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 class Question:
     """Question class."""
 
-    question_display: IQuestionDisplay = None
+    question_display: Optional[IQuestionDisplay] = None
     SKIP_CHOICE: str = "Skip or Don't Know"
 
     def __init__(
