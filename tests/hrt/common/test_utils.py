@@ -651,18 +651,18 @@ class TestDownloadZipFile2(unittest.TestCase):
 
         download_zip_file(url, output_file_path, zip_files)
 
-        mock_logger.info.assert_called_with(f"Extracted %s to %s", url, output_file_path)
+        mock_logger.info.assert_called_with("Extracted %s to %s", url, output_file_path)
 
 
 class TestGetUserAgent(unittest.TestCase):
     def test_get_user_agent_with_config(self):
         app_config = {"name": "TestApp", "version": "1.0.0", "description": "Test application"}
-        expected_user_agent = f"TestApp/1.0.0 ({constants.GITHUB_URL}; Test application)"
+        expected_user_agent = "TestApp/1.0.0 (Test application)"
         self.assertEqual(get_user_agent(app_config), expected_user_agent)
 
     def test_get_user_agent_without_config(self):
         expected_user_agent = (
-            f"{constants.APP_NAME}/{constants.APP_VERSION} ({constants.GITHUB_URL}; )"
+            f"{constants.APP_NAME}/{constants.APP_VERSION} ({constants.APP_DESCRIPTION})"
         )
         self.assertEqual(get_user_agent(None), expected_user_agent)
 

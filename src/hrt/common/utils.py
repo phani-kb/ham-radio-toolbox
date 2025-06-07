@@ -367,8 +367,8 @@ def get_user_agent(app_config: Optional[Dict[str, Any]]) -> str:
         app_config = {}
     app_name = app_config.get("name", constants.APP_NAME)
     app_ver = app_config.get("version", constants.APP_VERSION)
-    app_desc = app_config.get("description", "")
+    app_desc = app_config.get("description", constants.APP_DESCRIPTION)
     logger.debug("App Name: %s, App Version: %s, App Description: %s", app_name, app_ver, app_desc)
-    user_agent = f"{app_name}/{app_ver} ({constants.GITHUB_URL}; {app_desc})"
+    user_agent = f"{app_name}/{app_ver} ({app_desc})"
     logger.info("User Agent: %s", user_agent)
     return user_agent
