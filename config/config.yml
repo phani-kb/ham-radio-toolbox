@@ -1,0 +1,288 @@
+application:
+  name: "ham-radio-toolbox"
+  version: "0.1.0"
+  description: "A CLI tool to support the amateur radio community."
+log_config_file: "config/logging.yml"
+web_driver: "/usr/bin/chromedriver" # path to chromedriver
+input:
+  folder: "data/input"
+  files:
+    two_letter_words: "two_letter_words.txt"
+    three_letter_words: "three_letter_words.txt"
+    marked_questions: "marked-questions.txt" # question_id, correct_attempts, wrong_attempts, skip_count
+output:
+  folder: "data/output"
+metrics:
+  folder: "data/metrics"
+  file: "metrics.txt"
+print_question: &print_question
+  answer_display: "with-question" # in-the-end, hide
+  show_explanation: false
+  show_hints: false
+  show_references: false
+  show_tags: false
+  show_marked_status: true
+  show_metrics: true
+quiz:
+  number_of_questions: 10
+  <<: *print_question
+  mark_wrong_answers: true
+practice_exam:
+  in-the-end:
+    <<: *print_question
+    show_questions: wrong # all, none
+    show_explanation: true
+    show_references: true
+    mark_wrong_answers: true
+
+callsign:
+  phonetic_clarities:
+    option1:
+      {
+        "A": 1,
+        "B": 3,
+        "C": 2,
+        "D": 2,
+        "E": 1,
+        "F": 3,
+        "G": 2,
+        "H": 1,
+        "I": 1,
+        "J": 4,
+        "K": 2,
+        "L": 1,
+        "M": 3,
+        "N": 3,
+        "O": 1,
+        "P": 3,
+        "Q": 5,
+        "R": 1,
+        "S": 3,
+        "T": 1,
+        "U": 2,
+        "V": 3,
+        "W": 2,
+        "X": 4,
+        "Y": 2,
+        "Z": 4,
+      }
+    option2:
+      {
+        "A": 2,
+        "B": 3,
+        "C": 2,
+        "D": 3,
+        "E": 1,
+        "F": 3,
+        "G": 2,
+        "H": 2,
+        "I": 1,
+        "J": 4,
+        "K": 3,
+        "L": 2,
+        "M": 3,
+        "N": 3,
+        "O": 2,
+        "P": 3,
+        "Q": 4,
+        "R": 2,
+        "S": 3,
+        "T": 3,
+        "U": 2,
+        "V": 3,
+        "W": 2,
+        "X": 4,
+        "Y": 2,
+        "Z": 3,
+      }
+
+  confusing_pairs:
+    option1:
+      [
+        ["B", "P"],
+        ["M", "N"],
+        ["S", "F"],
+        ["C", "Z"],
+        ["D", "T"],
+        ["V", "B"],
+        ["G", "J"],
+        ["K", "X"],
+        ["L", "R"],
+        ["E", "I"],
+        ["O", "M"],
+        ["K", "R"],
+        ["U", "Z"],
+        ["S", "H"],
+        ["F", "L"],
+        ["P", "Y"],
+        ["C", "J"],
+        ["G", "Q"],
+      ]
+    option2:
+      [
+        ["B", "D"],
+        ["B", "V"],
+        ["I", "E"],
+        ["S", "H"],
+        ["N", "A"],
+        ["F", "L"],
+        ["U", "V"],
+        ["M", "O"],
+        ["K", "R"],
+        ["C", "J"],
+        ["G", "Q"],
+        ["P", "Y"],
+        ["U", "Z"],
+        ["I", "S"],
+        ["K", "X"],
+        ["M", "N"],
+        ["O", "Q"],
+        ["W", "J"],
+        ["C", "Z"],
+        ["C", "G"],
+      ]
+
+  includes:
+    1l:
+    2l:
+    3l:
+    1n:
+    el:
+
+  excludes:
+    1l: ["Q", "W", "X", "Y", "Z", "F"]
+    2l:
+    3l: ["PHA", "PKI", "IPB", "PBU", "PBH", "NPB", "PBD"]
+    1n:
+    el: ["E", "I", "S", "H", "B", "D", "Z"]
+    ml: ["C", "E", "F", "Q", "X", "Y", "Z", "I"]
+
+  morse_code:
+    "A": ".-"
+    "B": "-..."
+    "C": "-.-."
+    "D": "-.."
+    "E": "."
+    "F": "..-."
+    "G": "--."
+    "H": "...."
+    "I": ".."
+    "J": ".---"
+    "K": "-.-"
+    "L": ".-.."
+    "M": "--"
+    "N": "-."
+    "O": "---"
+    "P": ".--."
+    "Q": "--.-"
+    "R": ".-."
+    "S": "..."
+    "T": "-"
+    "U": "..-"
+    "V": "...-"
+    "W": ".--"
+    "X": "-..-"
+    "Y": "-.--"
+    "Z": "--.."
+    "0": "-----"
+    "1": ".----"
+    "2": "..---"
+    "3": "...--"
+    "4": "....-"
+    "5": "....."
+    "6": "-...."
+    "7": "--..."
+    "8": "---.."
+    "9": "----."
+
+  phonetics:
+    "A": "Alfa"
+    "B": "Bravo"
+    "C": "Charlie"
+    "D": "Delta"
+    "E": "Echo"
+    "F": "Foxtrot"
+    "G": "Golf"
+    "H": "Hotel"
+    "I": "India"
+    "J": "Juliet"
+    "K": "Kilo"
+    "L": "Lima"
+    "M": "Mike"
+    "N": "November"
+    "O": "Oscar"
+    "P": "Papa"
+    "Q": "Quebec"
+    "R": "Romeo"
+    "S": "Sierra"
+    "T": "Tango"
+    "U": "Uniform"
+    "V": "Victor"
+    "W": "Whiskey"
+    "X": "X-ray"
+    "Y": "Yankee"
+    "Z": "Zulu"
+
+  must_include: ["ABC", "123"]
+
+  must_exclude: []
+
+ca:
+  country: "canada"
+  question_bank: # relative to input_folder
+    basic:
+      file: "amat_basic_quest_delim.txt"
+      file_encoding: "iso-8859-1"
+      download_url: "https://apc-cap.ic.gc.ca/datafiles/amat_basic_quest.zip"
+      zip_files: [ "amat_basic_quest_delim.txt" ]
+      number_of_questions: 100
+      categories_file: "basic/categories.txt"
+    advanced:
+      file: "amat_adv_quest_delim.txt"
+      file_encoding: "iso-8859-1"
+      download_url: "https://apc-cap.ic.gc.ca/datafiles/amat_adv_quest.zip"
+      zip_files: [ "amat_adv_quest_delim.txt" ]
+      number_of_questions: 50
+      categories_file: "advanced/categories.txt"
+  callsign:
+    available:
+      file: "available_callsigns.txt"
+      download_url: "https://apc-cap.ic.gc.ca/pls/apc_anon/query_avail_cs$.startup"
+    assigned:
+      file: "assigned_callsigns.txt"
+      download_url: "https://apc-cap.ic.gc.ca/datafiles/amateur_delim.zip"
+      search_url: "https://apc-cap.ic.gc.ca/pls/apc_anon/query_amat_cs$.startup"
+    accredited_examiners_list_url: "https://apc-cap.ic.gc.ca/datafiles/amateur_exmr.zip"
+us:
+  country: "united states of america"
+  question_bank:
+    technician:
+      file:
+      file_encoding: "utf-8"
+      url:
+      number_of_questions: 35
+    general:
+      file:
+      file_encoding: "utf-8"
+      url:
+      number_of_questions: 35
+    extra:
+      file:
+      file_encoding: "utf-8"
+      url:
+      number_of_questions: 50
+  callsign:
+    available:
+      file:
+      search_url:
+    assigned:
+      file:
+      weekly_list_url: https://data.fcc.gov/download/pub/uls/complete/l_amat.zip
+    applications:
+      file:
+      weekly_list_url: "https://data.fcc.gov/download/pub/uls/complete/a_amat.zip"
+in:
+  country: "india"
+  question_bank:
+    general_grade:
+    restricted_grade:
