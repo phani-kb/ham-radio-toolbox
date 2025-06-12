@@ -150,12 +150,12 @@ callsign:
     el:
 
   excludes:
-    1l: ["Q", "W", "X", "Y", "Z", "F"]
+    1l: ["Q"]
     2l:
-    3l: ["PHA", "PKI", "IPB", "PBU", "PBH", "NPB", "PBD"]
+    3l: ["BAD", "NOT"]
     1n:
-    el: ["E", "I", "S", "H", "B", "D", "Z"]
-    ml: ["C", "E", "F", "Q", "X", "Y", "Z", "I"]
+    el: ["E"]
+    ml: ["E","Q", "X", "I"]
 
   morse_code:
     "A": ".-"

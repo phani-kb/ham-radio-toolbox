@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
 from hrt.common.config_reader import logger
-from hrt.common.constants import LOAD_WAIT_TIME, SEARCH_WAIT_TIME
+from hrt.common.constants import LOAD_WAIT_TIME, SEARCH_WAIT_TIME, WARNING_MESSAGE
 from hrt.common.enums import CountryCode
 from hrt.common.utils import select_from_options
 from hrt.scrapers.base_scraper import BaseScraper
@@ -39,6 +39,13 @@ class CAScraper(BaseScraper):
         download_zip_file(url, output_file_path)
 
     def download_available_callsigns(self, url: str, output_file_path: str) -> List[str]:
+        print(WARNING_MESSAGE)
+        logger.debug(WARNING_MESSAGE)
+        user_confirmation = input("Do you want to proceed? (Y/N): ").strip().upper()
+        if user_confirmation != "Y":
+            logger.info("Operation cancelled by user")
+            return []
+
         callsigns: List[str] = []
 
         try:

@@ -612,7 +612,7 @@ def callsign(ctx, country, match, include, exclude, sort_by, rank_by):
     config = ctx.obj["config"]
 
     phonetic_clarity = None
-    if rank_by and RankBy(rank_by) == RankBy.PHONETIC_CLARITY:
+    if rank_by and rank_by == RankBy.PHONETIC_CLARITY.id:
         phonetic_clarity_options = get_phonetic_clarity_options(config)
         if isinstance(phonetic_clarity_options, dict):
             phonetic_clarity = utils.select_from_options(
@@ -622,7 +622,7 @@ def callsign(ctx, country, match, include, exclude, sort_by, rank_by):
             logger.error("Phonetic clarity options not found or not a dictionary")
 
     confusing_pair = None
-    if rank_by and RankBy(rank_by) == RankBy.CONFUSING_PAIR:
+    if rank_by and rank_by == RankBy.CONFUSING_PAIR.id:
         confusing_pairs = get_confusing_pairs(config)
         if isinstance(confusing_pairs, dict):
             confusing_pair = utils.select_from_options(confusing_pairs, "Confusing pair")

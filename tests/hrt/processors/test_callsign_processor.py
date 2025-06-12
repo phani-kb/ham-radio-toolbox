@@ -366,14 +366,14 @@ class TestCallSignProcessor(unittest.TestCase):
         # Verify result is empty
         self.assertEqual(result, set())
 
-        # Verify write_output is called with empty set
-        mock_write.assert_called_with(set(), "test_output/us/final.txt")
+        # Verify write_output is called with an empty list
+        mock_write.assert_called_with([], "test_output/us/final.txt")
 
         # Verify the appropriate methods were called
         mock_load.assert_called_once()
-        mock_match.assert_not_called()  # Should not be called with empty initial set
+        mock_match.assert_not_called()  # Should not be called with an empty initial set
 
-        # The behavior shows that process_options is called twice, even with empty set
+        # The behavior shows that process_options is called twice, even with an empty set
         self.assertEqual(mock_process_options.call_count, 2)
         mock_process_options.assert_any_call(set(), ["END"])
         mock_process_options.assert_any_call(set(), ["MULTIPLE"], False)

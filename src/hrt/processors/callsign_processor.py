@@ -161,17 +161,15 @@ class CallSignsProcessor:
 
     def _process_must_include_exclude(self, callsigns: set) -> set:
         """Process must include and exclude callsigns."""
-        must_include = self.config.get_callsign().get("must_include")
+        must_include = set(self.config.get_callsign().get("must_include") or set())
+        must_exclude = set(self.config.get_callsign().get("must_exclude") or set())
+
         if must_include:
             logger.info("Must include callsigns: %d", len(must_include))
-            callsigns.update(set(must_include))
-
-        must_exclude = self.config.get_callsign().get("must_exclude", set())
         if must_exclude:
             logger.info("Must exclude callsigns: %d", len(must_exclude))
-            callsigns = callsigns - must_exclude
 
-        return callsigns
+        return (callsigns | must_include) - must_exclude
 
     def process_match_option(self, callsigns, length, country_code):
         """Process callsigns by matching with words of specific length."""
@@ -268,19 +266,19 @@ class CallSignsProcessor:
             callsigns = callsigns - excluded_callsigns
 
         # Sort and finalize callsigns
-        final_callsigns = set(utils.sort_callsigns(callsigns, self.sort_by))
+        final_callsigns = set(utils.sort_callsigns(list(callsigns), self.sort_by))
         logger.info("Final callsigns: %d", len(final_callsigns))
 
         # Save final callsigns
         final_file_path = f"{self.config.get_output().get('folder')}/{country_code}/final.txt"
-        write_output(final_callsigns, final_file_path)
+        write_output(list(final_callsigns), final_file_path)
         logger.info("Final callsigns saved to %s", final_file_path)
 
         # Process must include/exclude callsigns
         final_callsigns = self._process_must_include_exclude(final_callsigns)
 
         # Rank callsigns if requested
-        if self.rank_by and RankBy.CW_WEIGHT.value in self.rank_by:
+        if self.rank_by and RankBy.CW_WEIGHT.id == self.rank_by[0][0]:
             final_callsigns = self.rank_callsigns_by_cw_weight(final_callsigns)
 
         logger.info("Final callsigns: %d", len(final_callsigns))

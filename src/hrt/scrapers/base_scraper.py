@@ -1,7 +1,7 @@
 """Base scraper class and factory to get scraper based on country code."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -24,7 +24,7 @@ class IWebScraper(ABC):
         pass
 
     @abstractmethod
-    def download_available_callsigns(self, url: str, output_file_path: str) -> None:
+    def download_available_callsigns(self, url: str, output_file_path: str) -> List[str]:
         pass
 
 
@@ -69,7 +69,7 @@ class BaseScraper(IWebScraper, ABC):
         pass
 
     @abstractmethod
-    def download_available_callsigns(self, url: str, output_file_path: str) -> None:
+    def download_available_callsigns(self, url: str, output_file_path: str) -> List[str]:
         pass
 
 

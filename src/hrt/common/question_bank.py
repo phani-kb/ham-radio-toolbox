@@ -464,9 +464,9 @@ class QuestionBankFactory:
         exam_type: ExamType,
         filepath: Path,
         display_mode: QuestionDisplayMode = QuestionDisplayMode.PRINT,
-        categories_filepath: Path = None,
-        marked_questions_filepath: Path = None,
-        metrics_filepath: Path = None,
+        categories_filepath: Path | None = None,
+        marked_questions_filepath: Path | None = None,
+        metrics_filepath: Path | None = None,
     ) -> IQuestionBank:
         """Returns a question bank based on the country code."""
         if country == CountryCode.CANADA:

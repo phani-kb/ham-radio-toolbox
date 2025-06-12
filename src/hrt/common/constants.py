@@ -25,3 +25,8 @@ DEFAULT_OUTPUT_FOLDER: str = "data/output"
 DEFAULT_INPUT_FOLDER: str = "data/input"
 DEFAULT_METRICS_DELIMITER: str = ":"
 DEFAULT_ANSWER_DISPLAY_PRACTICE_EXAM: QuestionAnswerDisplay = QuestionAnswerDisplay.IN_THE_END
+WARNING_MESSAGE = """
+WARNING: This scraping functionality is provided for personal, educational, and research use only.
+You are responsible for ensuring compliance with website Terms of Service and applicable laws.
+Proceed at your own risk.
+"""

@@ -59,6 +59,10 @@ def save_output(filename: str, output: str, folder: Optional[str] = None) -> Non
     :param output: Output to be saved in the file.
     :param folder: Folder where the file will be saved (default is None).
     """
+    file_parent_folder = os.path.dirname(filename)
+    file_folder = os.path.join(folder, file_parent_folder) if folder else file_parent_folder
+    if file_folder and not os.path.exists(file_folder):
+        create_folder(file_folder)
     filename = os.path.join(folder, filename) if folder else filename
     with open(filename, "w", encoding="utf-8", newline="") as file:
         file.write(output)
@@ -300,6 +304,11 @@ def download_zip_file(
         temp_file.write(requests.get(url, timeout=constants.REQUEST_TIMEOUT).content)
     temp_file_path = temp_file.name
     logger.info("Downloaded %s to %s", url, temp_file_path)
+
+    output_folder = os.path.dirname(output_file_path)
+    if output_folder and not os.path.exists(output_folder):
+        create_folder(output_folder)
+
     with zipfile.ZipFile(temp_file_path, "r") as zip_ref:  # noqa: SIM117
         with open(output_file_path, "wb") as output_file:
             for file_info in zip_ref.infolist():

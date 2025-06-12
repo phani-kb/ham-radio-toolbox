@@ -369,7 +369,7 @@ class QuestionDisplayMode(HRTEnum):
     """Enumeration for question display modes."""
 
     QUIZ = ("quiz", "Quiz")
-    PRINT = ("print", "Print question")
+    PRINT = ("print_question", "Print question")
     PRACTICE_EXAM = ("practice_exam", "Practice exam")
 
 

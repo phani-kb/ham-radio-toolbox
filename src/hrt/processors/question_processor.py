@@ -102,6 +102,8 @@ class QuestionProcessor:
         metrics_config = self.config.get("metrics")
         metrics_folder = metrics_config.get("folder", constants.DEFAULT_METRICS_FOLDER)
         metrics_file = metrics_config.get("file")
+        if not metrics_file:
+            raise ValueError("Metrics file not found in the config file")
         self.metrics_file_path = (
             Path(metrics_folder) / self.country.code / self.exam_type.id / metrics_file
         )
@@ -159,7 +161,10 @@ class QuestionProcessor:
     ) -> None:
         """List the questions based on the criteria."""
         if answer_display:
-            Question.question_display.answer_display = answer_display
+            if Question.question_display is None:
+                Question.question_display = QuestionDisplay(answer_display)
+            else:
+                Question.question_display.answer_display = answer_display
         result, result_text = self._qb.get_questions(criteria, max_questions)
         self._process_list_result(result, result_text, criteria, save_to_file)
 
