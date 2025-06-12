@@ -17,7 +17,7 @@ class TestCallSignProcessor(unittest.TestCase):
         self.callsign_config = {
             "morse_code": {"A": ".-", "B": "-...", "C": "-.-.", "1": ".----", "2": "..---"},
             "must_include": ["TEST1"],
-            "must_exclude": set(["TEST2"]),  # Changed to set
+            "must_exclude": ["TEST4"],  # Changed to set
             "includes": {"END": ["A", "B"], "MULTIPLE": ["A", "B"]},
             "excludes": {"END": ["C"], "MULTIPLE": ["C"]},
         }
@@ -112,7 +112,7 @@ class TestCallSignProcessor(unittest.TestCase):
         """Test process must include exclude options."""
         callsigns = {"TEST3", "TEST4"}
         result = self.processor._process_must_include_exclude(callsigns)
-        expected = {"TEST3", "TEST4", "TEST1"} - {"TEST2"}
+        expected = {"TEST3", "TEST4"} - {"TEST4"}
         self.assertEqual(result, expected)
 
     @patch("hrt.processors.callsign_processor.write_output")

@@ -150,7 +150,8 @@ class QuestionProcessor:
         filename = criteria.get_filename()
         output_file = Path(self.country.code) / self.exam_type.id / filename
         utils.save_output(output_file, "\n".join(output), self.output_folder)
-        logger.info("Questions saved to %s", criteria.get_filename())
+        output_path = Path(self.output_folder) / output_file
+        logger.info("Questions saved to %s", output_path)
 
     def list(
         self,

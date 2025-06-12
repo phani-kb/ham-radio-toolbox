@@ -215,6 +215,7 @@ def list_questions(
 @click.option(
     "--criteria",
     type=click.Choice(MarkedQuestionListingType.ids()),
+    default=MarkedQuestionListingType.WRONG_ATTEMPT.id,
     help="List marked questions with specific criteria.",
 )
 @click.pass_context
@@ -232,7 +233,7 @@ def list_marked_questions(ctx, criteria):
         country_code,
         exam_type,
     )
-    criteria_type: MarkedQuestionListingType = MarkedQuestionListingType.from_id(criteria)
+    criteria_type: QuestionListingType = QuestionListingType.from_id(criteria)
     qp.list_marked(criteria_type, answer_display, questions_count, save_to_file)
 
 

@@ -169,7 +169,15 @@ class CallSignsProcessor:
         if must_exclude:
             logger.info("Must exclude callsigns: %d", len(must_exclude))
 
-        return (callsigns | must_include) - must_exclude
+        # Filter callsigns based on must include and exclude
+        if not must_include and not must_exclude:
+            return callsigns
+        if must_include and must_exclude:
+                # remove callsigns that must be excluded
+                final_exclude = must_exclude - must_include
+                callsigns = callsigns - final_exclude
+        logger.info("Final callsigns after must include/exclude: %d", len(callsigns))
+        return callsigns
 
     def process_match_option(self, callsigns, length, country_code):
         """Process callsigns by matching with words of specific length."""
