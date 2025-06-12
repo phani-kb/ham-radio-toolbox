@@ -1,27 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "ham-radio-toolbox"
 version = "0.1.0"
 description = "A CLI tool to support the amateur radio community."
-license = { file = "LICENSE", text = "MIT" }
+authors = [
+    {name = "Phani K", email = "192951055+phani-kb@users.noreply.github.com"}
+]
+license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.10"
+keywords = ["ham radio", "amateur radio", "cli", "toolbox"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Communications :: Ham Radio",
+    "Environment :: Console",
+]
 dependencies = [
     "requests~=2.32.3",
     "webdriver-manager~=4.0.2",
     "selenium~=4.26.1",
     "pyyaml~=6.0.1",
     "click~=8.0.3",
-    "pytest~=8.2.1",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest~=8.2.1",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+    "coverage",
+]
+
+[project.scripts]
+hamradiotoolbox = "hamradiotoolbox:hamradiotoolbox"
+hrt = "hamradiotoolbox:hamradiotoolbox"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/ham-radio-toolbox"
+Repository = "https://github.com/yourusername/ham-radio-toolbox"
+Issues = "https://github.com/yourusername/ham-radio-toolbox/issues"
 
 [tool.ruff]
 line-length = 99
-src = [
-    "src",
-    "tests",
-    "main.py",
-    "setup.py",
-]
+src = ["src"]
 
 [tool.ruff.lint]
 select = [
@@ -81,3 +112,14 @@ exclude_lines = [
     "if TYPE_CHECKING:"
 ]
 ignore_errors = true
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+py-modules = ["hamradiotoolbox"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["hrt*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.yml", "*.yaml", "*.txt"]
