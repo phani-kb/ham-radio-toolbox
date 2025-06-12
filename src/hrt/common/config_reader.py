@@ -136,6 +136,9 @@ def validate_practice_exam_settings(hrt_config: HRTConfig) -> bool:
     if not practice_exam_settings:
         logger.error("Practice Exam settings not found in config file.")
         return False
+    if not isinstance(practice_exam_settings, dict):
+        logger.error("Practice Exam settings should be a dictionary.")
+        return False
     qd: QuestionAnswerDisplay = DEFAULT_ANSWER_DISPLAY_PRACTICE_EXAM
     if not practice_exam_settings.get(qd.id):
         logger.error(

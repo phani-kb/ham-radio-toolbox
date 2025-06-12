@@ -3,6 +3,7 @@
 import random
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 from hrt.common import utils
 from hrt.common.config_reader import logger
@@ -16,7 +17,8 @@ from hrt.common.enums import (
     TopQuestionsListingType,
 )
 from hrt.common.hrt_types import QuestionNumber
-from hrt.common.question import Question, QuestionCategory
+from hrt.common.question import Question
+from hrt.common.question_category import QuestionCategory
 from hrt.common.question_metric import QuestionMetric
 
 
@@ -179,11 +181,11 @@ class QuestionBank(IQuestionBank, ABC):
         exam_type: ExamType,
         filepath: Path,
         display_mode: QuestionDisplayMode = QuestionDisplayMode.PRINT,
-        categories_filepath: Path = None,
-        marked_questions_filepath: Path = None,
-        metrics_filepath: Path = None,
+        categories_filepath: Optional[Path] = None,
+        marked_questions_filepath: Optional[Path] = None,
+        metrics_filepath: Optional[Path] = None,
     ):
-        self.mappings = None
+        self.mappings: Optional[Dict[Any, Any]] = None
         self._country = country
         self._exam_type = exam_type
         self._filepath = filepath
@@ -205,7 +207,10 @@ class QuestionBank(IQuestionBank, ABC):
         return self._exam_type
 
     @property
-    def filepath(self):
+    def filepath(self) -> Path:
+        """Filepath of the question bank."""
+        if self._filepath is None:
+            raise ValueError("File path is not set")
         return self._filepath
 
     @property
@@ -216,16 +221,22 @@ class QuestionBank(IQuestionBank, ABC):
     @property
     def categories_filepath(self) -> Path:
         """Filepath of the question categories."""
+        if self._categories_filepath is None:
+            raise ValueError("Categories filepath is not set")
         return self._categories_filepath
 
     @property
     def metrics_filepath(self) -> Path:
         """Filepath of the question metrics."""
+        if self._metrics_filepath is None:
+            raise ValueError("Metrics filepath is not set")
         return self._metrics_filepath
 
     @property
     def marked_questions_filepath(self) -> Path:
         """Filepath of the marked questions."""
+        if self._marked_questions_filepath is None:
+            raise ValueError("Marked questions filepath is not set")
         return self._marked_questions_filepath
 
     @property
@@ -274,6 +285,8 @@ class QuestionBank(IQuestionBank, ABC):
         criteria: QuestionListingType | TopQuestionsListingType,
         max_questions: int = 0,
     ) -> tuple[dict | list, list[str]]:
+        if self.mappings is None:
+            raise ValueError("Mappings not initialized")
         func = self.mappings.get(criteria)
         if not func:
             raise ValueError(f"Method for Criteria {criteria} not found")
@@ -284,11 +297,15 @@ class QuestionBank(IQuestionBank, ABC):
 
         if criteria in [
             GeneralQuestionListingType.SAME_ANSWER,
-            GeneralQuestionListingType.SAME_CHOICES,
             GeneralQuestionListingType.QN_ANSWER,
-            GeneralQuestionListingType.TWO_OR_MORE_SAME_CHOICES,
         ]:
             result_text = process_dict_result(criteria, result)
+        elif criteria == GeneralQuestionListingType.SAME_CHOICES:
+            dict_result = self._get_same_choices_dict()
+            result_text = process_dict_result(criteria, dict_result)
+        elif criteria == GeneralQuestionListingType.TWO_OR_MORE_SAME_CHOICES:
+            dict_result = self._get_two_or_more_same_choices_dict()
+            result_text = process_dict_result(criteria, dict_result)
         else:
             result_text = process_list_result(result)
         return result, result_text
@@ -331,7 +348,7 @@ class QuestionBank(IQuestionBank, ABC):
         return self.questions
 
     def get_same_answer_questions(self) -> dict[str, list[Question]]:
-        questions_with_same_answer = {}
+        questions_with_same_answer: Dict[str, List[Question]] = {}
         for question in self.questions:
             if question.answer in questions_with_same_answer:
                 questions_with_same_answer[question.answer].append(question)
@@ -339,8 +356,9 @@ class QuestionBank(IQuestionBank, ABC):
                 questions_with_same_answer[question.answer] = [question]
         return {k: v for k, v in questions_with_same_answer.items() if len(v) > 1}
 
-    def get_same_choices_questions(self) -> dict[tuple, list[Question]]:
-        questions_with_same_choices = {}
+    def _get_same_choices_dict(self) -> dict[tuple[Any, ...], list[Question]]:
+        """Internal helper to get same choices questions as a dictionary."""
+        questions_with_same_choices: Dict[Tuple[Any, ...], List[Question]] = {}
         for question in self.questions:
             choices = tuple(sorted(question.choices))
             if choices in questions_with_same_choices:
@@ -349,7 +367,16 @@ class QuestionBank(IQuestionBank, ABC):
                 questions_with_same_choices[choices] = [question]
         return {k: v for k, v in questions_with_same_choices.items() if len(v) > 1}
 
-    def get_two_or_more_same_choices_questions(self) -> dict[Question, list[Question]]:
+    def get_same_choices_questions(self) -> list[Question]:
+        dict_result = self._get_same_choices_dict()
+        # Flatten the dictionary of lists into a single list
+        result: List[Question] = []
+        for questions in dict_result.values():
+            result.extend(questions)
+        return result
+
+    def _get_two_or_more_same_choices_dict(self) -> dict[Question, list[Question]]:
+        """Internal helper to get questions with two or more same choices as a dictionary."""
         questions_with_two_more_same_options: dict[Question, list[Question]] = {}
         for question in self.questions:
             choices = question.choices
@@ -363,6 +390,16 @@ class QuestionBank(IQuestionBank, ABC):
                         else:
                             questions_with_two_more_same_options[question] = [other_question]
         return {k: v for k, v in questions_with_two_more_same_options.items() if len(v) > 1}
+
+    def get_two_or_more_same_choices_questions(self) -> list[Question]:
+        """Returns a list of questions with two or more same choices."""
+        dict_result = self._get_two_or_more_same_choices_dict()
+        # Flatten the dictionary into a list - include both keys and values
+        result: List[Question] = []
+        for question, related_questions in dict_result.items():
+            result.append(question)
+            result.extend(related_questions)
+        return result
 
     def get_qnum_answer_questions(self) -> dict[str, str]:
         qnum_answer_questions = {}
@@ -379,7 +416,9 @@ class QuestionBank(IQuestionBank, ABC):
         return sorted(self.questions, key=lambda x: len(x.answer), reverse=True)[:max_questions]
 
     def load_marked_questions(self) -> int:
-        marked_questions = utils.read_delim_file(self.marked_questions_filepath, delimiter="\n")
+        marked_questions = utils.read_delim_file(
+            str(self.marked_questions_filepath), delimiter="\n"
+        )
         flattened_questions = [item for sublist in marked_questions for item in sublist]
         for question in self._questions:
             if question.question_number in flattened_questions:
@@ -446,9 +485,9 @@ class QuestionBank(IQuestionBank, ABC):
             number_of_questions = len(self._questions)
         return random.sample(self._questions, number_of_questions)
 
-    def get_marked_questions_filepath(self) -> Path:
+    def get_marked_questions_filepath(self) -> str:
         """Returns the filepath of the marked questions."""
-        return self.marked_questions_filepath
+        return str(self._marked_questions_filepath) if self._marked_questions_filepath else ""
 
     def get_all_marked_questions(self) -> list[Question]:
         """Returns all marked questions in the question bank."""
@@ -473,11 +512,11 @@ class QuestionBankFactory:
             from hrt.question_banks.ca_question_bank import CAQuestionBank
 
             return CAQuestionBank(
-                exam_type,
-                filepath,
-                display_mode,
-                categories_filepath,
-                marked_questions_filepath,
-                metrics_filepath,
+                exam_type=exam_type,
+                filepath=filepath,
+                display_mode=display_mode,
+                categories_filepath=categories_filepath,
+                marked_questions_filepath=marked_questions_filepath,
+                metrics_filepath=metrics_filepath,
             )
         raise ValueError(f"Country {country} not supported")

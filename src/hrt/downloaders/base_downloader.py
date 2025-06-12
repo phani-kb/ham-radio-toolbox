@@ -2,7 +2,7 @@
 
 import os
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, cast
 
 from hrt.common import utils
 from hrt.common.config_reader import logger
@@ -118,7 +118,9 @@ class BaseDownloader(IDownloader, ABC):
                 "Input file path not found for %s in country %s", key.id, self.country.code
             )
             return ""
-        return os.path.join(self.get_output_folder(), self.download_type.id, input_file_path)
+        return os.path.join(
+            str(self.get_output_folder()), str(self.download_type.id), cast(str, input_file_path)
+        )
 
     def _download_file(self, key: ExamType, url_key: str, description: str) -> None:
         """Download a file for the given key."""

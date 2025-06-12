@@ -5,7 +5,7 @@ import os
 import tempfile
 import time
 import zipfile
-from typing import Any, Dict, Iterable, List, Optional, Set, TypeVar, Union
+from typing import Any, Dict, List, Optional, Set, TypeVar, Union
 
 import click
 import requests
@@ -41,7 +41,7 @@ def read_delim_file(
         with open(file_path, encoding=encoding) as file:
             reader = csv.reader(file, delimiter=delimiter)
             for row in reader:
-                if skip_header and row[0].startswith(header):
+                if skip_header and header and row[0].startswith(header):
                     continue
                 if fields_count:
                     row = row[:fields_count]
@@ -182,7 +182,7 @@ def select_from_options(options: Dict[str, str], prompt: str) -> Optional[str]:
             print("Invalid input. Please enter a number.")
 
 
-def select_option_from_list(options: Iterable[str], prompt: str) -> Optional[str]:
+def select_option_from_list(options: List[str], prompt: str) -> Optional[str]:
     """Selects an option from a list of options.
     :param options: List of options to select from.
     :param prompt: Prompt to display to the user.
@@ -328,7 +328,7 @@ def load_question_metrics(metrics_file_path: Union[str, os.PathLike]) -> List[Qu
     :param metrics_file_path: Path to the metrics file.
     :return: List of question metrics.
     """
-    metrics = []
+    metrics: List[QuestionMetric] = []
     if not os.path.exists(metrics_file_path):
         return metrics
     with open(metrics_file_path, "r", encoding="utf-8") as file:
@@ -349,7 +349,7 @@ def read_metrics_from_file(metrics_file: str) -> List[QuestionMetric]:
     :param metrics_file: Path to the metrics file.
     :return: List of question metrics.
     """
-    metrics = []
+    metrics: List[QuestionMetric] = []
     if not os.path.exists(metrics_file):
         return metrics
     with open(metrics_file, "r", encoding="utf-8") as f:

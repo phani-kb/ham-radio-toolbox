@@ -47,7 +47,13 @@ class TestCAQuestionBank(unittest.TestCase):
             [],
         ]
         mock_read_metrics_from_file.return_value = self.metrics
-        self.bank = CAQuestionBank(ExamType.BASIC, Path("dummy_path"))
+        self.bank = CAQuestionBank(
+            ExamType.BASIC,
+            Path("dummy_path"),
+            categories_filepath=Path("dummy_categories_path"),
+            marked_questions_filepath=Path("dummy_marked_questions_path"),
+            metrics_filepath=Path("dummy_metrics_path"),
+        )
 
     def test_get_question_category_id(self):
         question_number = QuestionNumber("A-001-789")

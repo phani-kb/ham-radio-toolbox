@@ -26,6 +26,9 @@ class TestUSQuestionBank(unittest.TestCase):
             exam_type=ExamType.BASIC,
             filepath=Path("dummy_path"),
             display_mode=QuestionDisplayMode.PRINT,
+            categories_filepath=Path("dummy_categories_path"),
+            marked_questions_filepath=Path("dummy_marked_questions_path"),
+            metrics_filepath=Path("dummy_metrics_path"),
         )
         # Store the mocks for later use
         self.mock_load_categories = mock_load_categories
@@ -39,9 +42,9 @@ class TestUSQuestionBank(unittest.TestCase):
         self.assertEqual(self.bank.exam_type, ExamType.BASIC)
         self.assertEqual(self.bank.filepath, Path("dummy_path"))
         self.assertEqual(self.bank.display_mode, QuestionDisplayMode.PRINT)
-        self.assertIsNone(self.bank.categories_filepath)
-        self.assertIsNone(self.bank.marked_questions_filepath)
-        self.assertIsNone(self.bank.metrics_filepath)
+        self.assertEqual(self.bank.categories_filepath, Path("dummy_categories_path"))
+        self.assertEqual(self.bank.marked_questions_filepath, Path("dummy_marked_questions_path"))
+        self.assertEqual(self.bank.metrics_filepath, Path("dummy_metrics_path"))
 
     @patch.object(USQuestionBank, "load_categories", return_value=[])
     @patch.object(USQuestionBank, "load_questions", return_value=[])

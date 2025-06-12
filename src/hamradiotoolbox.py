@@ -195,7 +195,7 @@ def list_questions(
         logger.info(f"Listing questions based on criteria: {criteria_type}")
     elif top_criteria:
         logger.info(f"Listing top {top_criteria} questions.")
-        criteria_type = TopQuestionsListingType.from_id(top_criteria)
+        criteria_type = QuestionListingType.from_id(top_criteria)
         max_questions = utils.read_number_from_input(
             "Enter the number of questions to list",
             constants.MIN_TOP_QUESTIONS_COUNT,

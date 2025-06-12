@@ -123,7 +123,7 @@ class CountrySpecificEnum(SupportedEnum):
         return self._country
 
     @classmethod
-    def from_value(cls, value) -> Optional["ExamType"]:
+    def from_value(cls, value) -> Optional["CountrySpecificEnum"]:
         """Get the enumeration from the given value."""
         for enum in cls:
             if enum == value:

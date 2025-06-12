@@ -8,6 +8,7 @@ from hrt.common.question_metric import QuestionMetric
 
 if TYPE_CHECKING:
     from hrt.common.question_category import QuestionCategory  # pragma: no cover
+    from hrt.common.question_ref import QuestionRef  # pragma: no cover
 
 
 class QuestionSubmitted(Question):
@@ -29,7 +30,7 @@ class QuestionSubmitted(Question):
         self._category: Optional[QuestionCategory] = None
         self._metric = QuestionMetric(question_number)
         self._explanation = ""
-        self._references = []
+        self._references: List[QuestionRef] = []
         self._hints: List[str] = []
         self._tags: List[str] = []
         self._is_marked = False

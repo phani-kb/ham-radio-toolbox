@@ -173,9 +173,9 @@ class CallSignsProcessor:
         if not must_include and not must_exclude:
             return callsigns
         if must_include and must_exclude:
-                # remove callsigns that must be excluded
-                final_exclude = must_exclude - must_include
-                callsigns = callsigns - final_exclude
+            # remove callsigns that must be excluded
+            final_exclude = must_exclude - must_include
+            callsigns = callsigns - final_exclude
         logger.info("Final callsigns after must include/exclude: %d", len(callsigns))
         return callsigns
 

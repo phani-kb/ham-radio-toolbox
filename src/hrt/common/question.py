@@ -77,6 +77,10 @@ class Question:
         """Returns the category of the question."""
         return self._category
 
+    @category.setter
+    def category(self, category: Optional[QuestionCategory]) -> None:
+        self._category = category
+
     @property
     def is_marked(self) -> bool:
         """Returns True if the question is marked, False otherwise."""
@@ -90,6 +94,11 @@ class Question:
     def question_number(self) -> QuestionNumber:
         """Returns the number of the question."""
         return self._question_number
+
+    @question_number.setter
+    def question_number(self, question_number: QuestionNumber) -> None:
+        """Sets the number of the question."""
+        self._question_number = question_number
 
     @property
     def question_text(self) -> str:
@@ -128,10 +137,6 @@ class Question:
     def wrong_attempts(self, wrong_attempts: int) -> None:
         self._current_metric.wrong_attempts = wrong_attempts
 
-    @category.setter
-    def category(self, category: Optional[QuestionCategory]) -> None:
-        self._category = category
-
     @property
     def metric(self) -> QuestionMetric:
         """Returns the metric associated with the question."""
@@ -140,11 +145,6 @@ class Question:
     @metric.setter
     def metric(self, metric: QuestionMetric) -> None:
         self._metric = metric
-
-    @question_number.setter
-    def question_number(self, question_number: QuestionNumber) -> None:
-        """Sets the number of the question."""
-        self._question_number = question_number
 
     @property
     def choices(self) -> List[str]:

@@ -30,23 +30,23 @@ class QuestionMetric:
         """Correct attempts."""
         return self._correct_attempts
 
+    @correct_attempts.setter
+    def correct_attempts(self, correct_attempts: int) -> None:
+        self._correct_attempts = correct_attempts
+
     @property
     def wrong_attempts(self) -> int:
         """Wrong attempts."""
         return self._wrong_attempts
 
+    @wrong_attempts.setter
+    def wrong_attempts(self, wrong_attempts: int) -> None:
+        self._wrong_attempts = wrong_attempts
+
     @property
     def skip_count(self) -> int:
         """Skip count."""
         return self._skip_count
-
-    @correct_attempts.setter
-    def correct_attempts(self, correct_attempts: int) -> None:
-        self._correct_attempts = correct_attempts
-
-    @wrong_attempts.setter
-    def wrong_attempts(self, wrong_attempts: int) -> None:
-        self._wrong_attempts = wrong_attempts
 
     @skip_count.setter
     def skip_count(self, skip_count: int) -> None:

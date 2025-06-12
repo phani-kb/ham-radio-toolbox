@@ -266,10 +266,16 @@ class TestQuestionBank(unittest.TestCase):
 
     def test_get_two_or_more_same_choices_questions(self):
         result = self.question_bank.get_two_or_more_same_choices_questions()
-        self.assertIn("Q1", [q.question_number for q in result.keys()])
-        self.assertIn("Q2", [q.question_number for q in result.keys()])
-        self.assertIn("Q3", [q.question_number for q in result.keys()])
-        self.assertIn("Q4", [q.question_number for q in result.keys()])
+        all_qnums = [q.question_number for q in result]
+        self.assertIn("Q1", all_qnums)
+        self.assertIn("Q2", all_qnums)
+        self.assertIn("Q3", all_qnums)
+        self.assertIn("Q4", all_qnums)
+
+        dict_result = self.question_bank._get_two_or_more_same_choices_dict()
+        self.assertTrue(len(dict_result) > 0)
+        all_keys_qnums = [q.question_number for q in dict_result.keys()]
+        self.assertTrue(any(qn in all_keys_qnums for qn in ["Q1", "Q2", "Q3", "Q4"]))
 
     def test_get_questions(self):
         criteria = GeneralQuestionListingType.SAME_ANSWER
@@ -416,8 +422,15 @@ class TestQuestionBank(unittest.TestCase):
             Question("What is 4+4?", ["A", "B", "C"], "A", QuestionNumber("Q4")),
         ]
         result = self.question_bank.get_same_choices_questions()
-        self.assertIn(("A", "B", "C"), result)
-        self.assertEqual(len(result[("A", "B", "C")]), 4)
+        self.assertEqual(len(result), 4)
+
+        # Check if all questions have the expected choices
+        for question in result:
+            self.assertEqual(sorted(question.choices), ["A", "B", "C"])
+
+        dict_result = self.question_bank._get_same_choices_dict()
+        self.assertIn(("A", "B", "C"), dict_result)
+        self.assertEqual(len(dict_result[("A", "B", "C")]), 4)
 
     def test_get_longest_correct_choice(self):
         self.question_bank._questions = [
@@ -447,7 +460,7 @@ class TestQuestionBank(unittest.TestCase):
 
     def test_get_marked_questions_filepath(self):
         self.assertEqual(
-            self.question_bank.get_marked_questions_filepath(), Path("dummy_marked_questions_path")
+            self.question_bank.get_marked_questions_filepath(), "dummy_marked_questions_path"
         )
 
     def test_get_all_marked_questions(self):

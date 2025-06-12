@@ -99,9 +99,10 @@ class QuizProcessor:
     def _display_answers(self) -> None:
         if self._answer_display == QuizAnswerDisplay.IN_THE_END:
             print(get_header(f"\nAnswer display: {self._answer_display.id} for wrong answers"))
-            for count, q in enumerate(self._quiz.get_questions(), start=1):
-                if q.metric.wrong_attempts > 0:
-                    print(f"[{count}] {q.question_number} ({q.answer_index + 1}) {q.answer}")
+            if self._quiz:
+                for count, q in enumerate(self._quiz.get_questions(), start=1):
+                    if q.metric.wrong_attempts > 0:
+                        print(f"[{count}] {q.question_number} ({q.answer_index + 1}) {q.answer}")
 
     def _save_marked_questions(self) -> None:
         marked_questions_file = self._question_bank.get_marked_questions_filepath()
@@ -112,17 +113,18 @@ class QuizProcessor:
         os.makedirs(marked_questions_dir, exist_ok=True)
 
         with open(marked_questions_file, "w", encoding="utf-8") as f:
-            mqs: List["Question"] = self._quiz.get_marked_questions()
-            question_numbers = [q.question_number for q in mqs]
-            questions = self._question_bank.get_all_marked_questions()
-            for q in questions:
-                if q.question_number not in question_numbers:
-                    question_numbers.append(q.question_number)
-                    mqs.append(q)
+            if self._quiz:
+                mqs: List["Question"] = self._quiz.get_marked_questions()
+                question_numbers = [q.question_number for q in mqs]
+                questions = self._question_bank.get_all_marked_questions()
+                for q in questions:
+                    if q.question_number not in question_numbers:
+                        question_numbers.append(q.question_number)
+                        mqs.append(q)
 
-            question_numbers.sort()
-            for q in question_numbers:
-                f.write(f"{q}\n")
+                question_numbers.sort()
+                for q in question_numbers:
+                    f.write(f"{q}\n")
 
     def _get_metrics_file_path(self) -> str:
         et = self._question_bank.exam_type
@@ -143,19 +145,24 @@ class QuizProcessor:
         os.makedirs(os.path.dirname(metrics_file), exist_ok=True)
 
         existing_metrics = self._get_metric_questions()
-        for q in self._quiz.get_questions():
-            metric = q.metric
-            if metric:
-                existing_metric = next(
-                    (m for m in existing_metrics if m.question_number == metric.question_number),
-                    None,
-                )
-                if existing_metric:
-                    existing_metric.correct_attempts += metric.correct_attempts
-                    existing_metric.wrong_attempts += metric.wrong_attempts
-                    existing_metric.skip_count += metric.skip_count
-                else:
-                    existing_metrics.append(metric)
+        if self._quiz:
+            for q in self._quiz.get_questions():
+                metric = q.metric
+                if metric:
+                    existing_metric = next(
+                        (
+                            m
+                            for m in existing_metrics
+                            if m.question_number == metric.question_number
+                        ),
+                        None,
+                    )
+                    if existing_metric:
+                        existing_metric.correct_attempts += metric.correct_attempts
+                        existing_metric.wrong_attempts += metric.wrong_attempts
+                        existing_metric.skip_count += metric.skip_count
+                    else:
+                        existing_metrics.append(metric)
 
         existing_metrics.sort(key=lambda x: str(x.question_number))
 
