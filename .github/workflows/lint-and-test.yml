@@ -7,6 +7,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  PYTHON_VERSION: '3.10'
+  COVERAGE_THRESHOLD: 95
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
@@ -17,53 +21,74 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
-
+      
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install ruff pytest pytest-cov
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install ruff
+          python -m pip install pytest pytest-cov
+          if [ -f requirements.txt ]; then 
+            python -m pip install -r requirements.txt
+          else
+            echo "No requirements.txt found, skipping..."
+          fi
+
 
       - name: Lint with ruff
-        run: ruff check --output-format=github
+        run: ruff check --output-format=github .
 
       - name: Run tests with coverage
         run: |
-          COVERAGE_FILE="coverage.json"
-          python -m pytest --cov-report=html --cov-report=term --cov-report=json:$COVERAGE_FILE --cov=src/hrt tests/
+          python -m pytest \
+            --cov=src/hrt \
+            --cov-report=html:htmlcov \
+            --cov-report=term \
+            --cov-report=json:coverage.json \
+            tests/
+
+      - name: Extract coverage percentage
+        id: coverage
+        run: |
+          COVERAGE=$(python -c "
+          import json
+          with open('coverage.json') as f:
+              data = json.load(f)
+          print(f\"{data['totals']['percent_covered']:.0f}\")
+          ")
+          echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
+          echo "Coverage: ${COVERAGE}%"
 
       - name: Check coverage threshold
         run: |
-          echo "Checking coverage threshold..."
-          COVERAGE_THRESHOLD=95
-          COVERAGE_FILE="coverage.json"
-          
-          # Parse coverage.json and extract total coverage percentage
-          COVERAGE=$(python -c '
-          import json
-          import sys
-          
-          try:
-              # Load the coverage report
-              with open("'$COVERAGE_FILE'") as f:
-                  coverage_data = json.load(f)
-              
-              # Extract the total coverage percentage
-              coverage = coverage_data["totals"]["percent_covered"]
-              print(int(coverage))
-          except Exception as e:
-              print(f"Error processing coverage data: {e}", file=sys.stderr)
-              sys.exit(1)
-          ')
-          
+          COVERAGE=${{ steps.coverage.outputs.percentage }}
           echo "Coverage: ${COVERAGE}%"
-          echo "Required threshold: ${COVERAGE_THRESHOLD}%"
+          echo "Required threshold: ${{ env.COVERAGE_THRESHOLD }}%"
           
-          if [ "$COVERAGE" -lt "$COVERAGE_THRESHOLD" ]; then
-            echo "::error::Test coverage is ${COVERAGE}%, which is below the threshold of ${COVERAGE_THRESHOLD}%"
+          if [ "$COVERAGE" -lt "${{ env.COVERAGE_THRESHOLD }}" ]; then
+            echo "::error::Test coverage is ${COVERAGE}%, which is below the threshold of ${{ env.COVERAGE_THRESHOLD }}%"
             exit 1
           else
-            echo "Coverage is ${COVERAGE}%, which meets the threshold of ${COVERAGE_THRESHOLD}%"
+            echo "::notice::Coverage is ${COVERAGE}%, which meets the threshold of ${{ env.COVERAGE_THRESHOLD }}%"
           fi
+      - name: Set coverage status
+        id: coverage_status
+        run: |
+          COVERAGE=${{ steps.coverage.outputs.percentage }}
+          if [ "$COVERAGE" -ge "${{ env.COVERAGE_THRESHOLD }}" ]; then
+            echo "status=✅ Passed" >> $GITHUB_OUTPUT
+          else
+            echo "status=❌ Failed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: |
+            ## 📊 Test Coverage Report
+            
+            **Coverage:** ${{ steps.coverage.outputs.percentage }}%
+            **Threshold:** ${{ env.COVERAGE_THRESHOLD }}%
+            **Status:** ${{ steps.coverage_status.outputs.status }}

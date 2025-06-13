@@ -119,7 +119,7 @@ class BaseDownloader(IDownloader, ABC):
             )
             return ""
         return os.path.join(
-            str(self.get_output_folder()), str(self.download_type.id), cast(str, input_file_path)
+            str(self.get_output_folder()), str(self.download_type.id), cast("str", input_file_path)
         )
 
     def _download_file(self, key: ExamType, url_key: str, description: str) -> None:
