@@ -128,7 +128,8 @@ cython_debug/
 data/output/
 data/input/ca/advanced/amat_adv_quest_delim.txt
 data/input/ca/basic/amat_basic_quest_delim.txt
-data/metrics/ca/advanced/metrics.txt
-data/metrics/ca/basic/metrics.txt
 data/input/ca/advanced/marked-questions.txt
 data/input/ca/basic/marked-questions.txt
+data/input/ca/callsign/available_callsigns.txt
+data/metrics/ca/advanced/metrics.txt
+data/metrics/ca/basic/metrics.txt

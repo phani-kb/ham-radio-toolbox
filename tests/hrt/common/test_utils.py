@@ -393,7 +393,7 @@ class TestReadWordsFromFile(unittest.TestCase):
 class TestSortCallsigns(unittest.TestCase):
     def test_sort_callsigns(self):
         callsigns = ["B123", "A123", "C123"]
-        result = sort_callsigns(callsigns, SortBy.CALLSIGN.value)
+        result = sort_callsigns(callsigns, SortBy.CALLSIGN.id)
         expected = ["A123", "B123", "C123"]
         self.assertEqual(result, expected)
 
@@ -404,6 +404,15 @@ class TestSortCallsigns(unittest.TestCase):
 
         result = sort_callsigns(callsigns, "")
         self.assertEqual(result, callsigns)
+
+    def test_sort_callsigns_rev(self):
+        """Test sort callsigns."""
+        callsigns = ["TEST2", "TEST1", "TEST3"]
+        sorted_callsigns = sort_callsigns(callsigns, SortBy.CALLSIGN.id)
+        self.assertEqual(sorted_callsigns, ["TEST1", "TEST2", "TEST3"])
+
+        sorted_callsigns_desc = sort_callsigns(callsigns, SortBy.CALLSIGN.id, reverse=True)
+        self.assertEqual(sorted_callsigns_desc, ["TEST3", "TEST2", "TEST1"])
 
 
 class TestGetUserInputOption(unittest.TestCase):

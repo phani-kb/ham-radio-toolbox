@@ -4,8 +4,9 @@ import unittest
 from unittest.mock import MagicMock, patch, PropertyMock
 
 from hrt.common.config_reader import HRTConfig
-from hrt.common.enums import RankBy, NumberOfLetters
+from hrt.common.enums import RankBy, NumberOfLetters, SortBy
 from hrt.processors.callsign_processor import CallSignsProcessor
+from hrt.common import utils
 
 
 class TestCallSignProcessor(unittest.TestCase):
@@ -301,7 +302,7 @@ class TestCallSignProcessor(unittest.TestCase):
         """Test process_callsigns with invalid match option."""
         mock_load.return_value = {"TEST1", "TEST2"}
 
-        # Setup processor with invalid match option
+        # Setup processor with an invalid match option
         processor = CallSignsProcessor(
             self.config, "us", "phonetic", "pair", [], ["invalid"], [], [], "asc"
         )
@@ -346,7 +347,7 @@ class TestCallSignProcessor(unittest.TestCase):
         mock_match,
         mock_load,
     ):
-        """Test process_callsigns with empty callsign set."""
+        """Test process_callsigns with an empty callsign set."""
         mock_load.return_value = set()  # Empty set
         mock_match.return_value = set()  # No matches
         mock_process_options.side_effect = [
@@ -356,7 +357,7 @@ class TestCallSignProcessor(unittest.TestCase):
         mock_include_exclude.return_value = set()  # No includes/excludes
         mock_sort.return_value = []  # No sorting results
 
-        # Create a processor without match options to avoid need for get_words_by_length patching
+        # Create a processor without match options to avoid a need for get_words_by_length patching
         processor = CallSignsProcessor(
             self.config, "us", "phonetic", "pair", [], [], ["END"], ["MULTIPLE"], "asc"
         )
@@ -378,7 +379,7 @@ class TestCallSignProcessor(unittest.TestCase):
         mock_process_options.assert_any_call(set(), ["END"])
         mock_process_options.assert_any_call(set(), ["MULTIPLE"], False)
 
-        mock_include_exclude.assert_called_once_with(set())
+        mock_include_exclude.assert_called_once_with([])
 
     @patch("hrt.processors.callsign_processor.write_output")
     def test_process_options_all_option_with_removal(self, mock_write):
@@ -486,22 +487,22 @@ class TestCallSignProcessor(unittest.TestCase):
         mock_process_options,
         mock_load,
     ):
-        """Test process_callsigns with CW_WEIGHT rank option."""
+        """Test process_callsigns with the CW_WEIGHT rank option."""
         mock_load.return_value = {"TEST1", "TEST2", "TEST3"}
         mock_process_options.return_value = {"TEST1", "TEST2"}
         mock_include_exclude.return_value = {"TEST1", "TEST2"}
-        mock_sort.return_value = ["TEST1", "TEST2"]
-        mock_rank.return_value = [("TEST1", 10, 5), ("TEST2", 15, 7)]
+        mock_sort.return_value = {"TEST1", "TEST2"}
+        mock_rank.return_value = {("TEST1", 10, 5), ("TEST2", 15, 7)}
 
-        # Setup processor with CW_WEIGHT rank option
+        # Setup processor with the CW_WEIGHT rank option
         processor = CallSignsProcessor(
-            self.config, "us", "phonetic", "pair", [RankBy.CW_WEIGHT.value], [], ["END"], [], "asc"
+            self.config, "us", "phonetic", "pair", [RankBy.CW_WEIGHT.id], [], ["END"], [], "asc"
         )
 
         result = processor.process_callsigns()
 
         # Should return the ranked results
-        self.assertEqual(result, [("TEST1", 10, 5), ("TEST2", 15, 7)])
+        self.assertEqual(result, {("TEST1", 10, 5), ("TEST2", 15, 7)})
 
         # Verify the rank_callsigns_by_cw_weight method was called
         mock_rank.assert_called_once_with({"TEST1", "TEST2"})

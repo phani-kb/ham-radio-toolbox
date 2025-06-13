@@ -290,7 +290,13 @@ class QuestionBank(IQuestionBank, ABC):
         func = self.mappings.get(criteria)
         if not func:
             raise ValueError(f"Method for Criteria {criteria} not found")
-        if criteria == GeneralQuestionListingType.ALL and max_questions > 0:
+        if criteria in [
+            TopQuestionsListingType.LONGEST_QUESTION_TEXT,
+            TopQuestionsListingType.LONGEST_CORRECT_CHOICE,
+        ]:
+            # For top questions criteria, pass the max_questions parameter
+            result = func(max_questions)
+        elif criteria == GeneralQuestionListingType.ALL and max_questions > 0:
             result = func()[:max_questions]
         else:
             result = func()

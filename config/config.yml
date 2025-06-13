@@ -223,7 +223,7 @@ callsign:
     "Y": "Yankee"
     "Z": "Zulu"
 
-  must_include: ["ABC", "123"]
+  must_include: [] # ["ABC", "123"]
 
   must_exclude: []
 

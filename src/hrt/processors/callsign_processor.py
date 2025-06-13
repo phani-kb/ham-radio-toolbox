@@ -127,7 +127,12 @@ class CallSignsProcessor:
         # Filter valid options
         options = [opt for opt in options if self.config.get_callsign().get(key).get(opt)]
         if not options:
-            return callsigns
+            logger.info("No valid options found for %s", key)
+            if include:
+                logger.info("Returning all callsigns as no options specified.")
+                return callsigns
+            logger.info("Returning empty set as no options specified.")
+            return set()
 
         # Process each option
         for option in options:
@@ -176,6 +181,11 @@ class CallSignsProcessor:
             # remove callsigns that must be excluded
             final_exclude = must_exclude - must_include
             callsigns = callsigns - final_exclude
+        else:
+            if must_include:
+                callsigns = callsigns.intersection(must_include)
+            elif must_exclude:
+                callsigns = callsigns - must_exclude
         logger.info("Final callsigns after must include/exclude: %d", len(callsigns))
         return callsigns
 
@@ -230,7 +240,7 @@ class CallSignsProcessor:
         sorted_callsigns = sorted(sorted_callsigns, key=lambda x: (x[1], x[2]), reverse=False)
         output_folder = self.config.get_output().get("folder")
         output_folder = f"{output_folder}/{self.country_code}"
-        output_file_path = f"{output_folder}/rank-by-{RankBy.CW_WEIGHT.value}.txt"
+        output_file_path = f"{output_folder}/rank-by-{RankBy.CW_WEIGHT.id}.txt"
         write_output(sorted_callsigns, output_file_path)
         logger.info("Ranked callsigns by CW weight saved to %s", output_file_path)
         return sorted_callsigns
@@ -265,7 +275,7 @@ class CallSignsProcessor:
             else set()
         )
 
-        # Determine final set based on include/exclude options
+        # Determine a final set based on include/exclude options
         if self.include_options and self.exclude_options:
             callsigns = included_callsigns - excluded_callsigns
         elif self.include_options:
@@ -274,7 +284,7 @@ class CallSignsProcessor:
             callsigns = callsigns - excluded_callsigns
 
         # Sort and finalize callsigns
-        final_callsigns = set(utils.sort_callsigns(list(callsigns), self.sort_by))
+        final_callsigns = utils.sort_callsigns(callsigns, self.sort_by)
         logger.info("Final callsigns: %d", len(final_callsigns))
 
         # Save final callsigns
@@ -286,8 +296,8 @@ class CallSignsProcessor:
         final_callsigns = self._process_must_include_exclude(final_callsigns)
 
         # Rank callsigns if requested
-        if self.rank_by and RankBy.CW_WEIGHT.id == self.rank_by[0][0]:
+        if self.rank_by and RankBy.CW_WEIGHT.id == self.rank_by[0]:
             final_callsigns = self.rank_callsigns_by_cw_weight(final_callsigns)
 
-        logger.info("Final callsigns: %d", len(final_callsigns))
+        logger.info("Final callsigns after ranking: %d", len(final_callsigns))
         return final_callsigns

@@ -236,16 +236,19 @@ def get_user_input_option(choices: List[str], prompt: str) -> str:
         print("Invalid choice. Please select a valid option.")
 
 
-def sort_callsigns(callsigns: List[str], sort_by: Optional[str]) -> List[str]:
+def sort_callsigns(
+    callsigns: List[str], sort_by: Optional[str], reverse: bool = False
+) -> List[str]:
     """Sort callsigns by specific criteria.
+    :param reverse:
     :param callsigns: List of callsigns to sort.
     :param sort_by: Criteria to sort by.
     :return: Sorted list of callsigns.
     """
     if not sort_by:
         return callsigns
-    if sort_by == SortBy.CALLSIGN.value:
-        callsigns = sorted(callsigns)
+    if sort_by == SortBy.CALLSIGN.id:
+        callsigns = sorted(callsigns, reverse=reverse)
     return callsigns
 
 

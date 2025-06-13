@@ -38,7 +38,7 @@ class CAScraper(BaseScraper):
 
         download_zip_file(url, output_file_path)
 
-    def download_available_callsigns(self, url: str, output_file_path: str) -> List[str]:
+    def download_available_callsigns(self, url: str, output_file_path: str) -> List[str]:  # noqa: C901
         print(WARNING_MESSAGE)
         logger.debug(WARNING_MESSAGE)
         user_confirmation = input("Do you want to proceed? (Y/N): ").strip().upper()
@@ -97,17 +97,29 @@ class CAScraper(BaseScraper):
             )
             logger.debug(count_text)
             count = int(count_text.split()[4])
-            logger.info("Found %d callsigns", count)
+            logger.debug("Found %d callsigns", count)
+            print(f"Found {count} callsigns. Processing...")
+
             # table = self.driver.find_element(By.XPATH,
             # "//table[.//caption[text()='Search Results']]")
             table = self.driver.find_element(By.XPATH, "//table[.//th[text()='Call Sign']]")
             rows = table.find_elements(By.TAG_NAME, "tr")
+
+            processed = 0
+            progress_interval = max(1, min(20, count // 20))  # Show progress every ~20% of items
+
             for row in rows:
                 logger.debug(row.text)
                 cells = row.find_elements(By.TAG_NAME, "td")
                 if len(cells) > 0:
                     callsign = cells[0].text
                     callsigns.append(callsign)
+                    processed += 1
+                    if processed % progress_interval == 0 or processed == count:
+                        print(
+                            f"Progress: {processed}/{count} "
+                            f"callsigns processed ({processed/count*100:.1f}%)"
+                        )
 
             # match the callsigns count with the count displayed on the page
             if len(callsigns) != count:
