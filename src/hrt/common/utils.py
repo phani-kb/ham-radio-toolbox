@@ -384,3 +384,13 @@ def get_user_agent(app_config: Optional[Dict[str, Any]]) -> str:
     user_agent = f"{app_name}/{app_ver} ({app_desc})"
     logger.info("User Agent: %s", user_agent)
     return user_agent
+
+
+def get_pairs_from_callsign(callsign):
+    """Get adjacent letter pairs from a callsign."""
+    pairs = set()
+    for i in range(len(callsign) - 1):
+        pair = callsign[i : i + 2]
+        if len(pair) == 2:
+            pairs.add(pair)
+    return pairs

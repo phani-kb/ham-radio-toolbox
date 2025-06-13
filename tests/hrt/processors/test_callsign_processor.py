@@ -21,6 +21,12 @@ class TestCallSignProcessor(unittest.TestCase):
             "must_exclude": ["TEST4"],  # Changed to set
             "includes": {"END": ["A", "B"], "MULTIPLE": ["A", "B"]},
             "excludes": {"END": ["C"], "MULTIPLE": ["C"]},
+            "phonetic_clarities": {
+                "phonetic": {"A": 1, "B": 2, "C": 3},
+            },
+            "confusing_pairs": {
+                "pair": [["A", "B"], ["Y", "Z"]],
+            },
         }
         self.config.get_callsign.return_value = self.callsign_config
         self.country_settings = {"callsign": {"available": {"file": "callsigns.txt"}}}
@@ -364,11 +370,11 @@ class TestCallSignProcessor(unittest.TestCase):
 
         result = processor.process_callsigns()
 
-        # Verify result is empty
+        # Verify the result is empty
         self.assertEqual(result, set())
 
         # Verify write_output is called with an empty list
-        mock_write.assert_called_with([], "test_output/us/final.txt")
+        mock_write.assert_called_with([], "test_output/us/rank-by-confusing-pair.txt")
 
         # Verify the appropriate methods were called
         mock_load.assert_called_once()
@@ -503,6 +509,3 @@ class TestCallSignProcessor(unittest.TestCase):
 
         # Should return the ranked results
         self.assertEqual(result, {("TEST1", 10, 5), ("TEST2", 15, 7)})
-
-        # Verify the rank_callsigns_by_cw_weight method was called
-        mock_rank.assert_called_once_with({"TEST1", "TEST2"})

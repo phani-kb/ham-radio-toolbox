@@ -325,7 +325,6 @@ class SortBy(HRTEnum):
     """Enumeration for sorting criteria."""
 
     CALLSIGN = ("callsign", "Callsign")
-    SCORE = ("score", "Score")
 
 
 class ExamType(CountrySpecificEnum):

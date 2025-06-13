@@ -1,5 +1,7 @@
 """Processor for generating callsign questions."""
 
+from typing import Any
+
 from hrt.common import utils
 from hrt.common.config_reader import HRTConfig, logger
 from hrt.common.constants import CW_DOT_DASH_WEIGHT
@@ -186,7 +188,6 @@ class CallSignsProcessor:
                 callsigns = callsigns.intersection(must_include)
             elif must_exclude:
                 callsigns = callsigns - must_exclude
-        logger.info("Final callsigns after must include/exclude: %d", len(callsigns))
         return callsigns
 
     def process_match_option(self, callsigns, length, country_code):
@@ -245,7 +246,60 @@ class CallSignsProcessor:
         logger.info("Ranked callsigns by CW weight saved to %s", output_file_path)
         return sorted_callsigns
 
-    def process_callsigns(self):
+    def rank_callsigns_by_phonetic_clarity(self, callsigns, option) -> list[Any]:
+        """Rank callsigns by phonetic clarity."""
+        if not option:
+            return callsigns
+
+        clarity_scores = self.config.get_callsign().get("phonetic_clarities").get(option, {})
+        ranked_callsigns = []
+        for callsign in callsigns:
+            score = sum(clarity_scores.get(letter.upper(), 0) for letter in callsign)
+            ranked_callsigns.append((callsign, score))
+
+        ranked_callsigns.sort(key=lambda x: x[1], reverse=True)
+        output_folder = self.config.get_output().get("folder")
+        output_folder = f"{output_folder}/{self.country_code}"
+        output_file_path = f"{output_folder}/rank-by-phonetic-clarity-{option}.txt"
+        write_output(ranked_callsigns, output_file_path)
+        logger.info("Ranked callsigns by phonetic clarity saved to %s", output_file_path)
+        return [callsign for callsign, _ in ranked_callsigns]
+
+    def rank_callsigns_by_confusing_pairs(self, callsigns, option) -> list[Any]:
+        """Rank callsigns by confusing pairs."""
+        if not option:
+            return callsigns
+
+        callsign_config = self.config.get_callsign()
+        if not callsign_config:
+            logger.error("Cannot get callsign configuration")
+            return callsigns
+
+        confusing_pairs_config = callsign_config.get("confusing_pairs", {})
+        confusing_pairs_list = confusing_pairs_config.get(option, [])
+
+        ranked_callsigns = []
+        for callsign in callsigns:
+            # Extract all adjacent letter pairs from the callsign
+            callsign_pairs = utils.get_pairs_from_callsign(callsign)
+            # Count how many of these pairs are in the confusing pairs list
+            score = 0
+            for pair_chars in confusing_pairs_list:
+                if len(pair_chars) == 2:  # Make sure it's a valid pair
+                    pair = pair_chars[0] + pair_chars[1]
+                    if pair in callsign_pairs:
+                        score += 1
+            ranked_callsigns.append((callsign, score))
+
+        ranked_callsigns.sort(key=lambda x: x[1], reverse=True)
+        output_folder = self.config.get_output().get("folder")
+        output_folder = f"{output_folder}/{self.country_code}"
+        output_file_path = f"{output_folder}/rank-by-confusing-{option}.txt"
+        write_output(ranked_callsigns, output_file_path)
+        logger.info("Ranked callsigns by confusing pairs saved to %s", output_file_path)
+        return [callsign for callsign, _ in ranked_callsigns]
+
+    def process_callsigns(self):  # noqa: C901
         """Process callsigns."""
         country_code = self.get_country_code()
         logger.info("Processing callsigns for country code: %s", country_code)
@@ -283,21 +337,36 @@ class CallSignsProcessor:
         elif self.exclude_options:
             callsigns = callsigns - excluded_callsigns
 
-        # Sort and finalize callsigns
-        final_callsigns = utils.sort_callsigns(callsigns, self.sort_by)
-        logger.info("Final callsigns: %d", len(final_callsigns))
-
-        # Save final callsigns
-        final_file_path = f"{self.config.get_output().get('folder')}/{country_code}/final.txt"
-        write_output(list(final_callsigns), final_file_path)
-        logger.info("Final callsigns saved to %s", final_file_path)
+        if self.sort_by:
+            logger.info("Sorting callsigns by: %s", self.sort_by)
+            sorted_callsigns = utils.sort_callsigns(callsigns, self.sort_by)
+            if len(sorted_callsigns) > 0:
+                final_file_path = (
+                    f"{self.config.get_output().get('folder')}/{country_code}/sorted.txt"
+                )
+                write_output(list(sorted_callsigns), final_file_path)
+                logger.info("Sorted callsigns saved to %s", final_file_path)
 
         # Process must include/exclude callsigns
-        final_callsigns = self._process_must_include_exclude(final_callsigns)
+        final_callsigns = self._process_must_include_exclude(sorted_callsigns)
+        logger.info("Final callsigns after must include/exclude: %d", len(final_callsigns))
+
+        # Process phonetic clarity and confusing pairs
+        if self.phonetic_clarity_option:
+            final_callsigns = self.rank_callsigns_by_phonetic_clarity(
+                final_callsigns, self.phonetic_clarity_option
+            )
+            logger.info("Final callsigns after phonetic clarity: %d", len(final_callsigns))
+
+        if self.confusing_pair_option:
+            final_callsigns = self.rank_callsigns_by_confusing_pairs(
+                final_callsigns, self.confusing_pair_option
+            )
+            logger.info("Final callsigns after confusing pairs: %d", len(final_callsigns))
 
         # Rank callsigns if requested
         if self.rank_by and RankBy.CW_WEIGHT.id == self.rank_by:
             final_callsigns = self.rank_callsigns_by_cw_weight(final_callsigns)
 
         logger.info("Final callsigns after ranking: %d", len(final_callsigns))
-        return final_callsigns
+        return set(final_callsigns) if not isinstance(final_callsigns, set) else final_callsigns

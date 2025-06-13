@@ -583,8 +583,7 @@ def download_callsign(ctx):
     "--sort-by",
     type=click.Choice(SortBy.ids()),
     default=SortBy.CALLSIGN.id,
-    help="Sort the callsigns by a specific criteria: callsign (alphabetical order), "
-    "rank (ranking order).",
+    help="Sort the callsigns by a specific criteria: callsign (alphabetical order).",
 )
 @click.option(
     "--rank-by",
