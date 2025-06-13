@@ -5,6 +5,7 @@
 [![Lice### 🔗 Install Directly### 📦 Install from PyPI (Coming Soon)from Git Repositoryse](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![codecov](https://codecov.io/gh/phani-kb/ham-radio-toolbox/branch/main/graph/badge.svg)](https://codecov.io/gh/phani-kb/ham-radio-toolbox)
 
 *A CLI tool to support the amateur radio community*
 
@@ -31,7 +32,7 @@ Ham Radio Toolbox is a powerful command-line interface designed to help amateur 
 - ⚙️ **Configurable** - Customize behavior through configuration files
 
 ![Demo GIF](demo.gif)
-*Demo showing the main features of Ham Radio Toolbox*
+*TODO: Demo showing the main features of Ham Radio Toolbox*
 
 ## Installation
 
