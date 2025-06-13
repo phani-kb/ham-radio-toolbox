@@ -160,13 +160,18 @@ def get_common_question_params(ctx):
     default=QuestionAnswerDisplay.WITH_QUESTION.id,
     help="Display the question w/o answer.",
 )
-@click.option("--save-to-file", is_flag=True, default=True, help="Save the output to a file.")
+@click.option(
+    "--no-save-to-file",
+    is_flag=True,
+    default=False,
+    help="Display the output without saving to file.",
+)
 @click.pass_context
-def question(ctx, country, answer_display, save_to_file):
+def question(ctx, country, answer_display, no_save_to_file):
     """Commands related to question management."""
     ctx.obj["country_code"] = country
     ctx.obj["answer_display"] = answer_display
-    ctx.obj["save_to_file"] = save_to_file
+    ctx.obj["save_to_file"] = not no_save_to_file
 
 
 @question.command("list")
@@ -588,8 +593,7 @@ def download_callsign(ctx):
 @click.option(
     "--rank-by",
     type=click.Choice(RankBy.ids()),
-    help="Rank the callsigns by a specific criteria: ease-of-use (how easy it is to use), "
-    "phonetic-clarity (how clear it sounds), "
+    help="Rank the callsigns by a specific criteria: phonetic-clarity (how clear it sounds), "
     "confusing-pair (how similar it is to another callsign) "
     "and cw-weight (how easy it is to send in Morse code).",
 )

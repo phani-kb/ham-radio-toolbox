@@ -315,7 +315,6 @@ class MarkedQuestionListingType(QuestionListingType):
 class RankBy(HRTEnum):
     """Enumeration for ranking criteria."""
 
-    EASE_OF_USE = ("ease-of-use", "Ease of use")
     PHONETIC_CLARITY = ("phonetic-clarity", "Phonetic clarity")
     CONFUSING_PAIR = ("confusing-pair", "Confusing pair")
     CW_WEIGHT = ("cw-weight", "Morse code weight")

@@ -188,7 +188,6 @@ class TestEnumClasses(unittest.TestCase):
         self.assertEqual(MarkedQuestionListingType.SKIPPED.description, "Skipped")
 
     def test_hrt_enum_string_representation(self):
-        self.assertEqual(str(RankBy.EASE_OF_USE), "ease-of-use - Ease of use")
         self.assertEqual(str(SortBy.CALLSIGN), "callsign - Callsign")
         enum_str = str(DownloadType.CA_QUESTION_BANK)
         self.assertEqual(
