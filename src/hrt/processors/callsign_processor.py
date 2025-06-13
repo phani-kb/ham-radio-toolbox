@@ -296,7 +296,7 @@ class CallSignsProcessor:
         final_callsigns = self._process_must_include_exclude(final_callsigns)
 
         # Rank callsigns if requested
-        if self.rank_by and RankBy.CW_WEIGHT.id == self.rank_by[0]:
+        if self.rank_by and RankBy.CW_WEIGHT.id == self.rank_by:
             final_callsigns = self.rank_callsigns_by_cw_weight(final_callsigns)
 
         logger.info("Final callsigns after ranking: %d", len(final_callsigns))

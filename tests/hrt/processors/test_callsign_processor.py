@@ -496,7 +496,7 @@ class TestCallSignProcessor(unittest.TestCase):
 
         # Setup processor with the CW_WEIGHT rank option
         processor = CallSignsProcessor(
-            self.config, "us", "phonetic", "pair", [RankBy.CW_WEIGHT.id], [], ["END"], [], "asc"
+            self.config, "us", "phonetic", "pair", RankBy.CW_WEIGHT.id, [], ["END"], [], "asc"
         )
 
         result = processor.process_callsigns()

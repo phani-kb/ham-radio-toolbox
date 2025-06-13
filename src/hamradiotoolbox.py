@@ -601,7 +601,9 @@ def callsign(ctx, country, match, include, exclude, sort_by, rank_by):
     def get_phonetic_clarity_options(hrt_config: HRTConfig):
         callsign_config = hrt_config.get("callsign")
         return (
-            callsign_config.get("phonetic_clarity") if isinstance(callsign_config, dict) else None
+            callsign_config.get("phonetic_clarities")
+            if isinstance(callsign_config, dict)
+            else None
         )
 
     def get_confusing_pairs(hrt_config: HRTConfig):
