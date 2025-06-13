@@ -2,10 +2,11 @@
 
 <div align="center">
 
-[![Lice### 🔗 Install Directly### 📦 Install from PyPI (Coming Soon)from Git Repositoryse](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![codecov](https://codecov.io/gh/phani-kb/ham-radio-toolbox/branch/main/graph/badge.svg)](https://codecov.io/gh/phani-kb/ham-radio-toolbox)
+[![CI Status](https://github.com/phani-kb/ham-radio-toolbox/actions/workflows/lint-and-test.yml/badge.svg)](https://github.com/phani-kb/ham-radio-toolbox/actions/workflows/lint-and-test.yml)
 
 *A CLI tool to support the amateur radio community*
 
