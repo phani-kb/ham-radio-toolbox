@@ -2,13 +2,8 @@
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tools.setuptools]
-name = "hamradiotoolbox"
-version = "0.1.0"
-packages = ["hrt"]
-
 [project]
-name = "hamradiotoolbox"
+name = "ham-radio-toolbox"
 version = "0.1.0"
 description = "A CLI tool to support the amateur radio community."
 authors = [
@@ -47,6 +42,7 @@ dev = [
 ]
 
 [project.scripts]
+ham-radio-toolbox = "hamradiotoolbox:hamradiotoolbox"
 hamradiotoolbox = "hamradiotoolbox:hamradiotoolbox"
 hrt = "hamradiotoolbox:hamradiotoolbox"
 
