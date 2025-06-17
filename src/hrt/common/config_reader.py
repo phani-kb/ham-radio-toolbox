@@ -2,6 +2,7 @@
 
 import logging
 import logging.config
+import os
 from typing import Any, Dict, Optional, Union
 
 import yaml
@@ -89,16 +90,38 @@ class ConfigReader:
     def _configure_logging(self) -> None:
         if self.config:
             log_config_file = self.config.log_config_file
-            with open(log_config_file, "r", encoding="utf-8") as file:
-                log_config = yaml.safe_load(file.read())
-                logging.config.dictConfig(log_config)
+            try:
+                with open(log_config_file, "r", encoding="utf-8") as file:
+                    log_config = yaml.safe_load(file.read())
+                    self._ensure_log_directories(log_config)
+                    logging.config.dictConfig(log_config)
+            except FileNotFoundError:
+                self._setup_basic_logging()
         else:
-            logging.basicConfig(
-                filename="logs/ham_radio_toolbox.log",
-                filemode="a",
-                level=logging.ERROR,
-                format="%(asctime)s - %(levelname)s - %(message)s",
-            )
+            self._setup_basic_logging()
+
+    def _ensure_log_directories(self, log_config: Dict[str, Any]) -> None:
+        """Ensure all log directories exist."""
+        handlers = log_config.get("handlers", {})
+        for handler_config in handlers.values():
+            if "filename" in handler_config:
+                log_file = handler_config["filename"]
+                log_dir = os.path.dirname(log_file)
+                if log_dir and not os.path.exists(log_dir):
+                    os.makedirs(log_dir, exist_ok=True)
+
+    def _setup_basic_logging(self) -> None:
+        """Set up basic logging configuration."""
+        log_dir = "logs"
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir, exist_ok=True)
+
+        logging.basicConfig(
+            filename="logs/ham_radio_toolbox.log",
+            filemode="a",
+            level=logging.ERROR,
+            format="%(asctime)s - %(levelname)s - %(message)s",
+        )
 
 
 def validate_config(hrt_config: HRTConfig) -> bool:
