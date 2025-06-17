@@ -32,8 +32,16 @@ Ham Radio Toolbox is a powerful command-line interface designed to help amateur 
 - 💾 **Data Export** - Save results and progress to files for later review
 - ⚙️ **Configurable** - Customize behavior through configuration files
 
-![Demo GIF](demo.gif)
-*TODO: Demo showing the main features of Ham Radio Toolbox*
+## 🎬 Demo
+
+**📦 Installation & Setup**  
+<img src="assets/demo-install-download-qb.gif" alt="Installation" width="500">
+
+**📝 Quizzes & Practice**  
+<img src="assets/demo-quiz.gif" alt="Quiz" width="400"> <img src="assets/demo-practice.gif" alt="Practice" width="400">
+
+**🔍 Analysis Features**  
+<img src="assets/demo-qb-analysis.gif" alt="Question Analysis" width="400"> <img src="assets/demo-callsign-analysis.gif" alt="Callsign Analysis" width="400">
 
 ## Installation
 
