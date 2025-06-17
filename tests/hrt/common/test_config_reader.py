@@ -169,7 +169,7 @@ class TestValidateConfig(unittest.TestCase):
         result = validate_config(hrt_config)
         self.assertFalse(result)
         mock_logger.error.assert_called_with(
-            f"Practice Exam settings for question answer display %s " f"not found in config file.",
+            f"Practice Exam settings for question answer display %s not found in config file.",
             DEFAULT_ANSWER_DISPLAY_PRACTICE_EXAM.id,
         )
 

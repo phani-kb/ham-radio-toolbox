@@ -118,7 +118,7 @@ class CAScraper(BaseScraper):
                     if processed % progress_interval == 0 or processed == count:
                         print(
                             f"Progress: {processed}/{count} "
-                            f"callsigns processed ({processed/count*100:.1f}%)"
+                            f"callsigns processed ({processed / count * 100:.1f}%)"
                         )
 
             # match the callsigns count with the count displayed on the page

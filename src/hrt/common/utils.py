@@ -73,7 +73,7 @@ def get_header(header: str) -> str:
     :param header: Header to be returned.
     :return: Header with a separator line.
     """
-    return f'{header}\n{"-" * len(header)}'
+    return f"{header}\n{'-' * len(header)}"
 
 
 def create_folder(folder: str) -> None:
