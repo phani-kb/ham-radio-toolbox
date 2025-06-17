@@ -46,9 +46,9 @@ hamradiotoolbox = "hamradiotoolbox:hamradiotoolbox"
 hrt = "hamradiotoolbox:hamradiotoolbox"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/ham-radio-toolbox"
-Repository = "https://github.com/yourusername/ham-radio-toolbox"
-Issues = "https://github.com/yourusername/ham-radio-toolbox/issues"
+Homepage = "https://github.com/phani-kb/ham-radio-toolbox"
+Repository = "https://github.com/phani-kb/ham-radio-toolbox"
+Issues = "https://github.com/phani-kb/ham-radio-toolbox/issues"
 
 [tool.ruff]
 line-length = 99
@@ -115,11 +115,14 @@ ignore_errors = true
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+packages = ["hrt"]
 py-modules = ["hamradiotoolbox"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["hrt*"]
+exclude = ["tests*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.yml", "*.yaml", "*.txt"]
+
