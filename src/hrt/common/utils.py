@@ -102,7 +102,7 @@ def read_number_from_input(prompt: str, min_value: int, max_value: int) -> int:
     :return: Number provided by the user within the specified range.
     """
     valid_input = False
-    while not valid_input:  # noqa: RET503
+    while not valid_input:
         num = click.prompt(prompt)
         try:
             num = int(num)
@@ -112,6 +112,7 @@ def read_number_from_input(prompt: str, min_value: int, max_value: int) -> int:
             print(f"Invalid input. Please enter a number between {min_value} and {max_value}.")
         except ValueError:
             print("Invalid input. Please enter a valid number.")
+    return -1
 
 
 def write_output(
