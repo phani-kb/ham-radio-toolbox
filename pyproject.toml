@@ -118,8 +118,10 @@ ignore_errors = true
 package-dir = {"" = "src"}
 py-modules = ["hamradiotoolbox"]
 
-[tool.setuptools.packages]
-find = {where = ["src"], include = ["hrt*"], exclude = ["tests*"]}
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["hrt*"]
+exclude = ["tests*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.yml", "*.yaml", "*.txt"]
