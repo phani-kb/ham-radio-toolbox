@@ -89,6 +89,7 @@ class QuestionProcessor:
             Path(folder) / self.country.code / self.exam_type.id / marked_questions_file
         )
         if not self.marked_questions_file_path.exists():
+            self.marked_questions_file_path.parent.mkdir(parents=True, exist_ok=True)
             self.marked_questions_file_path.touch()
             logger.warning(
                 "Marked questions file not found. Created new file at %s",
@@ -108,6 +109,7 @@ class QuestionProcessor:
             Path(metrics_folder) / self.country.code / self.exam_type.id / metrics_file
         )
         if not self.metrics_file_path.exists():
+            self.metrics_file_path.parent.mkdir(parents=True, exist_ok=True)
             self.metrics_file_path.touch()
             logger.warning(
                 "Metrics file not found. Created new file at %s", self.metrics_file_path
