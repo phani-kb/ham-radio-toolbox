@@ -59,26 +59,6 @@ pip install .
 pip install -e .[dev]
 ```
 
-### � Install Directly from Git Repository
-
-You can install the package directly from the git repository URL:
-
-```bash
-# Install the latest version from the main branch
-pip install git+https://github.com/phani-kb/ham-radio-toolbox.git
-```
-
-### 📍 Finding the Installation Location
-
-After installation, you can verify the package location and details:
-
-```bash
-# Show package information including installation path
-pip show ham-radio-toolbox
-```
-
-This will display information including the package version, summary, author, and installation path.
-
 ### �📦 Install from PyPI (Coming Soon)
 
 *Once published, you'll be able to install with:*
