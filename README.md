@@ -81,6 +81,7 @@ All three commands point to the same CLI interface in `src/hamradiotoolbox.py`.
 
 - Python 3.10 or higher
 - Chrome browser (for web scraping functionality)
+- Git (for cloning the repository)
 
 ## Quick Start
 
