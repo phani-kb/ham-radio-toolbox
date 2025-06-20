@@ -67,14 +67,24 @@ pip install -e .[dev]
 pip install ham-radio-toolbox
 ```
 
-### 📋 Requirements
+### � Entry Points
+
+Installation automatically creates these command-line entry points:
+
+- `hamradiotoolbox` - Full name command
+- `ham-radio-toolbox` - Hyphenated version
+- `hrt` - Short alias
+
+All three commands point to the same CLI interface in `src/hamradiotoolbox.py`.
+
+### �📋 Requirements
 
 - Python 3.10 or higher
 - Chrome browser (for web scraping functionality)
 
 ## Quick Start
 
-After installation, you can use either `hamradiotoolbox` or the shorter `hrt` command:
+After installation, you can use either `hamradiotoolbox` or the shorter `hrt` command (both point to the same entry point):
 
 ```bash
 # Show available commands
@@ -332,6 +342,8 @@ cd ham-radio-toolbox
 pip install -e .[dev]
 ```
 
+After installation in development mode, any changes you make to the code in the `src` directory will be immediately available when using the `hamradiotoolbox` or `hrt` commands.
+
 ### 🧪 Running Tests
 
 ```bash
@@ -365,7 +377,7 @@ mypy src/
 ```
 ham-radio-toolbox/
 ├── src/
-│   ├── hamradiotoolbox.py      # Main CLI entry point
+│   ├── hamradiotoolbox.py      # Main CLI entry point (for hamradiotoolbox/hrt commands)
 │   └── hrt/                    # Core package
 │       ├── common/             # Shared utilities
 │       ├── downloaders/        # Data download modules
