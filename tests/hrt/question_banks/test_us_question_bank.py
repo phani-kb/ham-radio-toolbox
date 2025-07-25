@@ -1,16 +1,11 @@
 """Test module for USQuestionBank."""
 
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from pathlib import Path
-from typing import Dict, List
 
 from hrt.question_banks.us_question_bank import USQuestionBank
 from hrt.common.enums import ExamType, CountryCode, QuestionDisplayMode
-from hrt.common.question import Question
-from hrt.common.question_category import QuestionCategory
-from hrt.common.question_metric import QuestionMetric
-from hrt.common.hrt_types import QuestionNumber
 
 
 class TestUSQuestionBank(unittest.TestCase):
@@ -49,9 +44,7 @@ class TestUSQuestionBank(unittest.TestCase):
     @patch.object(USQuestionBank, "load_categories", return_value=[])
     @patch.object(USQuestionBank, "load_questions", return_value=[])
     @patch.object(USQuestionBank, "load_metrics", return_value={})
-    def test_init_with_all_parameters(
-        self, mock_load_metrics, mock_load_questions, mock_load_categories
-    ):
+    def test_init_with_all_parameters(self, _, __, ___):
         """Test initialization with all parameters specified."""
         bank = USQuestionBank(
             exam_type=ExamType.ADVANCED,

@@ -94,7 +94,7 @@ class TestDownloadCallsigns(unittest.TestCase):
             side_effect=Exception("Test Exception")
         )
 
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(Exception) as _:
             self.scraper.download_callsigns(
                 callsign_download_type=CACallSignDownloadType.ASSIGNED,
                 url="https://example.com/assigned",

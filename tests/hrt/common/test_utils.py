@@ -480,13 +480,13 @@ class TestUtils(unittest.TestCase):
     @patch("os.path.exists")
     @patch("os.makedirs")
     def test_create_folder(self, mock_makedirs, mock_exists):
-        # Test when folder does not exist
+        # Test when the folder does not exist
         mock_exists.return_value = False
         create_folder("test_folder")
         mock_exists.assert_called_once_with("test_folder")
         mock_makedirs.assert_called_once_with("test_folder")
 
-        # Test when folder already exists
+        # Test when the folder already exists
         mock_exists.reset_mock()
         mock_makedirs.reset_mock()
         mock_exists.return_value = True

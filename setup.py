@@ -10,12 +10,14 @@ from setuptools import find_packages, setup
 
 # Read requirements from requirements.txt
 def read_requirements():
+    """Read requirements from requirements.txt."""
     req_file = os.path.join(os.path.dirname(__file__), "requirements.txt")
     with open(req_file, "r", encoding="utf-8") as f:
         return [line.strip() for line in f if line.strip() and not line.startswith("#")]
 
 
 def read_dev_requirements():
+    """Read development requirements from requirements-dev.txt."""
     dev_req_file = os.path.join(os.path.dirname(__file__), "requirements-dev.txt")
     if os.path.exists(dev_req_file):
         with open(dev_req_file, "r", encoding="utf-8") as f:

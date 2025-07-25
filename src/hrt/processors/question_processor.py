@@ -21,7 +21,7 @@ from hrt.common.question_display import QuestionDisplay, QuestionDisplayModeFact
 
 
 def get_answers(questions: List[Question]) -> List[str]:
-    """Get the answers for the questions."""
+    """Get the answers to the questions."""
     return [
         f"{q.question_number}: {q.answer_index + 1}. {q.answer}"
         for q in questions

@@ -87,7 +87,7 @@ def create_folder(folder: str) -> None:
 
 def read_filename(default_filename: str) -> str:
     """Reads a filename from the user input or returns the default filename.
-    :param default_filename: Default filename to be returned if user input is empty.
+    :param default_filename: Default filename to be returned if the user input is empty.
     :return: Filename provided by the user or the default filename.
     """
     filename = input(f"Enter a filename to save output (default: {default_filename}): ")
@@ -140,7 +140,7 @@ def write_output(
 def permutations(word: str) -> List[str]:
     """Returns all possible permutations of a word.
     :param word: Word to generate permutations.
-    :return: List of permutations of the word.
+    :return: List word permutations.
     """
     if len(word) == 1:
         return [word]
@@ -154,7 +154,7 @@ def permutations(word: str) -> List[str]:
 def get_word_combinations(word: str) -> List[str]:
     """Returns all possible combinations of a word.
     :param word: Word to generate combinations.
-    :return: List of combinations of the word.
+    :return: List of word combinations.
     """
     return ["".join(p) for p in permutations(word)]
 

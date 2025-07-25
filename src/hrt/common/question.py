@@ -160,7 +160,7 @@ class Question:
 
     @property
     def answer(self) -> str:
-        """Returns the answer for the question."""
+        """Returns the answer to the question."""
         return self._answer
 
     @property

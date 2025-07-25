@@ -1,4 +1,4 @@
-"""Read configuration file."""
+"""Read a configuration file."""
 
 import logging
 import logging.config
@@ -58,7 +58,7 @@ class HRTConfig:
 
 
 class ConfigReader:
-    """Read configuration file."""
+    """Read a configuration file."""
 
     def __init__(self, file_path: str):
         self._file_path = file_path
@@ -93,35 +93,37 @@ class ConfigReader:
             try:
                 with open(log_config_file, "r", encoding="utf-8") as file:
                     log_config = yaml.safe_load(file.read())
-                    self._ensure_log_directories(log_config)
+                    _ensure_log_directories(log_config)
                     logging.config.dictConfig(log_config)
             except FileNotFoundError:
-                self._setup_basic_logging()
+                _setup_basic_logging()
         else:
-            self._setup_basic_logging()
+            _setup_basic_logging()
 
-    def _ensure_log_directories(self, log_config: Dict[str, Any]) -> None:
-        """Ensure all log directories exist."""
-        handlers = log_config.get("handlers", {})
-        for handler_config in handlers.values():
-            if "filename" in handler_config:
-                log_file = handler_config["filename"]
-                log_dir = os.path.dirname(log_file)
-                if log_dir and not os.path.exists(log_dir):
-                    os.makedirs(log_dir, exist_ok=True)
 
-    def _setup_basic_logging(self) -> None:
-        """Set up basic logging configuration."""
-        log_dir = "logs"
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir, exist_ok=True)
+def _ensure_log_directories(log_config: Dict[str, Any]) -> None:
+    """Ensure all log directories exist."""
+    handlers = log_config.get("handlers", {})
+    for handler_config in handlers.values():
+        if "filename" in handler_config:
+            log_file = handler_config["filename"]
+            log_dir = os.path.dirname(log_file)
+            if log_dir and not os.path.exists(log_dir):
+                os.makedirs(log_dir, exist_ok=True)
 
-        logging.basicConfig(
-            filename="logs/ham_radio_toolbox.log",
-            filemode="a",
-            level=logging.ERROR,
-            format="%(asctime)s - %(levelname)s - %(message)s",
-        )
+
+def _setup_basic_logging() -> None:
+    """Set up basic logging configuration."""
+    log_dir = "logs"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
+
+    logging.basicConfig(
+        filename="logs/ham_radio_toolbox.log",
+        filemode="a",
+        level=logging.ERROR,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+    )
 
 
 def validate_config(hrt_config: HRTConfig) -> bool:

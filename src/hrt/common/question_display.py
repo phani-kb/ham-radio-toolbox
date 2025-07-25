@@ -32,12 +32,12 @@ class IQuestionDisplay(ABC):
     @property
     @abstractmethod
     def show_hints(self) -> bool:
-        """Show hints option."""
+        """Show a hint option."""
 
     @show_hints.setter
     @abstractmethod
     def show_hints(self, value: bool) -> None:
-        """Show hints option."""
+        """Show a hint option."""
 
     @property
     @abstractmethod
@@ -62,22 +62,22 @@ class IQuestionDisplay(ABC):
     @property
     @abstractmethod
     def show_marked_status(self) -> bool:
-        """Show marked status option."""
+        """Show a marked status option."""
 
     @show_marked_status.setter
     @abstractmethod
     def show_marked_status(self, value: bool) -> None:
-        """Show marked status option."""
+        """Show a marked status option."""
 
     @property
     @abstractmethod
     def show_metrics(self) -> bool:
-        """Show metrics option."""
+        """Show a metrics option."""
 
     @show_metrics.setter
     @abstractmethod
     def show_metrics(self, value: bool) -> None:
-        """Show metrics option."""
+        """Show a metrics option."""
 
     @abstractmethod
     def __str__(self) -> str:

@@ -16,7 +16,6 @@ from hrt.common.enums import (
     QuestionRefType,
     QuizAnswerDisplay,
     QuizSource,
-    RankBy,
     SortBy,
     SupportedEnum,
     TopQuestionsListingType,
@@ -50,7 +49,7 @@ class TestEnumClasses(unittest.TestCase):
         result = CountryCode.from_value(None)
         self.assertIsNone(result)
 
-        restult = GeneralQuestionListingType.from_value("non_existent_value")
+        result = GeneralQuestionListingType.from_value("non_existent_value")
         self.assertIsNone(result)
 
     def test_supported_enum(self):

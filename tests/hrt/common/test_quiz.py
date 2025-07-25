@@ -385,13 +385,13 @@ class TestQuiz(unittest.TestCase):
         self.assertIn("No next question available.", mock_stdout.getvalue())
 
     @patch("builtins.input", side_effect=["1", "C", "S", "1", "Q", "Y"])
-    def test_display_question_and_get_action_skip_last(self, mock_stdout):
+    def test_display_question_and_get_action_skip_last(self, _):
         self.quiz._current_index = 1
         self.quiz._display_question_and_get_action(skip_last=True)
         self.assertEqual(self.quiz.get_current_question().skip_count, 1)
 
     @patch("builtins.input", side_effect=["1", "C", "S", "1", "Q", "Y"])
-    def test_display_question_and_get_action_submitted(self, mock_stdout):
+    def test_display_question_and_get_action_submitted(self, _):
         self.quiz._current_index = 1
         self.quiz._submitted_questions[QuestionNumber("Q2")] = QuestionSubmitted(
             question_number=QuestionNumber("Q2"), selected_choice="4"
@@ -446,19 +446,19 @@ class TestQuiz(unittest.TestCase):
 
     def test_get_question_by_number(self):
         """Test get_question_by_number with valid and invalid question numbers."""
-        # Test with valid question number
+        # Test with a valid question number
         question_number = QuestionNumber("Q1")
         question = self.quiz.get_question_by_number(question_number)
         self.assertIsNotNone(question)
         if question:
             self.assertEqual(question.question_number, question_number)
 
-        # Test with non-existing question number
+        # Test with a non-existing question number
         question_number = QuestionNumber("NonExistent")
         question = self.quiz.get_question_by_number(question_number)
         self.assertIsNone(question)
 
-        # Test with empty question list
+        # Test with an empty question list
         quiz = ConcreteQuiz(0, [], self.exam_type, self.answer_display, self.quiz_config)
         question = quiz.get_question_by_number(QuestionNumber("Q1"))
         self.assertIsNone(question)
@@ -468,12 +468,12 @@ class TestQuiz(unittest.TestCase):
         self.assertEqual(self.quiz.get_display_mode(), self.display_mode)
 
     def test_get_question_by_index_invalid(self):
-        """Test get_question_by_index with invalid index."""
+        """Test get_question_by_index with an invalid index."""
         with self.assertRaises(IndexError):
             self.quiz.get_question_by_index(999)  # Index out of range
 
     def test_post_process(self):
-        """Test post_process method with different pass scenarios."""
+        """Test the post_process method with different pass scenarios."""
         # Test pass with honours (>=80%)
         self.quiz._questions[0].correct_attempts = 2  # Both questions correct
         self.quiz._questions[1].correct_attempts = 2

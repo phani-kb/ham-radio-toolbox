@@ -1,8 +1,5 @@
-import re
 import unittest
 from pathlib import Path
-from typing import List
-from unittest.mock import patch
 
 from hrt.common.enums import (
     CountryCode,
@@ -11,7 +8,7 @@ from hrt.common.enums import (
 )
 from hrt.common.hrt_types import QuestionNumber
 from hrt.common.question import Question
-from hrt.common.question_bank import QuestionBank, process_dict_result
+from hrt.common.question_bank import QuestionBank
 
 
 class ConcreteQuestionBank(QuestionBank):

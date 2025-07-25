@@ -52,7 +52,7 @@ class IQuiz(ABC):
 
     @abstractmethod
     def submit(self, choice_index: int) -> None:
-        """Submit the answer for the current question."""
+        """Submit the answer to the current question."""
 
     @abstractmethod
     def mark(self, choice_index: int) -> None:

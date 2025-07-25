@@ -140,14 +140,14 @@ class IQuestionBank(ABC):
 
 
 def process_list_result(result: list[Question]) -> list[str]:
-    """Process the result of a list of questions."""
+    """Process list of questions result."""
     return [question.format() for question in result]
 
 
 def process_dict_result(
     criteria: QuestionListingType | TopQuestionsListingType, result: dict
 ) -> list[str]:
-    """Process the result of a dictionary of questions."""
+    """Process a dictionary of questions result."""
     result_text = []
     match criteria:
         case GeneralQuestionListingType.SAME_ANSWER:
@@ -160,7 +160,7 @@ def process_dict_result(
                 result_text.extend(process_list_result(questions))
         case GeneralQuestionListingType.TWO_OR_MORE_SAME_CHOICES:
             for question, similar_questions in result.items():
-                # append all question numbers in same line
+                # append all question numbers in the same line
                 qnums = ", ".join([q.question_number for q in similar_questions])
                 result_text.append(f"{question.question_number}, {qnums}")
                 result_text.append(question.format())
@@ -382,7 +382,7 @@ class QuestionBank(IQuestionBank, ABC):
         return result
 
     def _get_two_or_more_same_choices_dict(self) -> dict[Question, list[Question]]:
-        """Internal helper to get questions with two or more same choices as a dictionary."""
+        """Internal helper to get questions with two or more the same choices as a dictionary."""
         questions_with_two_more_same_options: dict[Question, list[Question]] = {}
         for question in self.questions:
             choices = question.choices

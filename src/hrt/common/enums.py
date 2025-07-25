@@ -102,7 +102,7 @@ class CountryCode(SupportedEnum):
 
 
 class CountrySpecificEnum(SupportedEnum):
-    """Base class for country specific enumerations."""
+    """Base class for country-specific enumerations."""
 
     def __init__(
         self,
