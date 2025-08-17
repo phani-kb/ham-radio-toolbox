@@ -12,9 +12,6 @@ class TestBaseProcessor(unittest.TestCase):
         self.assertEqual(self.processor.config_reader, self.config_reader)
         self.assertIsNotNone(self.processor.logger)
 
-    def test_generate_questions(self):
-        self.processor.generate_questions()
-
     def test_evaluate_answer(self):
         self.processor.evaluate_answer("question", "answer")
 

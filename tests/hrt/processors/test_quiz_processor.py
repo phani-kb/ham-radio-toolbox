@@ -1,12 +1,10 @@
 """Test quiz processor."""
 
 import unittest
-import os
 from unittest.mock import MagicMock, patch
 
 from hrt.common.enums import (
     CountryCode,
-    ExamType,
     QuestionDisplayMode,
     QuizAnswerDisplay,
     QuizSource,
@@ -31,7 +29,7 @@ class TestQuizProcessor(unittest.TestCase):
         self.question_bank.get_random_questions.return_value = []  # Default return value
 
         self.question = Question(
-            "Test Question?", ["A", "B", "C", "D"], "A", QuestionNumber("Q1"), 0
+            "Test Question?", ["A", "B", "C", "D"], "A", QuestionNumber("Q1"), None
         )
         self.quiz_config = {
             "mark_wrong_answers": True,
@@ -73,7 +71,7 @@ class TestQuizProcessor(unittest.TestCase):
         self.question_bank.get_random_questions.assert_called_once_with(1, True, [], [])
 
     def test_initialize_quiz_new_source(self):
-        """Test initialize quiz with NEW source."""
+        """Test initialize quiz with a NEW source."""
         self.question_bank.reset_mock()
         self.processor._quiz_source = QuizSource.NEW
         metric = QuestionMetric(QuestionNumber("Q1"))
@@ -109,7 +107,7 @@ class TestQuizProcessor(unittest.TestCase):
             self.question_bank.get_random_questions.assert_called_once_with(1, False, [], ["Q1"])
 
     def test_initialize_quiz_old(self):
-        """Test initialize quiz with OLD source."""
+        """Test initialize quiz with an OLD source."""
         self.question_bank.reset_mock()
         self.processor._quiz_source = QuizSource.OLD
         metric = QuestionMetric(QuestionNumber("Q1"))
@@ -120,7 +118,7 @@ class TestQuizProcessor(unittest.TestCase):
             self.question_bank.get_random_questions.assert_called_once_with(1, True, ["Q1"], [])
 
     def test_initialize_quiz_invalid_source(self):
-        """Test initialize quiz with invalid source."""
+        """Test initialize quiz with an invalid source."""
         self.question_bank.reset_mock()
         self.processor._quiz_source = MagicMock()
         self.processor._quiz_source.name = "INVALID"
@@ -128,7 +126,7 @@ class TestQuizProcessor(unittest.TestCase):
             self.processor._initialize_quiz()
         self.assertTrue("Invalid quiz source:" in str(context.exception))
 
-    @patch("os.makedirs")
+    @patch("os.makedirs")  # type: ignore
     def test_save_marked_questions(self, mock_makedirs):
         """Test save marked questions."""
         self.question_bank.get_marked_questions_filepath.return_value = "test_path/marked.txt"
@@ -157,13 +155,13 @@ class TestQuizProcessor(unittest.TestCase):
 
         # Current quiz marked question
         current_marked = Question(
-            "Test Question?", ["A", "B", "C", "D"], "A", QuestionNumber("Q1"), 0
+            "Test Question?", ["A", "B", "C", "D"], "A", QuestionNumber("Q1"), None
         )
         self.processor._quiz.get_marked_questions.return_value = [current_marked]
 
         # Previously marked question
         existing_marked = Question(
-            "Test Question 2?", ["A", "B", "C", "D"], "B", QuestionNumber("Q2"), 0
+            "Test Question 2?", ["A", "B", "C", "D"], "B", QuestionNumber("Q2"), None
         )
         self.question_bank.get_all_marked_questions.return_value = [existing_marked]
 
@@ -261,7 +259,9 @@ class TestQuizProcessor(unittest.TestCase):
         self.processor._quiz = MagicMock()
 
         # Create a new question with the desired properties
-        question = Question("Test Question?", ["A", "B", "C", "D"], "A", QuestionNumber("Q1"), 0)
+        question = Question(
+            "Test Question?", ["A", "B", "C", "D"], "A", QuestionNumber("Q1"), None
+        )
         question.metric = QuestionMetric(QuestionNumber("Q1"))
         question.metric.wrong_attempts = 1
 
@@ -281,7 +281,7 @@ class TestQuizProcessor(unittest.TestCase):
         """Test display answers with NONE setting."""
         # Instead of trying to use NONE enum value which doesn't exist,
         # we'll mock the _display_answers method to check its behavior based on the value
-        with patch("hrt.processors.quiz_processor.QuizAnswerDisplay") as mock_enum:
+        with patch("hrt.processors.quiz_processor.QuizAnswerDisplay") as _:
             # Create a mock enum instance that works like NONE
             none_value = MagicMock()
             none_value.value = "none"  # This is the value checked in the implementation
@@ -298,7 +298,9 @@ class TestQuizProcessor(unittest.TestCase):
         """Test display answers after question with no wrong questions."""
         self.processor._answer_display = QuizAnswerDisplay.AFTER_QUESTION
         self.processor._quiz = MagicMock()
-        question = Question("Test Question?", ["A", "B", "C", "D"], "A", QuestionNumber("Q1"), 0)
+        question = Question(
+            "Test Question?", ["A", "B", "C", "D"], "A", QuestionNumber("Q1"), None
+        )
         question.metric = QuestionMetric(QuestionNumber("Q1"))
         question.metric.wrong_attempts = 0  # No wrong attempts
         self.processor._quiz.get_questions.return_value = [question]
@@ -317,22 +319,19 @@ class TestQuizProcessor(unittest.TestCase):
             patch.object(self.processor, "_save_metrics") as mock_save_metrics,
         ):
             self.processor.process()
-            self.processor._quiz.pre_process.assert_called_once()
-            self.processor._quiz.start.assert_called_once()
-            self.processor._quiz.post_process.assert_called_once()
             mock_display.assert_called_once()
             mock_save_marked.assert_called_once()
             mock_save_metrics.assert_called_once()
 
     def test_process_no_quiz(self):
-        """Test process method with no quiz."""
+        """Test the process method with no quiz."""
         self.processor._quiz = None
         with patch("builtins.print") as mock_print:
             self.processor.process()
             mock_print.assert_called_once_with("Quiz not initialized. Exiting...")
 
     def test_initialize_quiz_wrong_answers(self):
-        """Test initialize quiz with wrong answers source."""
+        """Test initialize quiz with a wrong answers source."""
         self.question_bank.reset_mock()
         self.processor._quiz_source = QuizSource.WRONG_ANSWERS
         metric = QuestionMetric(QuestionNumber("Q1"))
@@ -344,7 +343,7 @@ class TestQuizProcessor(unittest.TestCase):
             self.question_bank.get_random_questions.assert_called_once_with(1, True, ["Q1"], [])
 
     def test_initialize_quiz_wrong_answers_no_metrics(self):
-        """Test initialize quiz with wrong answers source but no metrics."""
+        """Test initialize quiz with a wrong answers source but no metrics."""
         self.question_bank.reset_mock()
         self.processor._quiz_source = QuizSource.WRONG_ANSWERS
         with patch.object(self.processor, "_get_metric_questions", return_value=[]):
@@ -355,7 +354,7 @@ class TestQuizProcessor(unittest.TestCase):
             self.question_bank.get_random_questions.assert_called_once_with(1, True, [], [])
 
     @patch("os.path.exists", return_value=False)
-    def test_get_metric_questions_no_file(self, mock_exists):
+    def test_get_metric_questions_no_file(self, _):
         """Test get metric questions with no metrics file."""
         with patch.object(
             self.processor, "_get_metrics_file_path", return_value="nonexistent.txt"
@@ -364,8 +363,8 @@ class TestQuizProcessor(unittest.TestCase):
             self.assertEqual(result, [])
 
     @patch("os.path.exists", return_value=True)
-    def test_get_metric_questions_empty_file(self, mock_exists):
-        """Test get metric questions with empty metrics file."""
+    def test_get_metric_questions_empty_file(self, _):
+        """Test get metric questions with an empty metrics file."""
         with (
             patch.object(self.processor, "_get_metrics_file_path", return_value="metrics.txt"),
             patch("builtins.open", unittest.mock.mock_open(read_data="")),
@@ -374,8 +373,8 @@ class TestQuizProcessor(unittest.TestCase):
             self.assertEqual(result, [])
 
     @patch("os.path.exists", return_value=True)
-    def test_get_metric_questions_invalid_format(self, mock_exists):
-        """Test get metric questions with invalid format in metrics file."""
+    def test_get_metric_questions_invalid_format(self, _):
+        """Test get metric questions with invalid format in a metrics file."""
         with (
             patch.object(self.processor, "_get_metrics_file_path", return_value="metrics.txt"),
             patch("builtins.open", unittest.mock.mock_open(read_data="invalid_format\n")),

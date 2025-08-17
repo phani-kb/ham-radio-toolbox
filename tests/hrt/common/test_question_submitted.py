@@ -9,7 +9,7 @@ class TestQuestionSubmitted(unittest.TestCase):
     """Test question submitted class."""
 
     def setUp(self):
-        """Set up test case."""
+        """Set up a test case."""
         self.question_number = QuestionNumber("Q1")
         self.question_submitted = QuestionSubmitted(self.question_number)
 
@@ -40,7 +40,7 @@ class TestQuestionSubmitted(unittest.TestCase):
         self.assertNotEqual(self.question_submitted, other)
 
     def test_equals_non_question_submitted(self):
-        """Test equality with non QuestionSubmitted object."""
+        """Test equality with a non-QuestionSubmitted object."""
         other = "not a question submitted"
         self.assertNotEqual(self.question_submitted, other)
 

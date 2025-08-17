@@ -1,12 +1,15 @@
 """Test callsign processor."""
 
 import unittest
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 
 from hrt.common.config_reader import HRTConfig
-from hrt.common.enums import RankBy, NumberOfLetters, SortBy
-from hrt.processors.callsign_processor import CallSignsProcessor
-from hrt.common import utils
+from hrt.common.enums import RankBy, NumberOfLetters
+from hrt.processors.callsign_processor import (
+    CallSignsProcessor,
+    process_end_option,
+    process_multiple_option,
+)
 
 
 class TestCallSignProcessor(unittest.TestCase):
@@ -74,14 +77,14 @@ class TestCallSignProcessor(unittest.TestCase):
         """Test process end option."""
         callsigns = {"TEST1", "TEST2", "TEST3A"}
         option_set = {"A"}
-        result = self.processor._process_end_option(callsigns, option_set)
+        result = process_end_option(callsigns, option_set)
         self.assertEqual(result, {"TEST3A"})
 
     def test_process_multiple_option(self):
         """Test process multiple option."""
         callsigns = {"TEST1", "TEAAST2", "TEBBT3"}
         option_set = {"A", "B"}
-        result = self.processor._process_multiple_option(callsigns, option_set)
+        result = process_multiple_option(callsigns, option_set)
         self.assertEqual(result, {"TEAAST2", "TEBBT3"})
 
     @patch("hrt.processors.callsign_processor.write_output")
@@ -91,14 +94,11 @@ class TestCallSignProcessor(unittest.TestCase):
         # Test END option
         result = self.processor.process_options(callsigns, [NumberOfLetters.END.name])
         self.assertEqual(result, {"TEST2A"})
-        mock_write.assert_called_with({"TEST2A"}, "test_output/us/includes.txt")
+        mock_write.assert_called_with(["TEST2A"], "test_output/us/includes.txt")
 
         # Test MULTIPLE option
         result = self.processor.process_options(callsigns, [NumberOfLetters.MULTIPLE.name])
-        self.assertEqual(result, set())  # Should return empty set since no doubles match
-
-        # Skip ALL option test since it's problematic and would require
-        # more extensive mocking of the NumberOfLetters enum
+        self.assertEqual(result, set())  # Should return an empty set since no doubles match
 
     def test_match_callsigns_with_words(self):
         """Test match callsigns with words."""
@@ -116,7 +116,7 @@ class TestCallSignProcessor(unittest.TestCase):
         self.assertEqual(result, {"TEST1"})
 
     def test_process_must_include_exclude(self):
-        """Test process must include exclude options."""
+        """The test process must include exclude options."""
         callsigns = {"TEST3", "TEST4"}
         result = self.processor._process_must_include_exclude(callsigns)
         expected = {"TEST3", "TEST4"} - {"TEST4"}
@@ -171,11 +171,11 @@ class TestCallSignProcessor(unittest.TestCase):
         mock_include_exclude.return_value = {"TEST1"}
 
         # It appears the rank_by parameter ["cw"] is not resulting in a call to rank_callsigns_by_cw_weight
-        # Let's not try to mock that function and just test what actually happens
+        # Let's not try to mock that function and test what actually happens
         result = self.processor.process_callsigns()
 
         # The actual implementation returns a set containing "TEST1"
-        self.assertEqual(result, {"TEST1"})
+        self.assertEqual(result, ["TEST1"])
 
         mock_load.assert_called_once()
         mock_match.assert_called_once()
@@ -202,7 +202,7 @@ class TestCallSignProcessor(unittest.TestCase):
         ):
             result = self.processor.process_options(callsigns, [NumberOfLetters.ALL.name])
             self.assertEqual(mock_write.call_count, 1)
-            # With our setup, it should match TEST2A for END option
+            # With our setup, it should match TEST2A for an END option
             self.assertEqual(result, {"TEST2A"})
 
     @patch("hrt.processors.callsign_processor.write_output")
@@ -212,7 +212,7 @@ class TestCallSignProcessor(unittest.TestCase):
         # Create a scenario where the "includes" dict is empty for the option
         with patch.dict(self.callsign_config, {"includes": {"INVALID": None}}):
             result = self.processor.process_options(callsigns, ["INVALID"])
-            self.assertEqual(result, callsigns)  # Should return original set
+            self.assertEqual(result, callsigns)  # Should return an original set
             mock_write.assert_not_called()
 
     @patch("hrt.processors.callsign_processor.write_output")
@@ -225,7 +225,7 @@ class TestCallSignProcessor(unittest.TestCase):
             mock_config.get.return_value = None  # Option value is None
             mock_callsign.return_value = {"includes": mock_config}
             result = self.processor.process_options(callsigns, ["EMPTY"])
-            self.assertEqual(result, callsigns)  # Should return original set
+            self.assertEqual(result, callsigns)  # Should return an original set
 
     @patch.object(CallSignsProcessor, "load_callsigns")
     @patch.object(CallSignsProcessor, "process_match_option")
@@ -259,7 +259,7 @@ class TestCallSignProcessor(unittest.TestCase):
         mock_sort.return_value = ["TEST1"]
 
         result = processor.process_callsigns()
-        self.assertEqual(result, {"TEST1"})  # Should be included - excluded
+        self.assertEqual(result, ["TEST1"])  # Should be included - excluded
         mock_process_options.assert_any_call({"TEST1", "TEST2", "TEST3"}, ["END"])
         mock_process_options.assert_any_call({"TEST1", "TEST2", "TEST3"}, ["MULTIPLE"], False)
 
@@ -283,7 +283,7 @@ class TestCallSignProcessor(unittest.TestCase):
         )
 
         result = processor.process_callsigns()
-        self.assertEqual(result, {"TEST1", "TEST3"})  # Original - excluded
+        self.assertEqual(set(result), {"TEST1", "TEST3"})  # Original - excluded
 
     @patch.object(CallSignsProcessor, "load_callsigns")
     @patch.object(CallSignsProcessor, "process_match_option")
@@ -299,13 +299,13 @@ class TestCallSignProcessor(unittest.TestCase):
         )
 
         result = processor.process_callsigns()
-        self.assertEqual(result, {"TEST1"})
+        self.assertEqual(result, ["TEST1"])
         mock_match.assert_called_once_with({"TEST1", "TEST2"}, 3, "us")
 
     @patch.object(CallSignsProcessor, "load_callsigns")
     @patch("hrt.processors.callsign_processor.write_output")
     def test_process_callsigns_with_invalid_match(self, mock_write, mock_load):
-        """Test process_callsigns with invalid match option."""
+        """Test process_callsigns with an invalid match option."""
         mock_load.return_value = {"TEST1", "TEST2"}
 
         # Setup processor with an invalid match option
@@ -371,7 +371,7 @@ class TestCallSignProcessor(unittest.TestCase):
         result = processor.process_callsigns()
 
         # Verify the result is empty
-        self.assertEqual(result, set())
+        self.assertEqual(result, [])
 
         # Verify write_output is called with an empty list
         mock_write.assert_called_with([], "test_output/us/rank-by-confusing-pair.txt")
@@ -399,26 +399,24 @@ class TestCallSignProcessor(unittest.TestCase):
         ):
             # This should execute the options.remove(NumberOfLetters.ALL.name) line
             result = self.processor.process_options(callsigns, [NumberOfLetters.ALL.name])
-            # With our setup, it should match TEST2A for END option
+            # With our setup, it should match TEST2A for an END option
             self.assertEqual(result, {"TEST2A"})
             mock_write.assert_called_once()
 
     @patch("hrt.processors.callsign_processor.write_output")
-    def test_process_options_empty_option_value(self, mock_write):
-        """Test process_options with option value being None."""
+    def test_process_options_empty_option_value2(self, mock_write):
+        """Test process_options with the option value being None."""
         callsigns = {"TEST1", "TEST2", "TEST3"}
 
         # Create a scenario where the option value is None (not just the config entry)
         with patch.object(self.processor.config, "get_callsign") as mock_callsign:
-            mock_config = MagicMock()
-
             # Mock an option key that exists but returns None for its value
             mock_config_dict = {"includes": {"TEST_OPTION": None}}
             mock_callsign.return_value = mock_config_dict
 
             result = self.processor.process_options(callsigns, ["TEST_OPTION"])
 
-            # Should return original set since the option exists but has no value
+            # Should return an original set since the option exists but has no value
             self.assertEqual(result, callsigns)
             mock_write.assert_not_called()  # No output should be written
 
@@ -472,7 +470,7 @@ class TestCallSignProcessor(unittest.TestCase):
         result = processor.process_callsigns()
 
         # Should return the included set directly
-        self.assertEqual(result, {"TEST1", "TEST2"})
+        self.assertEqual(set(result), {"TEST1", "TEST2"})
         mock_process_options.assert_called_once_with({"TEST1", "TEST2", "TEST3"}, ["END"])
 
         # Make sure we didn't call process_options for excludes
@@ -508,4 +506,4 @@ class TestCallSignProcessor(unittest.TestCase):
         result = processor.process_callsigns()
 
         # Should return the ranked results
-        self.assertEqual(result, {("TEST1", 10, 5), ("TEST2", 15, 7)})
+        self.assertEqual(set(result), {("TEST1", 10, 5), ("TEST2", 15, 7)})

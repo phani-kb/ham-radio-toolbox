@@ -189,8 +189,11 @@ class TestValidateConfig(unittest.TestCase):
     def test_validate_config_missing_question_bank2(self, mock_logger):
         for country in CountryCode.supported_ids():
             data = self.default_data.copy()
-            for exam_type in ExamType.supported_ids():
-                del data[country]["question_bank"][exam_type]
+            question_bank = data[country].get("question_bank")
+            if isinstance(question_bank, dict):
+                for exam_type in ExamType.supported_ids():
+                    if exam_type in question_bank:
+                        del question_bank[exam_type]
             hrt_config = HRTConfig(data)
             result = validate_config(hrt_config)
             self.assertFalse(result)

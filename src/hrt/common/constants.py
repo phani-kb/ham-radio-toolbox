@@ -3,7 +3,7 @@
 from hrt.common.enums import QuestionAnswerDisplay
 
 APP_NAME: str = "ham-radio-toolbox"
-APP_VERSION: str = "0.1.0"
+APP_VERSION: str = "0.2.0"
 APP_DESCRIPTION: str = "A CLI tool to support the amateur radio community."
 LOAD_WAIT_TIME: int = 5
 SEARCH_WAIT_TIME: int = 15

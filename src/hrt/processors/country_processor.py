@@ -1,4 +1,4 @@
-"""Processor for generating country specific questions."""
+"""Processor for generating country-specific questions."""
 
 from typing import Dict, List
 
@@ -6,7 +6,7 @@ from hrt.processors.base_processor import BaseProcessor
 
 
 class CountrySpecificProcessor(BaseProcessor):
-    """Processor for generating country specific questions."""
+    """Processor for generating country-specific questions."""
 
     def __init__(
         self,
@@ -18,9 +18,6 @@ class CountrySpecificProcessor(BaseProcessor):
         self.question_bank = question_bank
         self.country_code = country_code
 
-    def generate_questions(self) -> List[str]:
-        return self.question_bank.get_questions(self.country_code, "quiz")
-
     def evaluate_answer(self, question: Dict[str, str], answer: str) -> bool:
         correct_answer = question.get("answer")
         return answer == correct_answer
@@ -29,10 +26,6 @@ class CountrySpecificProcessor(BaseProcessor):
         if is_correct:
             return "Correct! Well done."
         return f"Sorry, the correct answer is: {question.get('answer')}"
-
-    def update_question_bank(self) -> None:
-        """Update the question bank."""
-        self.question_bank.update_question_bank(self.country_code, "quiz")
 
     def get_country_code(self) -> str:
         """Get the country code."""

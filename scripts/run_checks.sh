@@ -5,10 +5,6 @@
 
 set -e  # Exit immediately if a command exits with a non-zero status
 
-echo "Running Ruff checks..."
-python -m ruff check .
-
-echo ""
 echo "Applying Ruff fixes where possible..."
 python -m ruff check --fix .
 

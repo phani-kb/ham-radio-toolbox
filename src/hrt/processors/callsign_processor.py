@@ -66,7 +66,7 @@ class CallSignsProcessor:
 
     @staticmethod
     def match_callsigns_with_words(callsigns, words):
-        """Match callsigns with words, ignoring case."""
+        """Match callsigns with words, ignoring a case."""
         matched_callsigns = set()
         matches_with_words = set()
         for callsign in callsigns:
@@ -87,29 +87,6 @@ class CallSignsProcessor:
         file_path = self.config.get_input().get("files").get(file_key)
         file_path = f"{input_folder}/{file_path}"
         return utils.read_words_from_file(file_path) if file_path else []
-
-    def _process_end_option(self, callsigns: set, option_set: set) -> set:
-        """Process END option for callsigns."""
-        matched_callsigns = {cs for cs in callsigns if cs[-1] in option_set}
-        logger.info(
-            "Included callsigns based on END value(s): %s: %d",
-            option_set,
-            len(matched_callsigns),
-        )
-        return matched_callsigns
-
-    def _process_multiple_option(self, callsigns: set, option_set: set) -> set:
-        """Process MULTIPLE option for callsigns."""
-        matched_callsigns = set()
-        for callsign in callsigns:
-            if any(char * 2 in callsign or char * 3 in callsign for char in option_set):
-                matched_callsigns.add(callsign)
-        logger.info(
-            "Included callsigns based on MULTIPLE value(s): %s: %d",
-            option_set,
-            len(matched_callsigns),
-        )
-        return matched_callsigns
 
     def process_options(self, callsigns, options, include=True):
         """Process callsigns by specific options."""
@@ -144,9 +121,9 @@ class CallSignsProcessor:
 
             option_set = set(option_value)
             if option == NumberOfLetters.END.name:
-                matched = self._process_end_option(callsigns, option_set)
+                matched = process_end_option(callsigns, option_set)
             elif option == NumberOfLetters.MULTIPLE.name:
-                matched = self._process_multiple_option(callsigns, option_set)
+                matched = process_multiple_option(callsigns, option_set)
             else:
                 matched = self.match_callsigns_with_combinations(callsigns, option_set)
                 logger.info(
@@ -161,7 +138,7 @@ class CallSignsProcessor:
         logger.info("Callsigns based on criteria: %d", len(final_callsigns))
         output_folder = f"{self.config.get_output().get('folder')}/{country_code}"
         output_file_path = f"{output_folder}/{key}.txt"
-        write_output(final_callsigns, output_file_path)
+        write_output(list(final_callsigns), output_file_path)
         logger.info("Matched callsigns saved to %s", output_file_path)
 
         return final_callsigns
@@ -202,7 +179,7 @@ class CallSignsProcessor:
         output_folder = f"{output_folder}/{country_code}"
         output_filename = f"matched-{length}-letter_words.txt"
         output_file_path = f"{output_folder}/{output_filename}"
-        write_output(matches_with_words, output_file_path)
+        write_output(list(matches_with_words), output_file_path)
         logger.info("Matched callsigns saved to %s", output_file_path)
         return matched_callsigns
 
@@ -234,7 +211,7 @@ class CallSignsProcessor:
                     weight += len(morse) - 1  # 1 unit gap between each dash or dot in a character
                 else:
                     logger.warning("No morse code found for letter: %s", letter)
-            weight += (len(callsign) - 1) * 3  # 3 unit gap between each character
+            weight += (len(callsign) - 1) * 3  # 3 unit gaps between each character
             weight += 3  # extra 3 units for the last character
             sorted_callsigns.append((callsign, weight, number_of_dot_dash))
 
@@ -306,6 +283,7 @@ class CallSignsProcessor:
         logger.info("Phonetic clarity options: %s", self.get_phonetic_clarity_option())
         logger.info("Confusing pairs: %s", self.get_confusing_pair())
 
+        sorted_callsigns = set()
         # Load and process callsigns
         callsigns = self.load_callsigns()
         logger.info("Available callsigns: %d", len(callsigns))
@@ -369,4 +347,29 @@ class CallSignsProcessor:
             final_callsigns = self.rank_callsigns_by_cw_weight(final_callsigns)
 
         logger.info("Final callsigns after ranking: %d", len(final_callsigns))
-        return set(final_callsigns) if not isinstance(final_callsigns, set) else final_callsigns
+        return final_callsigns if isinstance(final_callsigns, list) else list(final_callsigns)
+
+
+def process_end_option(callsigns: set, option_set: set) -> set:
+    """Process END option for callsigns."""
+    matched_callsigns = {cs for cs in callsigns if cs[-1] in option_set}
+    logger.info(
+        "Included callsigns based on END value(s): %s: %d",
+        option_set,
+        len(matched_callsigns),
+    )
+    return matched_callsigns
+
+
+def process_multiple_option(callsigns: set, option_set: set) -> set:
+    """Process MULTIPLE option for callsigns."""
+    matched_callsigns = set()
+    for callsign in callsigns:
+        if any(char * 2 in callsign or char * 3 in callsign for char in option_set):
+            matched_callsigns.add(callsign)
+    logger.info(
+        "Included callsigns based on MULTIPLE value(s): %s: %d",
+        option_set,
+        len(matched_callsigns),
+    )
+    return matched_callsigns

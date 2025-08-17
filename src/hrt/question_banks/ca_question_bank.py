@@ -33,25 +33,29 @@ class CAQuestionBank(QuestionBank):
             exam_type,
             filepath,
             display_mode,
-            categories_filepath,
-            marked_questions_filepath,
-            metrics_filepath,
+            str(categories_filepath) if categories_filepath else None,
+            str(marked_questions_filepath) if marked_questions_filepath else None,
+            str(metrics_filepath) if metrics_filepath else None,
         )
 
     def load_categories(self) -> List[QuestionCategory]:
-        categories = utils.read_delim_file(self.categories_filepath, delimiter=":")
+        categories = utils.read_delim_file(str(self.categories_filepath), delimiter=":")
         return [
             QuestionCategory(category[0], category[1], int(category[2])) for category in categories
         ]
 
     def load_metrics(self) -> Dict[QuestionNumber, QuestionMetric]:
-        metrics = utils.read_metrics_from_file(self.metrics_filepath)
+        metrics = (
+            utils.read_metrics_from_file(str(self.metrics_filepath))
+            if self.metrics_filepath
+            else []
+        )
         return {metric.question_number: metric for metric in metrics}
 
     def load_questions(self) -> List[Question]:
         result: List[Question] = []
         questions = utils.read_delim_file(
-            self.filepath,
+            str(self.filepath),
             delimiter=";",
             skip_header=True,
             header="question_id",
@@ -65,7 +69,7 @@ class CAQuestionBank(QuestionBank):
             answer = q[2]
             category_id = get_question_category_id(QuestionNumber(question_number))
             category = self.get_category_by_id(category_id)
-            metric = self.metrics.get(question_number)
+            metric = self.metrics.get(QuestionNumber(question_number))
             q = Question(
                 question_text, choices, answer, QuestionNumber(question_number), category, metric
             )

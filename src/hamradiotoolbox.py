@@ -132,7 +132,7 @@ def get_common_question_params(ctx):
     answer_display = ctx.obj["answer_display"]
     save_to_file = ctx.obj["save_to_file"]
     exam_type = utils.select_option_from_list(
-        ExamType.supported_country_options(CountryCode.from_id(country_code)), "Exam type"
+        list(ExamType.supported_country_options(CountryCode.from_id(country_code))), "Exam type"
     )
     country_code = CountryCode.from_id(country_code)
     answer_display = QuestionAnswerDisplay.from_id(answer_display)
@@ -238,7 +238,7 @@ def list_marked_questions(ctx, criteria):
         country_code,
         exam_type,
     )
-    criteria_type: QuestionListingType = QuestionListingType.from_id(criteria)
+    criteria_type: MarkedQuestionListingType = MarkedQuestionListingType.from_id(criteria)
     qp.list_marked(criteria_type, answer_display, questions_count, save_to_file)
 
 
@@ -315,7 +315,7 @@ def start_quiz(ctx):
 
     country: CountryCode = CountryCode.from_id(country_code)  # type: ignore
     exam_type: str | None = utils.select_option_from_list(
-        ExamType.supported_country_ids(country), "Exam type"
+        list(ExamType.supported_country_ids(country)), "Exam type"
     )
     if not exam_type:
         logger.error("Exam type not found.")
@@ -396,7 +396,9 @@ def start_practice_exam(ctx):
         logger.error("Country code not found.")
         return
     country = CountryCode.from_id(country_code)
-    exam_type = utils.select_option_from_list(ExamType.supported_country_ids(country), "Exam type")
+    exam_type = utils.select_option_from_list(
+        list(ExamType.supported_country_ids(country)), "Exam type"
+    )
     if not exam_type:
         logger.error("Exam type not found.")
         return
@@ -517,7 +519,7 @@ def download_question_bank(ctx):
     country_code = ctx.obj["country_code"]
     country = CountryCode.from_id(country_code)
     exam_type = utils.select_option_from_list(
-        ExamType.supported_country_ids(country),
+        list(ExamType.supported_country_ids(country)),
         "Exam type",
     )
     et = ExamType.from_id_and_country(exam_type, country)
@@ -540,7 +542,7 @@ def download_callsign(ctx):
     country_code = ctx.obj["country_code"]
     country = CountryCode.from_id(country_code)
     cs_type = utils.select_option_from_list(
-        CallSignDownloadType.supported_country_options(country),
+        list(CallSignDownloadType.supported_country_options(country)),
         "Callsign type",
     )
     if not cs_type:

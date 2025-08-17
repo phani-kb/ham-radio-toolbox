@@ -27,7 +27,7 @@ def read_dev_requirements():
 
 setup(
     name="ham-radio-toolbox",
-    version="0.1.0",
+    version="0.2.0",
     description="A CLI tool to support the amateur radio community.",
     author="Phani K",
     author_email="192951055+phani-kb@users.noreply.github.com",

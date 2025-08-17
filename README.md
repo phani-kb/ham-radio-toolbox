@@ -1,6 +1,6 @@
 # Ham Radio Toolbox 📻
 
-<div align="center">
+<div style="text-align: center;">
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -17,6 +17,12 @@
 [Contributing](#contributing)
 
 </div>
+
+---
+
+**✨ Supports the latest ISED Canada Basic Exam update (July 2025)!**
+
+---
 
 ## Overview
 
@@ -307,7 +313,7 @@ hrt download --country ca question-bank
 # 2. Browse questions to familiarize yourself
 hrt question --country ca list
 
-# 3. Take quizes
+# 3. Take quizzes
 hrt quiz --country ca --number-of-questions 50 start
 
 # 4. Review
@@ -409,7 +415,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ---
 
-<div align="center">
+<div style="text-align: center;">
 
 **[⬆ Back to Top](#ham-radio-toolbox-)**
 
