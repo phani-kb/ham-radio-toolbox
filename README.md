@@ -1,6 +1,6 @@
 # Ham Radio Toolbox 📻
 
-<div style="text-align: center;">
+<div align="center">
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -415,7 +415,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ---
 
-<div style="text-align: center;">
+<div align="center">
 
 **[⬆ Back to Top](#ham-radio-toolbox-)**
 
