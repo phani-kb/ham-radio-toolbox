@@ -134,3 +134,4 @@ data/input/ca/basic/marked-questions.txt
 data/input/ca/callsign/available_callsigns.txt
 data/metrics/ca/advanced/metrics.txt
 data/metrics/ca/basic/metrics.txt
+data/input/ca/*.zip
