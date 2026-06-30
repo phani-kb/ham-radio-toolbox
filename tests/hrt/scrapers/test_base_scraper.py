@@ -21,11 +21,13 @@ class TestScraperFactory(unittest.TestCase):
             config = yaml.safe_load(file)
         self.driver = config["web_driver"]
 
-    def test_get_scraper_canada(self):
+    @patch("hrt.scrapers.base_scraper.webdriver.Chrome")
+    def test_get_scraper_canada(self, _mock_web_driver):
         scraper = ScraperFactory.get_scraper(self.driver, CountryCode.CANADA)
         self.assertIsInstance(scraper, CAScraper)
 
-    def test_get_scraper_united_states(self):
+    @patch("hrt.scrapers.base_scraper.webdriver.Chrome")
+    def test_get_scraper_united_states(self, _mock_web_driver):
         scraper = ScraperFactory.get_scraper(self.driver, CountryCode.UNITED_STATES)
         self.assertIsInstance(scraper, USScraper)
 

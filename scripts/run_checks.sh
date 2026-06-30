@@ -5,13 +5,19 @@
 
 set -e  # Exit immediately if a command exits with a non-zero status
 
+PYTHON_BIN="${PYTHON_BIN:-$(command -v python3 || command -v python)}"
+if [ -z "$PYTHON_BIN" ]; then
+    echo "Python interpreter not found. Install python3 or set PYTHON_BIN."
+    exit 1
+fi
+
 echo "Applying Ruff fixes where possible..."
-python -m ruff check --fix .
+"$PYTHON_BIN" -m ruff check --fix .
 
 echo ""
 echo "Running tests with coverage..."
 COVERAGE_FILE="coverage.json"
-python -m pytest --cov-report=html --cov-report=term --cov-report=json:$COVERAGE_FILE --cov=src/hrt tests/
+"$PYTHON_BIN" -m pytest --cov-report=html --cov-report=term --cov-report=json:$COVERAGE_FILE --cov=src/hrt tests/
 
 # Check coverage threshold
 echo ""
@@ -19,7 +25,7 @@ echo "Checking coverage threshold..."
 COVERAGE_THRESHOLD=80
 
 # Calculate coverage percentage by parsing the coverage output
-COVERAGE=$(python -c '
+COVERAGE=$("$PYTHON_BIN" -c '
 import json
 import sys
 

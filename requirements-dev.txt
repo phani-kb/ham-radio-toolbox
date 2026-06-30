@@ -3,10 +3,10 @@
 # pip install -r requirements.txt --upgrade
 
 # Development dependencies
-pytest>=9.0.3
-pytest-cov
-ruff
-mypy
-coverage
-codespell
-pylint
+pytest>=9.1.1
+pytest-cov>=7.1.0
+ruff>=0.15.20
+mypy>=2.1.0
+coverage>=7.14.3
+codespell>=2.4.2
+pylint>=4.0.6
